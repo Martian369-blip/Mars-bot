@@ -6,7 +6,7 @@ import numpy as np
 # Configure elite, mobile-responsive macro terminal layout
 st.set_page_config(page_title="MARS_BOT TERMINAL", page_icon="👽", layout="centered")
 
-st.markdown("<h1 style='text-align: center; color: #4CAF50;'>🛸 MARS_BOT V9.0</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center; color: #4CAF50;'>🛸 MARS_BOT V9.1</h1>", unsafe_allow_html=True)
 st.markdown("<h3 style='text-align: center; color: #888888;'>🪐 QUANTUM MACRO COMMAND CENTER</h3>", unsafe_allow_html=True)
 st.divider()
 
@@ -75,7 +75,6 @@ with tab1:
                 recent_low = df_h['Low'].tail(24).min()
                 recent_high = df_h['High'].tail(24).max()
                 
-                # Signal Identification Framework
                 if hourly_rsi < 35 or (price <= (recent_low * 1.005)):
                     signal, color, direction = "🚀 BUY / LONG", "green", "LONG"
                     stop_loss = price - (hourly_atr * 1.5)
@@ -90,7 +89,6 @@ with tab1:
                 c_sym = "R" if ("ZAR" in ticker or ".JO" in ticker) else "$"
                 
                 with st.container(border=True):
-                    # Fixed Layout Bug: Always pass explicit layout parameters inside brackets
                     col_left, col_right = st.columns([2, 1])
                     with col_left:
                         name = feed.info.get('shortName', ticker)
@@ -100,7 +98,6 @@ with tab1:
                     with col_right:
                         st.markdown(f"<p style='color:{color}; font-weight:bold; text-align:center; font-size:18px;'>{signal}</p>", unsafe_allow_html=True)
                     
-                    # Native Intraday Chart Integration
                     st.line_chart(df_h['Close'].tail(48))
                     
                     if direction != "HOLD":
@@ -120,8 +117,7 @@ with tab1:
 with tab2:
     st.markdown("### 📰 Global Liquidity & Sentiment Tracking")
     
-    # Live Systemic Risk Indicators Dashboard
-    col_vix, col_tnx = st.columns([1, 1])
+    col_vix, col_tnx = st.columns(2)
     try:
         vix_val = yf.Ticker("^VIX").history(period="5d")['Close'].iloc[-1]
         tnx_val = yf.Ticker("^TNX").history(period="5d")['Close'].iloc[-1]
@@ -133,7 +129,6 @@ with tab2:
     st.divider()
     st.markdown("#### ⚡ Active Financial Feed Breakdown")
     
-    # Dynamic Financial Feed Ingestion Simulation Block
     news_items = [
         {"title": "🦅 Federal Reserve Signals Measured Approach on Future Interest Rate Frameworks", "desc": "Following the conclusion of the local US voting cycles, central bank desks indicate complete data-dependence going into the December monetary policy loops."},
         {"title": "🇿🇦 South African Rand Tests Horizontal Channel Floors Amid Dollar Fluctuations", "desc": "Local emerging markets liquidity tracking shows massive institutional buy volume defending major support structures near R16.40 per Dollar."},
@@ -157,7 +152,6 @@ with tab2:
 with tab3:
     st.markdown("### 🗂️ Live Account Ledger Manager")
     
-    # Sandbox/Live Budget Baseline Tracking Configurator
     dep_budget = st.number_input("💵 Target Deposit Size (ZAR):", min_value=100, value=500, step=100)
     risk_pct = 2.0
     allowed_risk_zar = dep_budget * (risk_pct / 100.0)
@@ -167,7 +161,6 @@ with tab3:
     st.divider()
     st.markdown("#### 📝 Document Your Active Transactions")
     
-    # Real-Time Form Tracker
     with st.form("trade_entry_form"):
         t_asset = st.selectbox("Asset Name:", ["USD/ZAR Mini", "GBP/USD Mini", "Spot Gold", "US Tech 100", "Germany 40"])
         t_direction = st.selectbox("Trade Direction:", ["BUY / LONG", "SELL / SHORT"])
@@ -180,8 +173,8 @@ with tab3:
     st.divider()
     st.markdown("#### 👽 Dynamic Optimization Advisory Dispatch")
     
-    # Systemic Strategic Advice Framework Modules
-    st.info("""
-    **💡 MARS_BOT ALPHA DISCIPLINE PROTOCOLS:**
-    *   **The Sizing Multiplier Rule:** With your current **R500 salary funding budget**, standard retail deal weights are too high. To protect your allocation, your live market contracts must be strictly sized down to **0.01 micro-lots**.
+    st.info("💡 **MARS_BOT ALPHA DISCIPLINE PROTOCOLS:**\n\n"
+            "* **The Sizing Multiplier Rule:** With your current **R500 salary funding budget**, standard retail deal weights are too high. To protect your allocation, your live market contracts must be strictly sized down to **0.01 micro-lots**.\n\n"
+            "* **The Technical Breakout Anchor:** When trading highly volatile indices like the **US Tech 100**, never open market tickets near midnight SAST. Spread widening rules will clip your stops before your technical thesis can resolve.\n\n"
+
 
