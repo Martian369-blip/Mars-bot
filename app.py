@@ -6,7 +6,7 @@ import numpy as np
 # Configure elite, mobile-responsive macro terminal layout
 st.set_page_config(page_title="MARS_BOT TERMINAL", page_icon="👽", layout="centered")
 
-st.markdown("<h1 style='text-align: center; color: #4CAF50;'>🛸 MARS_BOT V9.1</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center; color: #4CAF50;'>🛸 MARS_BOT V9.2</h1>", unsafe_allow_html=True)
 st.markdown("<h3 style='text-align: center; color: #888888;'>🪐 QUANTUM MACRO COMMAND CENTER</h3>", unsafe_allow_html=True)
 st.divider()
 
@@ -89,7 +89,7 @@ with tab1:
                 c_sym = "R" if ("ZAR" in ticker or ".JO" in ticker) else "$"
                 
                 with st.container(border=True):
-                    col_left, col_right = st.columns([2, 1])
+                    col_left, col_right = st.columns([3, 2])
                     with col_left:
                         name = feed.info.get('shortName', ticker)
                         st.markdown(f"#### 📦 {name} ({ticker})")
@@ -173,8 +173,11 @@ with tab3:
     st.divider()
     st.markdown("#### 👽 Dynamic Optimization Advisory Dispatch")
     
-    st.info("💡 **MARS_BOT ALPHA DISCIPLINE PROTOCOLS:**\n\n"
-            "* **The Sizing Multiplier Rule:** With your current **R500 salary funding budget**, standard retail deal weights are too high. To protect your allocation, your live market contracts must be strictly sized down to **0.01 micro-lots**.\n\n"
-            "* **The Technical Breakout Anchor:** When trading highly volatile indices like the **US Tech 100**, never open market tickets near midnight SAST. Spread widening rules will clip your stops before your technical thesis can resolve.\n\n"
+    # Using explicit triple-quotes and strict variable closing brackets to eliminate parsing crashes
+    st.info("""
+    💡 **MARS_BOT ALPHA DISCIPLINE PROTOCOLS:**
 
+    * **The Sizing Multiplier Rule:** With your current **R500 salary funding budget**, standard retail deal weights are too high. To protect your allocation, your live market contracts must be strictly sized down to **0.01 micro-lots**.
+
+    * **The Technical Breakout Anchor:** When trading highly volatile indices like the **US Tech 100**, never open market tickets near midnight SAST. Spread widening rules will clip your stops before your technical thesis can resolve.
 
