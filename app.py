@@ -6,7 +6,7 @@ import numpy as np
 # Configure elite, mobile-responsive macro terminal layout
 st.set_page_config(page_title="MARS_BOT TERMINAL", page_icon="👽", layout="centered")
 
-st.markdown("<h1 style='text-align: center; color: #4CAF50;'>🛸 MARS_BOT V9.2</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center; color: #4CAF50;'>🛸 MARS_BOT V9.3</h1>", unsafe_allow_html=True)
 st.markdown("<h3 style='text-align: center; color: #888888;'>🪐 QUANTUM MACRO COMMAND CENTER</h3>", unsafe_allow_html=True)
 st.divider()
 
@@ -27,11 +27,11 @@ def extract_hourly_atr(df_hourly, window=14):
     atr = true_range.rolling(window).mean().iloc[-1]
     return atr if not pd.isna(atr) else df_hourly['Close'].iloc[-1] * 0.002
 
-# 🏛️ DEPLOY THE HIGH-INTELLIGENCE MULTI-PAGE MENU NAVIGATION BAR
+# DEPLOY THE HIGH-INTELLIGENCE MULTI-PAGE MENU NAVIGATION BAR
 tab1, tab2, tab3 = st.tabs(["📊 EXECUTIVE SIGNALS", "📡 GLOBAL MACRO FEED", "🕹️ MY POSITION LOG & TIPS"])
 
 # ==================================================================================
-# 📊 PAGE 1: DEEP TECHNICAL ANALYSIS & LIVE CHARTS DISPATCH
+# PAGE 1: DEEP TECHNICAL ANALYSIS & LIVE CHARTS DISPATCH
 # ==================================================================================
 with tab1:
     st.markdown("### 🎯 Live Multi-Asset Execution Hub")
@@ -89,7 +89,7 @@ with tab1:
                 c_sym = "R" if ("ZAR" in ticker or ".JO" in ticker) else "$"
                 
                 with st.container(border=True):
-                    col_left, col_right = st.columns([3, 2])
+                    col_left, col_right = st.columns(2)
                     with col_left:
                         name = feed.info.get('shortName', ticker)
                         st.markdown(f"#### 📦 {name} ({ticker})")
@@ -112,7 +112,7 @@ with tab1:
             except Exception: continue
 
 # ==================================================================================
-# 📡 PAGE 2: INTEL MACRO ECONOMICS REVIEWS & RECENT NEWS
+# PAGE 2: INTEL MACRO ECONOMICS REVIEWS & RECENT NEWS
 # ==================================================================================
 with tab2:
     st.markdown("### 📰 Global Liquidity & Sentiment Tracking")
@@ -147,7 +147,7 @@ with tab2:
     except Exception: st.error("Failed to load global market layout chart.")
 
 # ==================================================================================
-# 🕹️ PAGE 3: PORTFOLIO TRANSACTION JOURNAL & DYNAMIC ALGO TIPS
+# PAGE 3: PORTFOLIO TRANSACTION JOURNAL & DYNAMIC ALGO TIPS
 # ==================================================================================
 with tab3:
     st.markdown("### 🗂️ Live Account Ledger Manager")
@@ -173,11 +173,5 @@ with tab3:
     st.divider()
     st.markdown("#### 👽 Dynamic Optimization Advisory Dispatch")
     
-    # Using explicit triple-quotes and strict variable closing brackets to eliminate parsing crashes
-    st.info("""
-    💡 **MARS_BOT ALPHA DISCIPLINE PROTOCOLS:**
-
-    * **The Sizing Multiplier Rule:** With your current **R500 salary funding budget**, standard retail deal weights are too high. To protect your allocation, your live market contracts must be strictly sized down to **0.01 micro-lots**.
-
-    * **The Technical Breakout Anchor:** When trading highly volatile indices like the **US Tech 100**, never open market tickets near midnight SAST. Spread widening rules will clip your stops before your technical thesis can resolve.
-
+    # Fully flattened single-line strings to completely avoid triple-quote crashes
+    st.info("⚡ MARS_BOT PROTOCOLS: (1) Sizing Rule: With your current R500 budget, size your contracts to 0.01 micro-lots to keep risk safe. (2) Timing Rule: Never open index tickets near midnight SAST to prevent spread traps. (3) Scaleout Rule: When green, slice 50% out to bank cash and move your Stop Loss into profit.")
