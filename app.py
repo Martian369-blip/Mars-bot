@@ -99,7 +99,7 @@ selected_ticker = reverse_map.get(chosen_display, "USDZAR=X")
 with col_trigger:
     search_activated = st.button("🛰️ SCAN")
 
-# 📥 GLOBAL HIGH-SPEED TELEMETRY FETCH PIPELINE (RUNS AT ABSOLUTE ROOT LEVEL)
+# 📥 GLOBAL HIGH-SPEED TELEMETRY FETCH PIPELINE
 if search_activated or st.session_state.price == 16.5170 or st.session_state.cached_target_asset != selected_ticker:
     st.session_state.cached_target_asset = selected_ticker
     st.session_state.cached_display_name = chosen_display
@@ -179,9 +179,12 @@ if page_select == "📊 TERMINAL SIGNALS":
     
     st.markdown("<p style='font-size:11px; font-weight:bold; color:#90A4AE; margin-bottom:12px; font-family:monospace;'>🕯️ REAL-TIME TELEMETRY CANDLESTICK GRID ARRAY</p>", unsafe_allow_html=True)
     
+    # 🕯️ SAFE RESTRUCTURED PLOT LAYER WITH PROPER INDENTATION
     try:
         t_feed = yf.Ticker(target_asset)
         h_df = t_feed.history(period="1mo", interval="1h")
         if not h_df.empty:
             plot_df = h_df.tail(48)
             fig_sig = go.Figure()
+            fig_sig.add_trace(
+                go.Candlestick(
