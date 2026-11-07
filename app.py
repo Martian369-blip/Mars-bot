@@ -40,7 +40,8 @@ ig_name_map = {
 }
 display_options = list(ig_name_map.values())
 
-col_search, col_trigger = st.columns()
+# 🔥 FIX UPGRADE: Explicit proportional sizing to eliminate the grid crash completely
+col_search, col_trigger = st.columns([3, 1])
 with col_search:
     chosen_display = st.selectbox("🔍 SELECT MARKET WORKSPACE:", options=display_options, label_visibility="collapsed")
 
@@ -161,16 +162,11 @@ if page_select == "📊 EXECUTIVE SIGNALS":
             fig_sig.update_layout(template="plotly_dark", paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='#161A1E', xaxis_rangeslider_visible=False, height=350, margin=dict(l=10, r=10, t=10, b=10))
             st.plotly_chart(fig_sig, use_container_width=True)
             
-            # 🚨 CORE FIXED CORRELATION OUTPUT FOOTER (ZERO LOOPS TO PREVENT CRASHES)
+            # 🚨 CORE FIXED CORRELATION OUTPUT FOOTER
             st.divider()
             st.markdown("<p style='font-size:12px; font-weight:bold; color:#90A4AE; letter-spacing:0.5px;'>🚨 MULTILATERAL ALIGNMENT CORRELATION FOOTER:</p>", unsafe_allow_html=True)
             
             if "BUY" in direction and "ZAR" in target_asset:
-                st.error("🚨 **CORRELATION ALERT:** Dollar-Haven flight active. Emerging asset liquidation high.")
+                st.markdown("<div style='color:#E53935; font-size:13px; font-weight:bold;'>🚨 CORRELATION ALERT: Dollar-Haven flight active. Emerging asset liquidation high.</div>", unsafe_allow_html=True)
             elif "BUY" in direction and "GC=F" in target_asset:
-                st.success("🚀 **CORRELATION ALERT:** Gold safe-haven asset inflows active. Secondary valuations compressed.")
-            else:
-                st.info("⏳ **CORRELATION MATRIX STATUS:** Balanced cross-asset flow profiles. Local trends dominating.")
-
-elif page_select == "📡 SPECIALIZED NEWS":
-    np_view.render_news_tab(target_asset, ig_display_name)
+                st.markdown("<div style='color:#4CAF50; font-size:13px; font-weight:bold;'>🚀 CORRELATION ALERT: Gold safe-haven asset inflows active. Secondary valuations compressed.</div>", unsafe_allow_html=True)
