@@ -2,7 +2,7 @@ import streamlit as st
 import yfinance as yf
 
 def render_news_tab(target_asset, ig_display_name):
-    """Sovereign decentralized news wire feed."""
+    """Sovereign decentralized news wire feed with absolute external mapping coordinates."""
     st.markdown(f"#### Active Intel Stream: <span style='color:#4CAF50;'>{ig_display_name}</span>", unsafe_allow_html=True)
     
     try:
@@ -14,7 +14,11 @@ def render_news_tab(target_asset, ig_display_name):
             for item in news_list[:5]:
                 title = item.get("title") or item.get("content", {}).get("title")
                 publisher = item.get("publisher") or item.get("source") or "GLOBAL WIRE"
-                link = item.get("link") or item.get("url") or "#"
+                
+                # Prevent relative anchors from forcing Streamlit context refreshes
+                link = item.get("link") or item.get("url")
+                if not link or str(link).startswith("#"):
+                    link = f"https://yahoo.com{target_asset}"
                 
                 if title and str(title) != "No Title Available":
                     valid_news_found = True
@@ -33,7 +37,11 @@ def render_news_tab(target_asset, ig_display_name):
                 for item in fallback_feed[:4]:
                     title = item.get("title") or "Macro Liquidity Flow Block Shift"
                     publisher = item.get("publisher") or "MARKET WIRE"
-                    link = item.get("link") or "#"
+                    
+                    link = item.get("link") or item.get("url")
+                    if not link or str(link).startswith("#"):
+                        link = "https://yahoo.comSPY"
+                        
                     st.markdown(f"""
                         <div class='cyber-card'>
                             <h5 style='margin:0; color:#FFB300; font-family:monospace;'>📰 {str(publisher).upper()}</h5>
