@@ -2,14 +2,14 @@ import streamlit as st
 
 def load_ig_style():
     """
-    Sovereign Apex Emerald Cyber Matrix Layout Overhaul - Premium Hue Variance
-    Configured with deep space foundation hues for high-contrast element separation.
+    Sovereign Apex Emerald-Ultramarine Dark Matrix Skin
+    Enforces a rich, deep cobalt-infused dark purple canvas with glassmorphic elements.
     """
     st.markdown("""
         <style>
-            /* 🛸 MAXIMUM DEPTH SPACE HUD BACKGROUND OVERRIDES */
+            /* 🛸 1. RICH DARK ULTRAMARINE COBALT BACKDROP HUD SKIN OVERRIDES */
             html, body, [data-testid="stAppViewContainer"], [data-testid="stAppViewBlockContainer"] { 
-                background-color: #060B11 !important; /* Change this specific hex to alter the master background */
+                background-color: #0B0518 !important; 
             }
             [data-testid="stHeader"] { 
                 background: rgba(0,0,0,0) !important; 
@@ -27,12 +27,12 @@ def load_ig_style():
                 text-shadow: 0 0 10px rgba(76, 175, 80, 0.35) !important;
             }
             
-            /* 🔍 Glassmorphic Active Dropdown Menu Grid */
+            /* 🔍 Glassmorphic Deep Ultramarine Dropdown Workspace Menu */
             div[data-baseweb="select"] {
-                background-color: #0E151E !important;
-                border: 1px solid #1A2430 !important;
+                background-color: #120A26 !important;
+                border: 1px solid #1F1140 !important;
                 border-radius: 4px !important;
-                transition: all 0.3s ease-in-out;
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             }
             div[data-baseweb="select"]:focus-within {
                 border-color: #4CAF50 !important;
@@ -56,32 +56,32 @@ def load_ig_style():
                 box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4) !important;
             }
             
-            /* 📊 Cyberpunk Console Sidebar Menu Overrides */
+            /* 📊 Heavy Ultramarine Sidebar Console Overrides */
             [data-testid="stSidebar"] {
-                background-color: #03060A !important;
-                border-right: 1px solid #0E151E !important;
+                background-color: #070310 !important;
+                border-right: 1px solid #140C2B !important;
             }
             
-            /* 🕯️ Graphic Viewport Container Frames */
+            /* 🕯️ Graphic Viewport Container Frames (Cobalt Velvet Glass) */
             div.stPlotlyChart {
-                background-color: #0B1017 !important;
-                border: 1px solid #16202C !important;
+                background-color: #110924 !important;
+                border: 1px solid #1E0F3D !important;
                 border-radius: 6px !important;
                 padding: 12px !important;
-                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6) !important;
+                box-shadow: 0 10px 35px rgba(0, 0, 0, 0.65) !important;
             }
             
             /* 🚀 Premium Telemetry Matrix Data Card Block */
             .cyber-card {
-                background: #0B1017;
+                background: #110924;
                 border-left: 3px solid #4CAF50;
-                border-top: 1px solid #16202C;
-                border-right: 1px solid #16202C;
-                border-bottom: 1px solid #16202C;
+                border-top: 1px solid #1E0F3D;
+                border-right: 1px solid #1E0F3D;
+                border-bottom: 1px solid #1E0F3D;
                 border-radius: 4px;
                 padding: 18px;
                 margin-bottom: 20px;
-                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+                box-shadow: 0 10px 35px rgba(0, 0, 0, 0.55);
             }
         </style>
     """, unsafe_allow_html=True)
