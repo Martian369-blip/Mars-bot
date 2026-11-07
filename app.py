@@ -16,10 +16,8 @@ PERSISTENT_FILE = "ledger_vault.csv"
 
 def load_persistent_ledger():
     if os.path.exists(PERSISTENT_FILE):
-        try:
-            return pd.read_csv(PERSISTENT_FILE)
-        except Exception:
-            pass
+        try: return pd.read_csv(PERSISTENT_FILE)
+        except Exception: pass
     return pd.DataFrame(columns=["Timestamp", "Asset", "Action", "Price", "Matrix RSI", "Status"])
 
 def save_persistent_ledger(df):
@@ -75,10 +73,10 @@ ig_name_map = {
 display_options = list(ig_name_map.values())
 
 col_search, col_trigger = st.columns([0.75, 0.25])
-with col_search: chosen_display = st.selectbox("🔍 MARKET:", options=display_options, label_visibility="collapsed")
+chosen_display = col_search.selectbox("🔍 MARKET:", options=display_options, label_visibility="collapsed")
 reverse_map = {v: k for k, v in ig_name_map.items()}
 selected_ticker = reverse_map.get(chosen_display, "USDZAR=X")
-with col_trigger: search_activated = st.button("🛰️ SCAN")
+search_activated = col_trigger.button("🛰️ SCAN")
 
 if search_activated or st.session_state["cached_target_asset"] != selected_ticker:
     st.session_state["cached_target_asset"] = selected_ticker
@@ -112,7 +110,7 @@ page_select = st.sidebar.radio(
     key="active_navigation_sheet"
 )
 
-# Core Page Conditional Routing
+# Core Page Conditional Routing - 100% flat with zero context nesting blocks
 if "TERMINAL SIGNALS" in page_select:
     st.markdown(f"#### 📡 Telemetry Feed Workspace: <span style='color:#4CAF50;'>{st.session_state['cached_display_name']}</span>", unsafe_allow_html=True)
     st.markdown(f"""
@@ -149,14 +147,13 @@ if "TERMINAL SIGNALS" in page_select:
     """, unsafe_allow_html=True)
     t_feed = yf.Ticker(st.session_state["cached_target_asset"])
     h_df = t_feed.history(period="1mo", interval="1h")
-    if not h_df.empty:
-        st.plotly_chart(cr.generate_candlestick_chart(h_df.tail(48)), use_container_width=True)
+    if not h_df.empty: st.plotly_chart(cr.generate_candlestick_chart(h_df.tail(48)), use_container_width=True)
 
-elif "SATELLITE NEWS" in page_select: 
+elif "SATELLITE NEWS" in page_select:
     getattr(np_view, "render_news_tab")(str(st.session_state["cached_target_asset"]), str(st.session_state["cached_display_name"]))
 
 elif "LEDGER JOURNAL" in page_select:
     st.markdown(f"#### 🕹️ Institutional Ledger Core: <span style='color:#00E5FF;'>{st.session_state['cached_display_name']} Vault</span>", unsafe_allow_html=True)
+    st.markdown("<p style='font-family:monospace; color:#90A4AE; font-size:11px; margin-bottom:5px;'>🛰️ INJECT TRANSACTION VECTOR MANUAL OVERRIDE:</p>", unsafe_allow_html=True)
     
-    # FIXED: Flawless layout indentation applied to the embedded ledger forms
-    with st.form("ledger_input_form", clear_on_submit=True):
+    # BYPASS TRIGGER: Removed all 'with st.form' and 'with col' statement lines completely
