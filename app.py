@@ -16,14 +16,16 @@ PERSISTENT_FILE = "ledger_vault.csv"
 
 def load_persistent_ledger():
     if os.path.exists(PERSISTENT_FILE):
-        try: return pd.read_csv(PERSISTENT_FILE)
-        except Exception: pass
+        try:
+            return pd.read_csv(PERSISTENT_FILE)
+        except Exception:
+            pass
     return pd.DataFrame(columns=["Timestamp", "Asset", "Action", "Price", "Matrix RSI", "Status"])
 
 def save_persistent_ledger(df):
     df.to_csv(PERSISTENT_FILE, index=False)
 
-# Robust Dictionary-Style Session Initialization
+# Robust Session Matrix Memory Initializations
 if "journal_db" not in st.session_state: st.session_state["journal_db"] = load_persistent_ledger()
 if "cached_target_asset" not in st.session_state: st.session_state["cached_target_asset"] = "USDZAR=X"
 if "cached_display_name" not in st.session_state: st.session_state["cached_display_name"] = "USD/ZAR"
@@ -95,11 +97,12 @@ if search_activated or st.session_state["cached_target_asset"] != selected_ticke
                 st.session_state["direction"], st.session_state["color"] = "💥 CONVERGENT SELL", "#E53935"
             else:
                 st.session_state["direction"], st.session_state["color"] = "⏳ HOLD / STANDBY", "#757575"
-    except Exception: pass
+    except Exception:
+        pass
 
 st.sidebar.markdown("<h3 style='color:#4CAF50 !important; font-weight:900;'>☰ MAIN CORE</h3>", unsafe_allow_html=True)
 
-# EXACT ORIGINAL NAVIGATION LABELS FROM REPOSITORY RESTORED
+# Exact Core Navigation Arrays
 navigation_sheets = ["📊 TERMINAL SIGNALS", "📡 SATELLITE NEWS", "🕹️ LEDGER JOURNAL"]
 
 page_select = st.sidebar.radio(
@@ -153,6 +156,5 @@ elif page_select == "🕹️ LEDGER JOURNAL":
     st.markdown(f"#### 🕹️ Institutional Ledger Core: <span style='color:#00E5FF;'>{st.session_state['cached_display_name']} Vault</span>", unsafe_allow_html=True)
     st.markdown("<p style='font-family:monospace; color:#90A4AE; font-size:11px; margin-bottom:15px;'>🛰️ TRANSACTION LEDGER STATUS ACTIVE</p>", unsafe_allow_html=True)
     
+    # ADVANCED BYPASS PATTERN: Flattened data rendering framework with zero dangling block boundaries
     if st.session_state["journal_db"].empty:
-        st.markdown("<div style='background-color:#120A26; border:1px dashed #2A1B4E; padding:30px; border-radius:4px; text-align:center;'><span style='color:#607D8B; font-family:monospace; font-size:12px;'>🛸 NO LOGGED DATA METRICS FOUND INSIDE VAULT LEDGER.</span></div>", unsafe_allow_html=True)
-    else:
