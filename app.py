@@ -147,7 +147,6 @@ if page_select == "📊 EXECUTIVE SIGNALS":
                 increasing_line_color='#4CAF50', decreasing_line_color='#E53935',
                 increasing_fillcolor='#4CAF50', decreasing_fillcolor='#E53935'
             ))
-            # FIX UPGRADE: Changed parameter field to valid 'template' call
             fig_sig.update_layout(template="plotly_dark", paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='#161A1E', xaxis_rangeslider_visible=False, height=350, margin=dict(l=10, r=10, t=10, b=10))
             st.plotly_chart(fig_sig, use_container_width=True)
 
