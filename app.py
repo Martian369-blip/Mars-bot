@@ -7,7 +7,6 @@ import engine as eng
 import layout_config as lc
 import chart_render as cr
 import news_panel as np_view
-import journal_panel as jp_view
 
 # Initialize premium terminal view window layout
 st.set_page_config(page_title="MARS_BOT V16.0", page_icon="👽", layout="centered", initial_sidebar_state="collapsed")
@@ -23,14 +22,6 @@ def load_persistent_ledger():
 
 def save_persistent_ledger(df):
     df.to_csv(PERSISTENT_FILE, index=False)
-
-def append_ledger_record(new_df):
-    st.session_state["journal_db"] = pd.concat([st.session_state["journal_db"], new_df], axis=0, ignore_index=True)
-    save_persistent_ledger(st.session_state["journal_db"])
-
-def clear_ledger_records():
-    st.session_state["journal_db"] = pd.DataFrame(columns=["Timestamp", "Asset", "Action", "Price", "Matrix RSI", "Status"])
-    save_persistent_ledger(st.session_state["journal_db"])
 
 # Robust Dictionary-Style Session Initialization
 if "journal_db" not in st.session_state: st.session_state["journal_db"] = load_persistent_ledger()
@@ -119,7 +110,7 @@ page_select = st.sidebar.radio(
     key="active_navigation_sheet"
 )
 
-# FIXED: Single-line block structure used to bypass Python indentation quirks completely
+# Core Page Conditional Routing
 if "TERMINAL SIGNALS" in page_select:
     st.markdown(f"#### 📡 Telemetry Feed Workspace: <span style='color:#4CAF50;'>{st.session_state['cached_display_name']}</span>", unsafe_allow_html=True)
     st.markdown(f"""
@@ -159,5 +150,11 @@ if "TERMINAL SIGNALS" in page_select:
     if not h_df.empty:
         st.plotly_chart(cr.generate_candlestick_chart(h_df.tail(48)), use_container_width=True)
 
-elif "SATELLITE NEWS" in page_select: getattr(np_view, "render_news_tab")(str(st.session_state["cached_target_asset"]), str(st.session_state["cached_display_name"]))
+elif "SATELLITE NEWS" in page_select: 
+    getattr(np_view, "render_news_tab")(str(st.session_state["cached_target_asset"]), str(st.session_state["cached_display_name"]))
 
+elif "LEDGER JOURNAL" in page_select:
+    # FIXED: Embedded Journal Panel Logic Inline to eliminate cross-file import bottlenecks
+    st.markdown(f"#### 🕹️ Institutional Ledger Core: <span style='color:#00E5FF;'>{st.session_state['cached_display_name']} Vault</span>", unsafe_allow_html=True)
+    
+    with st.form("ledger_input_form", clear_on_submit=True):
