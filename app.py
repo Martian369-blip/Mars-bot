@@ -119,7 +119,7 @@ page_select = st.sidebar.radio(
     key="active_navigation_sheet"
 )
 
-# FIXED: Explicit matrix row checking indices applied to conditional branches
+# FIXED: Strict 4-space explicit block indentation applied to all branches
 if page_select == navigation_sheets[0]:
     st.markdown(f"#### 📡 Telemetry Feed Workspace: <span style='color:#4CAF50;'>{st.session_state['cached_display_name']}</span>", unsafe_allow_html=True)
     st.markdown(f"""
@@ -163,3 +163,5 @@ if page_select == navigation_sheets[0]:
         st.plotly_chart(fig_sig, use_container_width=True)
 
 elif page_select == navigation_sheets[1]:
+    getattr(np_view, "render_news_tab")(str(st.session_state["cached_target_asset"]), str(st.session_state["cached_display_name"]))
+
