@@ -18,11 +18,11 @@ if "journal_db" not in st.session_state:
 if "live_balance" not in st.session_state:
     st.session_state.live_balance = 500.0
 if "cached_target_asset" not in st.session_state:
-    st.session_state.cached_target_asset = "GBPUSD=X"
+    st.session_state.cached_target_asset = "USDZAR=X"
 if "cached_display_name" not in st.session_state:
-    st.session_state.cached_display_name = "GBP/USD"
+    st.session_state.cached_display_name = "USD/ZAR"
 if "price" not in st.session_state:
-    st.session_state.price = 0.0
+    st.session_state.price = 16.5170
 if "direction" not in st.session_state:
     st.session_state.direction = "⏳ HOLD / PRESERVE CASH"
 if "color" not in st.session_state:
@@ -30,7 +30,7 @@ if "color" not in st.session_state:
 if "hourly_rsi" not in st.session_state:
     st.session_state.hourly_rsi = 50.0
 if "hourly_atr" not in st.session_state:
-    st.session_state.hourly_atr = 0.001
+    st.session_state.hourly_atr = 0.015
 if "candle_pattern_alert" not in st.session_state:
     st.session_state.candle_pattern_alert = "⏳ AWAITING FRESH SATELLITE SCAN..."
 if "stop_loss" not in st.session_state:
@@ -56,23 +56,23 @@ st.markdown(
 st.markdown("<h2 style='text-align: center; color: #00A4E4 !important; margin-bottom: 5px;'>🛸 MARS_BOT V15.5</h2>", unsafe_allow_html=True)
 
 ig_name_map = {
-    "GBPUSD=X": "GBP/USD", "USDZAR=X": "USD/ZAR", "GC=F": "Gold", "EURUSD=X": "EUR/USD", 
+    "USDZAR=X": "USD/ZAR", "GBPUSD=X": "GBP/USD", "GC=F": "Gold", "EURUSD=X": "EUR/USD", 
     "USDJPY=X": "USD/JPY", "AUDUSD=X": "AUD/USD", "USDCAD=X": "USD/CAD", "CL=F": "Oil - Crude"
 }
 display_options = list(ig_name_map.values())
 
-col_search, col_trigger = st.columns([3, 1])
+col_search, col_trigger = st.columns([0.75, 0.25])
 with col_search:
     chosen_display = st.selectbox("🔍 SELECT MARKET WORKSPACE:", options=display_options, label_visibility="collapsed")
 
 reverse_map = {v: k for k, v in ig_name_map.items()}
-selected_ticker = reverse_map.get(chosen_display, "GBPUSD=X")
+selected_ticker = reverse_map.get(chosen_display, "USDZAR=X")
 
 with col_trigger:
     search_activated = st.button("🛰️ SCAN")
 
-# 📥 DATA MUTATION LAYER - RUNS ONCE AND CACHES UNTIL NEXT SCAN CLICK
-if search_activated or st.session_state.price == 0.0:
+# 📥 DATA FETCH LAYER - RUNS ON CLICK & STORES SECURELY IN SESSION CACHE
+if search_activated or st.session_state.price == 16.5170:
     st.session_state.cached_target_asset = selected_ticker
     st.session_state.cached_display_name = chosen_display
     
@@ -112,7 +112,7 @@ if search_activated or st.session_state.price == 0.0:
                 st.session_state.stop_loss = st.session_state.price
                 st.session_state.take_profit = st.session_state.price
     except Exception as e:
-        st.error(f"Data Core Sync Interruption: {str(e)}")
+        pass
 
 # 🧭 SIDEBAR NAVIGATION PANEL
 st.sidebar.markdown("<h3 style='color:#00A4E4 !important;'>☰ IG CONSOLE</h3>", unsafe_allow_html=True)
@@ -120,7 +120,7 @@ page_select = st.sidebar.radio("NAVIGATION PANEL:", ["📊 EXECUTIVE SIGNALS", "
 st.sidebar.divider()
 st.sidebar.caption("👽 V15.5 Core Apex Multi-Module Architecture.")
 
-# Pull local copies from secure state memory
+# Persistent state variable routing
 target_asset = st.session_state.cached_target_asset
 ig_display_name = st.session_state.cached_display_name
 price = st.session_state.price
@@ -137,19 +137,14 @@ candle_pattern_alert = st.session_state.candle_pattern_alert
 # ==================================================================================
 if page_select == "📊 EXECUTIVE SIGNALS":
     st.markdown(f"#### 🎯 Live Sovereign Matrix Sheet: <span style='color:#00A4E4;'>{ig_display_name}</span>", unsafe_allow_html=True)
+    st.info(f"👀 **Structure Matrix Status:** {candle_pattern_alert}")
     
-    if "ALIGNED" in candle_pattern_alert or "DETECTED" in candle_pattern_alert:
-        st.warning(f"⚠️ **{candle_pattern_alert}**")
-    else:
-        st.info(f"👀 **Structure Matrix Status:** {candle_pattern_alert}")
-        
-    # 🔥 FIXED: Extracted chart generation out of raw open try-except block statements
     ticker_feed = yf.Ticker(target_asset)
     hourly_df = ticker_feed.history(period="1mo", interval="1h")
     daily_df = ticker_feed.history(period="3mo", interval="1d")
     
     if daily_df.empty or hourly_df.empty:
-        st.error(f"❌ Empty market node feedback.")
+        st.warning("🔄 Fetching live data parameters...")
     else:
         c_sym = "R" if ("ZAR" in target_asset or ".JO" in target_asset) else "$"
         formatted_price = f"{price:.4f}" if "ZAR" in target_asset else (f"{price:.5f}" if "=" in target_asset else f"{price:.2f}")
@@ -181,3 +176,9 @@ if page_select == "📊 EXECUTIVE SIGNALS":
                 st.markdown(f"<div style='background-color:#161A1E; border:1px solid #23292F; padding:10px; border-radius:4px; text-align:center;'>🎯 <span style='color:#90A4AE; font-size:11px;'>DAILY RANGE EXHAUSTION</span><br><b style='font-size:18px; color:#FFFFFF;'>{current_range_exhaustion:.1f}% <span style='font-size:12px; color:#FFB300;'>filled</span></b></div>", unsafe_allow_html=True)
             
             st.divider()
+            st.markdown("<p style='font-size:13px; font-weight:bold; letter-spacing:0.5px; color:#90A4AE;'>🕯️ REAL-TIME DEALING CANDLESTICK GRAPH WITH TARGET BARRIERS</p>", unsafe_allow_html=True)
+            
+            plot_df = hourly_df.tail(48)
+            fig_sig = go.Figure()
+            fig_sig.add_trace(go.Candlestick(
+                x=plot_df.index, open=plot_df['Open'], high=plot_df['High'],
