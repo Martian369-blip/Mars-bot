@@ -31,7 +31,7 @@ if "live_balance" not in st.session_state:
     st.session_state.live_balance = 500.0
 
 # ==================================================================================
-# 🕹️ PERSISTENT TOP-CENTERED IG-STYLE SEARCH BAR HUB (RUNS GLOBAL)
+# 🕹️ PERSISTENT TOP-CENTERED SEARCH HUB
 # ==================================================================================
 st.markdown("<h2 style='text-align: center; color: #00A4E4 !important; margin-bottom: 5px;'>🛸 MARS_BOT V12.6</h2>", unsafe_allow_html=True)
 
@@ -46,7 +46,6 @@ ig_name_map = {
     "USDZAR=X": "USD/ZAR", "GBPZAR=X": "GBP/ZAR", "GC=F": "Gold", "CL=F": "Oil - US Crude"
 }
 
-# Reverse mapper so searching "Gold" or "USD/ZAR" sets the correct yfinance ticker handle behind the scenes
 reverse_map = {v.upper(): k for k, v in ig_name_map.items()}
 target_asset = reverse_map.get(user_input, user_input)
 ig_display_name = ig_name_map.get(target_asset, target_asset)
@@ -54,7 +53,7 @@ ig_display_name = ig_name_map.get(target_asset, target_asset)
 with col_trigger:
     search_activated = st.button("🛰️ SCAN")
 
-# LEFT-SIDE THREE-BAR HAMBURGER MENU NAVIGATION DRAWER
+# LEFT-SIDE THREE-BAR HAMBURGER NAVIGATION DRAWER
 st.sidebar.markdown("<h3 style='color:#00A4E4 !important;'>☰ IG CONSOLE</h3>", unsafe_allow_html=True)
 page_select = st.sidebar.radio(
     "NAVIGATION PANEL:",
@@ -154,3 +153,8 @@ if page_select == "📊 EXECUTIVE SIGNALS":
 # 📡 NAVIGATION ROW 2: LIVE SPECIALIZED WIRE STREAM NEWS DESK
 # ==================================================================================
 elif page_select == "📡 SPECIALIZED NEWS":
+    st.markdown(f"#### 📰 Market Intelligence Wire Stream: <span style='color:#00A4E4;'>{ig_display_name}</span>", unsafe_allow_html=True)
+    st.divider()
+    
+    live_news = eng.fetch_specialized_news(target_asset)
+    if not live_news:
