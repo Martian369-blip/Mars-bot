@@ -146,7 +146,6 @@ if page_select == "📊 TERMINAL SIGNALS":
         </div>
     """, unsafe_allow_html=True)
     
-    # ⚡ NEW INTEGRATED HIGH-VISIBILITY CHART STATUS AND LABELS PANEL BANNER
     st.markdown(f"""
         <div style='display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-family: monospace;'>
             <span style='font-size: 11px; font-weight: bold; color: #90A4AE;'>🕯️ REAL-TIME TELEMETRY CANDLESTICK GRID ARRAY</span>
