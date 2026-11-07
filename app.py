@@ -5,8 +5,8 @@ import numpy as np
 import plotly.graph_objects as go
 import engine as eng  # 🛰️ Link directly into your custom computation file module
 
-# 🏛️ 1. CYBERPUNK TERMINAL SKINNING ENGINE
-st.set_page_config(page_title="MARS_BOT V12.5", page_icon="👽", layout="centered", initial_sidebar_state="collapsed")
+# 🏛️ 1. CYBERPUNK TERMINAL SKINNING ENGINE (UPDATED TO PREMIUM IG TRADING LIGHT-BLACK COMPLEX)
+st.set_page_config(page_title="MARS_BOT V12.6", page_icon="👽", layout="centered", initial_sidebar_state="collapsed")
 
 st.markdown("""
 <style>
@@ -31,13 +31,26 @@ if "live_balance" not in st.session_state:
     st.session_state.live_balance = 500.0
 
 # ==================================================================================
-# 🕹️ PERSISTENT TOP-CENTERED IG-STYLE SEARCH BAR HUB
+# 🕹️ PERSISTENT TOP-CENTERED IG-STYLE SEARCH BAR HUB (RUNS GLOBAL)
 # ==================================================================================
-st.markdown("<h2 style='text-align: center; color: #00A4E4 !important; margin-bottom: 5px;'>🛸 MARS_BOT V12.5</h2>", unsafe_allow_html=True)
+st.markdown("<h2 style='text-align: center; color: #00A4E4 !important; margin-bottom: 5px;'>🛸 MARS_BOT V12.6</h2>", unsafe_allow_html=True)
 
 col_search, col_trigger = st.columns([5, 1])
 with col_search:
-    target_asset = st.text_input("🔍 SEARCH ASSET SYMBOL:", value="GBPUSD=X", label_visibility="collapsed").strip().upper()
+    user_input = st.text_input("🔍 SEARCH ASSET SYMBOL:", value="GBPUSD=X", label_visibility="collapsed").strip().upper()
+
+# 🏛️ IG DISPLAY TRANSLATOR & BI-DIRECTIONAL ROUTER MAP
+ig_name_map = {
+    "EURUSD=X": "EUR/USD", "USDJPY=X": "USD/JPY", "AUDUSD=X": "AUD/USD", "GBPUSD=X": "GBP/USD",
+    "EURJPY=X": "EUR/JPY", "USDCAD=X": "USD/CAD", "USDCHF=X": "USD/CHF", "EURGBP=X": "EUR/GBP",
+    "USDZAR=X": "USD/ZAR", "GBPZAR=X": "GBP/ZAR", "GC=F": "Gold", "CL=F": "Oil - US Crude"
+}
+
+# Reverse mapper so searching "Gold" or "USD/ZAR" sets the correct yfinance ticker handle behind the scenes
+reverse_map = {v.upper(): k for k, v in ig_name_map.items()}
+target_asset = reverse_map.get(user_input, user_input)
+ig_display_name = ig_name_map.get(target_asset, target_asset)
+
 with col_trigger:
     search_activated = st.button("🛰️ SCAN")
 
@@ -48,46 +61,7 @@ page_select = st.sidebar.radio(
     ["📊 EXECUTIVE SIGNALS", "📡 SPECIALIZED NEWS", "🕹️ WORKSPACE JOURNAL"]
 )
 st.sidebar.divider()
-st.sidebar.caption("👽 Active IG Core. Click top-left arrow on mobile layout to open/close menu drawers.")
-
-# 🏛️ IG OFFICIAL PLATFORM VISUAL DISPLAY TRANSLATOR DICTIONARY
-ig_name_map = {
-    # MAJOR FX
-    "EURUSD=X": "EUR/USD",
-    "USDJPY=X": "USD/JPY",
-    "AUDUSD=X": "AUD/USD",
-    "GBPUSD=X": "GBP/USD",
-    "EURJPY=X": "EUR/JPY",
-    "USDCAD=X": "USD/CAD",
-    "USDCHF=X": "USD/CHF",
-    "EURGBP=X": "EUR/GBP",
-    "EURCHF=X": "EUR/CHF",
-    "GBPEUR=X": "GBP/EUR",
-    # MINOR FX
-    "GBPJPY=X": "GBPJPY",
-    "CADJPY=X": "CAD/JPY",
-    "USDZAR=X": "USD/ZAR",
-    "EURCAD=X": "EUR/CAD",
-    "GBPZAR=X": "GBP/ZAR",
-    "GBPCAD=X": "GBP/CAD",
-    "CHFJPY=X": "CHF/JPY",
-    "GBPCHF=X": "GBP/CHF",
-    "USDSGD=X": "USD/SGD",
-    "CADCHF=X": "CAD/CHF",
-    # COMMODITIES
-    "CL=F": "Oil - US Crude",
-    "BZ=F": "Oil - Brent Crude",
-    "NG=F": "Natural Gas",
-    "RB=F": "Gasoline",
-    "GC=F": "Gold",
-    "SI=F": "Silver",
-    "PL=F": "Platinum",
-    "PA=F": "Palladium",
-    "HG=F": "High Grade Copper"
-}
-
-# Apply naming check or fallback safely to database text
-ig_display_name = ig_name_map.get(target_asset, target_asset)
+st.sidebar.caption("👽 Active IG Core Framework Panel Hub.")
 
 # 🏛️ GLOBAL VARIABLE INITIALIZATION
 price, daily_rsi, hourly_rsi, hourly_atr, direction, color, stop_loss, take_profit = 0.0, 50.0, 50.0, 0.001, "HOLD", "#E53935", 0.0, 0.0
@@ -165,6 +139,7 @@ if page_select == "📊 EXECUTIVE SIGNALS":
             
             st.divider()
             st.markdown("<p style='font-size:13px; font-weight:bold; letter-spacing:0.5px; color:#90A4AE;'>🕯️ REAL-TIME DEALING CANDLESTICK GRAPH</p>", unsafe_allow_html=True)
+            
             fig_sig = go.Figure()
             fig_sig.add_trace(go.Candlestick(
                 x=hourly_df.tail(48).index, open=hourly_df.tail(48)['Open'], high=hourly_df.tail(48)['High'],
@@ -172,6 +147,11 @@ if page_select == "📊 EXECUTIVE SIGNALS":
                 increasing_line_color='#4CAF50', decreasing_line_color='#E53935',
                 increasing_fillcolor='#4CAF50', decreasing_fillcolor='#E53935'
             ))
-            fig_sig.update_layout(theme="dark", paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='#161A1E', xaxis_rangeslider_visible=False, height=350, margin=dict(l=10, r=10, t=10, b=10))
+            # FIX UPGRADE: Changed parameter field to valid 'template' call
+            fig_sig.update_layout(template="plotly_dark", paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='#161A1E', xaxis_rangeslider_visible=False, height=350, margin=dict(l=10, r=10, t=10, b=10))
             st.plotly_chart(fig_sig, use_container_width=True)
 
+# ==================================================================================
+# 📡 NAVIGATION ROW 2: LIVE SPECIALIZED WIRE STREAM NEWS DESK
+# ==================================================================================
+elif page_select == "📡 SPECIALIZED NEWS":
