@@ -12,7 +12,7 @@ import layout_config as lc
 st.set_page_config(page_title="MARS_BOT V15.5", page_icon="👽", layout="centered", initial_sidebar_state="collapsed")
 lc.load_ig_style()
 
-# 🛸 1. INITIALIZE MASTER GLOBAL SESSION CORES TO PREVENT DATA VANISHING
+# 🛸 INITIALIZE MASTER GLOBAL SESSION CORES TO PREVENT DATA VANISHING
 if "journal_db" not in st.session_state:
     st.session_state.journal_db = pd.DataFrame(columns=["Asset", "Action", "Cash In (R)", "Cash Out (R)", "Net P&L (ZAR)", "Entry Price", "Win/Loss %", "Status"])
 if "live_balance" not in st.session_state:
@@ -120,7 +120,7 @@ page_select = st.sidebar.radio("NAVIGATION PANEL:", ["📊 EXECUTIVE SIGNALS", "
 st.sidebar.divider()
 st.sidebar.caption("👽 V15.5 Core Apex Multi-Module Architecture.")
 
-# Pull local copies from secure state memory for presentation
+# Pull local copies from secure state memory
 target_asset = st.session_state.cached_target_asset
 ig_display_name = st.session_state.cached_display_name
 price = st.session_state.price
@@ -180,4 +180,3 @@ if page_select == "📊 EXECUTIVE SIGNALS":
             st.divider()
             st.markdown("<p style='font-size:13px; font-weight:bold; letter-spacing:0.5px; color:#90A4AE;'>🕯️ REAL-TIME DEALING CANDLESTICK GRAPH WITH TARGET BARRIERS</p>", unsafe_allow_html=True)
             
-            if not hourly_df.empty:
