@@ -179,10 +179,10 @@ if page_select == "📊 TERMINAL SIGNALS":
     
     st.markdown("<p style='font-size:11px; font-weight:bold; color:#90A4AE; margin-bottom:12px; font-family:monospace;'>🕯️ REAL-TIME TELEMETRY CANDLESTICK GRID ARRAY</p>", unsafe_allow_html=True)
     
-    # 🕯️ DELEGATED TO AUTONOMOUS RENDERING PIPELINE ENGINE
-    try:
-        t_feed = yf.Ticker(target_asset)
-        h_df = t_feed.history(period="1mo", interval="1h")
-        if not h_df.empty:
-            plot_df = h_df.tail(48)
-            fig_sig = cr.generate_candlestick_chart(plot_df)
+    # 🕯️ DIRECT UNWRAPPED CALL TO AUTONOMOUS RENDERING PIPELINE ENGINE
+    t_feed = yf.Ticker(target_asset)
+    h_df = t_feed.history(period="1mo", interval="1h")
+    if not h_df.empty:
+        plot_df = h_df.tail(48)
+        fig_sig = cr.generate_candlestick_chart(plot_df)
+        st.plotly_chart(fig_sig, use_container_width=True)
