@@ -143,11 +143,14 @@ if page_select == "📊 EXECUTIVE SIGNALS":
     else:
         st.info(f"👀 **Structure Matrix Status:** {candle_pattern_alert}")
         
-    try:
-        ticker_feed = yf.Ticker(target_asset)
-        hourly_df = ticker_feed.history(period="1mo", interval="1h")
-        daily_df = ticker_feed.history(period="3mo", interval="1d")
-        
+    # 🔥 FIXED: Extracted chart generation out of raw open try-except block statements
+    ticker_feed = yf.Ticker(target_asset)
+    hourly_df = ticker_feed.history(period="1mo", interval="1h")
+    daily_df = ticker_feed.history(period="3mo", interval="1d")
+    
+    if daily_df.empty or hourly_df.empty:
+        st.error(f"❌ Empty market node feedback.")
+    else:
         c_sym = "R" if ("ZAR" in target_asset or ".JO" in target_asset) else "$"
         formatted_price = f"{price:.4f}" if "ZAR" in target_asset else (f"{price:.5f}" if "=" in target_asset else f"{price:.2f}")
         
@@ -167,8 +170,8 @@ if page_select == "📊 EXECUTIVE SIGNALS":
             pip_multiplier = 10000 if ("=" in target_asset and "ZAR" not in target_asset) else 1
             atr_pips = hourly_atr * pip_multiplier
             
-            day_high = daily_df['High'].iloc[-1] if not daily_df.empty else price * 1.01
-            day_low = daily_df['Low'].iloc[-1] if not daily_df.empty else price * 0.99
+            day_high = daily_df['High'].iloc[-1]
+            day_low = daily_df['Low'].iloc[-1]
             total_range = day_high - day_low
             current_range_exhaustion = ((price - day_low) / total_range * 100) if total_range > 0 else 50.0
             
@@ -178,5 +181,3 @@ if page_select == "📊 EXECUTIVE SIGNALS":
                 st.markdown(f"<div style='background-color:#161A1E; border:1px solid #23292F; padding:10px; border-radius:4px; text-align:center;'>🎯 <span style='color:#90A4AE; font-size:11px;'>DAILY RANGE EXHAUSTION</span><br><b style='font-size:18px; color:#FFFFFF;'>{current_range_exhaustion:.1f}% <span style='font-size:12px; color:#FFB300;'>filled</span></b></div>", unsafe_allow_html=True)
             
             st.divider()
-            st.markdown("<p style='font-size:13px; font-weight:bold; letter-spacing:0.5px; color:#90A4AE;'>🕯️ REAL-TIME DEALING CANDLESTICK GRAPH WITH TARGET BARRIERS</p>", unsafe_allow_html=True)
-            
