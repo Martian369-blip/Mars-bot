@@ -119,7 +119,7 @@ page_select = st.sidebar.radio(
     key="active_navigation_sheet"
 )
 
-# FIXED: Strict 4-space explicit block indentation applied to all branches
+# Strict element index extraction matching criteria
 if page_select == navigation_sheets[0]:
     st.markdown(f"#### 📡 Telemetry Feed Workspace: <span style='color:#4CAF50;'>{st.session_state['cached_display_name']}</span>", unsafe_allow_html=True)
     st.markdown(f"""
