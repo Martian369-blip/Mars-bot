@@ -2,10 +2,10 @@ import streamlit as st
 import yfinance as yf
 import pandas as pd
 import numpy as np
-import plotly.graph_objects as go
 import datetime
 import os
 import engine as eng
+import chart_render as cr
 import news_panel as np_view
 import journal_panel as jp_view
 import layout_config as lc
@@ -179,12 +179,10 @@ if page_select == "📊 TERMINAL SIGNALS":
     
     st.markdown("<p style='font-size:11px; font-weight:bold; color:#90A4AE; margin-bottom:12px; font-family:monospace;'>🕯️ REAL-TIME TELEMETRY CANDLESTICK GRID ARRAY</p>", unsafe_allow_html=True)
     
-    # 🕯️ SAFE RESTRUCTURED PLOT LAYER WITH PROPER INDENTATION
+    # 🕯️ DELEGATED TO AUTONOMOUS RENDERING PIPELINE ENGINE
     try:
         t_feed = yf.Ticker(target_asset)
         h_df = t_feed.history(period="1mo", interval="1h")
         if not h_df.empty:
             plot_df = h_df.tail(48)
-            fig_sig = go.Figure()
-            fig_sig.add_trace(
-                go.Candlestick(
+            fig_sig = cr.generate_candlestick_chart(plot_df)
