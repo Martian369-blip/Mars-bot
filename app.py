@@ -5,21 +5,21 @@ import numpy as np
 import plotly.graph_objects as go
 import engine as eng
 import news_panel as np_view
-import layout_config as lc  # 🎛️ Link directly into your new styling file module
+import journal_panel as jp_view  # 🕹️ Import your premium automated cash ledger file
+import layout_config as lc
 
-# 🏛️ 1. SETUP TERMINAL AND LOAD ISOLATED INTERFACE SKIN
 st.set_page_config(page_title="MARS_BOT V12.6", page_icon="👽", layout="centered", initial_sidebar_state="collapsed")
 lc.load_ig_style()
 
+# Automated initialization using the updated structured keys
 if "journal_db" not in st.session_state:
-    st.session_state.journal_db = pd.DataFrame(columns=["Asset", "Action", "Size", "Entry Price", "Profit/Loss (ZAR)", "Status"])
+    st.session_state.journal_db = pd.DataFrame(columns=["Asset", "Action", "Cash In (R)", "Cash Out (R)", "Net P&L (ZAR)", "Entry Price", "Win/Loss %", "Status"])
 if "live_balance" not in st.session_state:
     st.session_state.live_balance = 500.0
 
 st.markdown("<h2 style='text-align: center; color: #00A4E4 !important; margin-bottom: 5px;'>🛸 MARS_BOT V12.6</h2>", unsafe_allow_html=True)
 
-# 🔥 FIX UPGRADE: Added proportional layouts [5, 1] into columns to resolve calculation constraints
-col_search, col_trigger = st.columns([5, 1])
+col_search, col_trigger = st.columns([4, 1])
 with col_search:
     user_input = st.text_input("🔍 SEARCH ASSET SYMBOL:", value="GBPUSD=X", label_visibility="collapsed").strip().upper()
 
@@ -45,8 +45,7 @@ st.sidebar.divider()
 st.sidebar.caption("👽 Active IG Core Multi-Module Mesh Protocol.")
 
 price, daily_rsi, hourly_rsi, hourly_atr, direction, color, stop_loss, take_profit = 0.0, 50.0, 50.0, 0.001, "HOLD", "#E53935", 0.0, 0.0
-daily_df = pd.DataFrame()
-hourly_df = pd.DataFrame()
+daily_df, hourly_df = pd.DataFrame(), pd.DataFrame()
 
 try:
     ticker_feed = yf.Ticker(target_asset)
@@ -74,6 +73,11 @@ try:
         else:
             direction, color = "⏳ HOLD / PRESERVE CASH", "#FFB300"
             stop_loss, take_profit = price, price
+            
+        # Push variables to state memory so news modules can reference them instantly
+        st.session_state['hourly_rsi'] = hourly_rsi
+        st.session_state['current_price'] = price
+        st.session_state['current_direction'] = direction
 except Exception as e:
     st.sidebar.error(f"Telemetry Core Sync Warning: {str(e)}")
 
@@ -122,35 +126,4 @@ elif page_select == "📡 SPECIALIZED NEWS":
     np_view.render_news_tab(target_asset, ig_display_name)
 
 elif page_select == "🕹️ WORKSPACE JOURNAL":
-    st.markdown("#### 🕹️ Quantitative Operations Console & Analytics")
-    st.divider()
-    st.markdown(f"##### 🇯🇵 Live Ichimoku Cloud Dealing Matrix: <span style='color:#00A4E4;'>{ig_display_name}</span>", unsafe_allow_html=True)
-    if hourly_df.empty:
-        st.error("❌ Node memory link un-established. Scan a valid symbol to display charts.")
-    else:
-        chart_df = eng.compute_ichimoku(hourly_df.tail(60))
-        fig = go.Figure()
-        fig.add_trace(go.Candlestick(
-            x=chart_df.index, open=chart_df['Open'], high=chart_df['High'],
-            low=chart_df['Low'], close=chart_df['Close'], name="Candles",
-            increasing_line_color='#4CAF50', decreasing_line_color='#E53935'
-        ))
-        fig.add_trace(go.Scatter(x=chart_df.index, y=chart_df['tenkan_sen'], line=dict(color='#00FFFF', width=1.2), name="Tenkan"))
-        fig.add_trace(go.Scatter(x=chart_df.index, y=chart_df['kijun_sen'], line=dict(color='#FF00FF', width=1.2), name="Kijun"))
-        fig.add_trace(go.Scatter(x=chart_df.index, y=chart_df['senkou_span_a'], line=dict(color='rgba(76,175,80,0.4)', width=1, dash='dot'), name="Cloud A"))
-        fig.add_trace(go.Scatter(x=chart_df.index, y=chart_df['senkou_span_b'], line=dict(color='rgba(229,57,53,0.4)', width=1, dash='dot'), name="Cloud B"))
-        fig.update_layout(template="plotly_dark", paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='#161A1E', xaxis_rangeslider_visible=False, height=380, margin=dict(l=10, r=10, t=10, b=10))
-        st.plotly_chart(fig, use_container_width=True)
-    st.divider()
-    st.markdown("##### 🧾 Active Ledger & Cashflow Calculator Book")
-    col_b1, col_b2, col_b3 = st.columns(3)
-    with col_b1: st.metric("💵 Capital Funds (ZAR)", f"R{st.session_state.live_balance:.2f}")
-    with col_b2: st.metric("🛡️ Strict 2% Position Limit", f"R{(st.session_state.live_balance * 0.02):.2f}")
-    with col_b3: st.metric("🛸 Next Funding Milestone Target", "R1000.00", f"{((st.session_state.live_balance / 1000.0) * 100):.1f}%")
-    st.divider()
-    st.markdown("<p style='font-size:12px; font-weight:bold; color:#90A4AE;'>📝 DISPATCH RECENT COMPLETED CONTRACT FLOOR TRANSACTION:</p>", unsafe_allow_html=True)
-    with st.form("ledger_input_form"):
-        col_f1, col_f2 = st.columns(2)
-        with col_f1:
-            form_asset = st.text_input("Asset Row:", value=ig_display_name)
-            form_dir = st.selectbox("Execution Vector:", ["LONG BUY", "SHORT SELL"])
+    jp_view.render_journal_tab(target_asset, ig_display_name, price)
