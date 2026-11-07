@@ -8,7 +8,7 @@ import engine as eng  # Reusing your core terminal math engine
 # ==========================================
 # 🔐 AUTHENTICATED TELEGRAM COCKPIT CHANNELS
 # ==========================================
-TELEGRAM_BOT_TOKEN = "7334795790:AAFFw9K5KofA0eX3781m_X6g-Zk4wM9_qmo"
+TELEGRAM_BOT_TOKEN = "9138312977:AAGQjBmhseLx53_09YDJP97vnXcCxeasUeg"
 TELEGRAM_CHAT_ID = "-4516766467"
 
 # Watchlist array scanning space
