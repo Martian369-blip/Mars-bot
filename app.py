@@ -140,3 +140,8 @@ elif page_select == "📡 SPECIALIZED NEWS":
 
 elif page_select == "🕹️ WORKSPACE JOURNAL":
     jp_view.render_journal_tab(target_asset, ig_display_name, price)
+elif page_select == "📡 SPECIALIZED NEWS":
+    np_view.render_news_tab(target_asset, ig_display_name)
+    
+    # ➕ ADD THIS SINGLE LINE RIGHT HERE TO LINK THE TRACKER:
+    import macro_tracker; macro_tracker.render_macro_schedule_panel()
