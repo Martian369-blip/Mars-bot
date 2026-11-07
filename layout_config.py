@@ -7,9 +7,9 @@ def load_ig_style():
     """
     st.markdown("""
         <style>
-            /* 🛸 1. RICH DARK ULTRAMARINE COBALT BACKDROP HUD SKIN OVERRIDES */
+            /* 🛸 1. MAXIMUM DEPTH ULTRA-DARK ULTRAMARINE CANVAS OVERRIDES */
             html, body, [data-testid="stAppViewContainer"], [data-testid="stAppViewBlockContainer"] { 
-                background-color: #0B0518 !important; 
+                background-color: #0A0516 !important; 
             }
             [data-testid="stHeader"] { 
                 background: rgba(0,0,0,0) !important; 
@@ -32,7 +32,7 @@ def load_ig_style():
                 background-color: #120A26 !important;
                 border: 1px solid #1F1140 !important;
                 border-radius: 4px !important;
-                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                transition: all 0.3s ease-in-out;
             }
             div[data-baseweb="select"]:focus-within {
                 border-color: #4CAF50 !important;
@@ -54,17 +54,8 @@ def load_ig_style():
             
             /* 📊 Heavy Ultramarine Sidebar Console Overrides */
             [data-testid="stSidebar"] {
-                background-color: #070310 !important;
+                background-color: #06030F !important;
                 border-right: 1px solid #140C2B !important;
-            }
-            
-            /* 🕯️ Graphic Viewport Container Frames (Cobalt Velvet Glass) */
-            div.stPlotlyChart {
-                background-color: #110924 !important;
-                border: 1px solid #1E0F3D !important;
-                border-radius: 6px !important;
-                padding: 12px !important;
-                box-shadow: 0 10px 35px rgba(0, 0, 0, 0.65) !important;
             }
             
             /* 🚀 Premium Telemetry Matrix Data Card Block */
