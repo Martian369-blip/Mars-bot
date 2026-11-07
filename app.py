@@ -3,59 +3,14 @@ import yfinance as yf
 import pandas as pd
 import datetime
 import os
+import engine as eng
+import layout_config as lc
+import chart_render as cr
+import news_panel as np_view
 
 # Initialize premium terminal view window layout
 st.set_page_config(page_title="MARS_BOT V16.0", page_icon="👽", layout="centered", initial_sidebar_state="collapsed")
-
-# 🛰️ SAFE BACKUP IMPORT AND EXECUTION FAULT MATRIX LAYER
-try:
-    import engine as eng
-except Exception as e:
-    class MockEngine:
-        def calculate_rsi(self, df): return pd.Series([50.0] * len(df)) if not df.empty else pd.Series([50.0])
-    eng = MockEngine()
-
-try:
-    import layout_config as lc
-    lc.load_ig_style()
-except Exception:
-    pass
-
-try:
-    import chart_render as cr
-except Exception:
-    cr = None
-
-# 🛸 MAXIMUM CYBERPUNK THEME MATRIX HARDCODED RESCUE LAYER
-st.markdown("""
-    <style>
-        .stApp { background-color: #0B0416 !important; }
-        div[data-baseweb="select"], div[data-testid="stNumberInput"], .stButton button {
-            background-color: #120A26 !important;
-            border: 1px solid #2A1B4E !important;
-            color: #FFFFFF !important;
-            min-height: 42px !important;
-        }
-        div[data-testid="stDataFrame"], div[data-testid="stDataEditor"] {
-            background-color: #120A26 !important;
-            border: 1px solid #1F1140 !important;
-            border-radius: 4px;
-            padding: 10px;
-        }
-        label, p, span, h4 {
-            color: #90A4AE !important;
-            font-family: monospace !important;
-        }
-        .cyber-card {
-            background-color: #120A26;
-            border: 1px solid #2A1B4E;
-            padding: 20px;
-            border-radius: 6px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-        }
-    </style>
-""", unsafe_allow_html=True)
+lc.load_ig_style()
 
 PERSISTENT_FILE = "ledger_vault.csv"
 
@@ -133,13 +88,9 @@ if search_activated or st.session_state["cached_target_asset"] != selected_ticke
         df_4h = ticker_feed.history(period="60d", interval="4h")
         if not df_1h.empty:
             st.session_state["price"] = df_1h['Close'].iloc[-1]
-            try:
-                st.session_state["m15_rsi"] = eng.calculate_rsi(df_15m).iloc[-1] if not df_15m.empty else 50.0
-                st.session_state["h1_rsi"] = eng.calculate_rsi(df_1h).iloc[-1]
-                st.session_state["h4_rsi"] = eng.calculate_rsi(df_4h).iloc[-1] if not df_4h.empty else 50.0
-            except Exception:
-                st.session_state["m15_rsi"], st.session_state["h1_rsi"], st.session_state["h4_rsi"] = 50.0, 50.0, 50.0
-                
+            st.session_state["m15_rsi"] = eng.calculate_rsi(df_15m).iloc[-1] if not df_15m.empty else 50.0
+            st.session_state["h1_rsi"] = eng.calculate_rsi(df_1h).iloc[-1]
+            st.session_state["h4_rsi"] = eng.calculate_rsi(df_4h).iloc[-1] if not df_4h.empty else 50.0
             if st.session_state["m15_rsi"] < 40 and st.session_state["h1_rsi"] < 45 and st.session_state["h4_rsi"] < 50:
                 st.session_state["direction"], st.session_state["color"] = "🚀 CONVERGENT BUY", "#4CAF50"
             elif st.session_state["m15_rsi"] > 60 and st.session_state["h1_rsi"] > 55 and st.session_state["h4_rsi"] > 50:
@@ -148,9 +99,9 @@ if search_activated or st.session_state["cached_target_asset"] != selected_ticke
                 st.session_state["direction"], st.session_state["color"] = "⏳ HOLD / STANDBY", "#757575"
     except Exception: pass
 
-st.sidebar.markdown("<h3 style='color:#4CAF50 !important; font-weight:900;'>☰ SYSTEM COCKPIT</h3>", unsafe_allow_html=True)
+st.sidebar.markdown("<h3 style='color:#4CAF50 !important; font-weight:900;'>☰ MAIN CORE</h3>", unsafe_allow_html=True)
 
-# Fixed explicit text arrays matching sidebar sheet layout
+# Spacing signature precisely preserved
 navigation_sheets = ["📊  TERMINAL SIGNALS", "📡  SATELLITE NEWS", "🕹️  LEDGER JOURNAL"]
 
 page_select = st.sidebar.radio(
@@ -160,25 +111,24 @@ page_select = st.sidebar.radio(
 
 current_active_index = navigation_sheets.index(page_select)
 
-# ================= MODULE 1: TERMINAL SIGNALS =================
 if current_active_index == 0:
     st.markdown(f"#### 📡 Telemetry Feed Workspace: <span style='color:#4CAF50;'>{st.session_state['cached_display_name']}</span>", unsafe_allow_html=True)
     st.markdown(f"""
-        <div class='cyber-card'>
+        <div style='background-color: #120A26; border: 1px solid #2A1B4E; padding: 20px; border-radius: 6px; margin-bottom: 20px;'>
             <h3 style='text-align:center; color:#FFFFFF; margin-top:0px; font-family:monospace;'>⚡ {st.session_state['cached_display_name']} MULTI-MATRIX</h3>
             <hr style='border-color:#1F1140; margin:15px 0;'>
             <div style='display: flex; justify-content: space-between; text-align: center;'>
                 <div style='flex: 1;'>
                     <p style='color:#90A4AE; font-size:10px; margin-bottom:5px; font-weight:bold;'>SPOT VALUE</p>
-                    <h2 class='matrix-num' style='margin:0; font-size:24px;'>{"R " if "ZAR" in st.session_state['cached_target_asset'] else "$ "}{st.session_state['price']:.4f}</h2>
+                    <h2 style='margin:0; font-size:24px; color:#FFFFFF; font-family:monospace;'>{"R " if "ZAR" in st.session_state['cached_target_asset'] else "$ "}{st.session_state['price']:.4f}</h2>
                 </div>
                 <div style='flex: 1; border-left: 1px solid #1F1140; border-right: 1px solid #1F1140;'>
                     <p style='color:#90A4AE; font-size:10px; margin-bottom:5px; font-weight:bold;'>CONVERGENCE</p>
-                    <h2 style='color:{st.session_state['color']}; margin:0; font-size:18px;'>{st.session_state['direction']}</h2>
+                    <h2 style='color:{st.session_state['color']}; margin:0; font-size:18px; font-family:monospace;'>{st.session_state['direction']}</h2>
                 </div>
                 <div style='flex: 1;'>
                     <p style='color:#90A4AE; font-size:10px; margin-bottom:5px; font-weight:bold;'>H1 RSI</p>
-                    <h2 class='matrix-num' style='margin:0; font-size:24px;'>{st.session_state['h1_rsi']:.1f}</h2>
+                    <h2 style='margin:0; font-size:24px; color:#FFFFFF; font-family:monospace;'>{st.session_state['h1_rsi']:.1f}</h2>
                 </div>
             </div>
             <hr style='border-color:#1F1140; margin:15px 0;'>
@@ -190,3 +140,20 @@ if current_active_index == 0:
         </div>
     """, unsafe_allow_html=True)
     st.markdown(f"""
+        <div style='display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-family: monospace;'>
+            <span style='font-size: 11px; font-weight: bold; color: #90A4AE;'>🕯️ REAL-TIME TELEMETRY CANDLESTICK GRID ARRAY</span>
+            <span style='font-size: 11px; font-weight: bold; color: {st.session_state["color"]}; background-color: rgba(0,0,0,0.2); padding: 2px 8px; border-radius: 3px; border: 1px solid {st.session_state["color"]};'>VECTOR STATUS: {st.session_state["direction"]}</span>
+        </div>
+    """, unsafe_allow_html=True)
+    t_feed = yf.Ticker(st.session_state["cached_target_asset"])
+    h_df = t_feed.history(period="1mo", interval="1h")
+    if not h_df.empty: st.plotly_chart(cr.generate_candlestick_chart(h_df.tail(48)), use_container_width=True)
+
+elif current_active_index == 1:
+    getattr(np_view, "render_news_tab")(str(st.session_state["cached_target_asset"]), str(st.session_state["cached_display_name"]))
+
+elif current_active_index == 2:
+    st.markdown(f"#### 🕹️ Institutional Ledger Core: <span style='color:#00E5FF;'>{st.session_state['cached_display_name']} Vault</span>", unsafe_allow_html=True)
+    st.markdown("<p style='font-family:monospace; color:#90A4AE; font-size:11px; margin-bottom:15px;'>🛰️ INJECT TRANSACTION VECTOR MANUAL OVERRIDE:</p>", unsafe_allow_html=True)
+    
+    input_action = st.selectbox("ACTION UNIT:", options=["🚀 BUY / LONG", "💥 SELL / SHORT"], key="flat_action")
