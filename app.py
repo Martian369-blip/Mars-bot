@@ -12,6 +12,28 @@ import news_panel as np_view
 st.set_page_config(page_title="MARS_BOT V16.0", page_icon="👽", layout="centered", initial_sidebar_state="collapsed")
 lc.load_ig_style()
 
+# 🛸 UNBLOCKABLE INLINE CSS MATRIX RESCUE LAYER
+st.markdown("""
+    <style>
+        div[data-baseweb="select"], div[data-testid="stNumberInput"], .stButton button {
+            background-color: #120A26 !important;
+            border: 1px solid #2A1B4E !important;
+            color: #FFFFFF !important;
+            min-height: 42px !important;
+        }
+        div[data-testid="stDataFrame"] {
+            background-color: #120A26 !important;
+            border: 1px solid #1F1140 !important;
+            border-radius: 4px;
+            padding: 10px;
+        }
+        label, p {
+            color: #90A4AE !important;
+            font-family: monospace !important;
+        }
+    </style>
+""", unsafe_allow_html=True)
+
 PERSISTENT_FILE = "ledger_vault.csv"
 
 def load_persistent_ledger():
@@ -110,7 +132,7 @@ page_select = st.sidebar.radio(
     key="active_navigation_sheet"
 )
 
-# Core Page Conditional Routing - 100% flat with zero context nesting blocks
+# Core Page Conditional Routing
 if "TERMINAL SIGNALS" in page_select:
     st.markdown(f"#### 📡 Telemetry Feed Workspace: <span style='color:#4CAF50;'>{st.session_state['cached_display_name']}</span>", unsafe_allow_html=True)
     st.markdown(f"""
@@ -149,11 +171,3 @@ if "TERMINAL SIGNALS" in page_select:
     h_df = t_feed.history(period="1mo", interval="1h")
     if not h_df.empty: st.plotly_chart(cr.generate_candlestick_chart(h_df.tail(48)), use_container_width=True)
 
-elif "SATELLITE NEWS" in page_select:
-    getattr(np_view, "render_news_tab")(str(st.session_state["cached_target_asset"]), str(st.session_state["cached_display_name"]))
-
-elif "LEDGER JOURNAL" in page_select:
-    st.markdown(f"#### 🕹️ Institutional Ledger Core: <span style='color:#00E5FF;'>{st.session_state['cached_display_name']} Vault</span>", unsafe_allow_html=True)
-    st.markdown("<p style='font-family:monospace; color:#90A4AE; font-size:11px; margin-bottom:5px;'>🛰️ INJECT TRANSACTION VECTOR MANUAL OVERRIDE:</p>", unsafe_allow_html=True)
-    
-    # BYPASS TRIGGER: Removed all 'with st.form' and 'with col' statement lines completely
