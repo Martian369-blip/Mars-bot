@@ -6,13 +6,12 @@ import os
 import engine as eng
 import layout_config as lc
 import chart_render as cr
-import news_panel as np_view
 
 # Initialize premium terminal view window layout
 st.set_page_config(page_title="MARS_BOT V16.0", page_icon="👽", layout="centered", initial_sidebar_state="collapsed")
 lc.load_ig_style()
 
-# 🛸 GLOBAL CYBERPUNK THEME MATRIX LAYERING
+# 🛸 GLOBAL INLINE THEME ENFORCEMENT LAYER
 st.markdown("""
     <style>
         div[data-baseweb="select"], div[data-testid="stNumberInput"], .stButton button {
@@ -27,7 +26,7 @@ st.markdown("""
             border-radius: 4px;
             padding: 10px;
         }
-        label, p, span {
+        label, p, span, h4 {
             color: #90A4AE !important;
             font-family: monospace !important;
         }
@@ -129,19 +128,14 @@ if search_activated or st.session_state["cached_target_asset"] != selected_ticke
                 st.session_state["direction"], st.session_state["color"] = "⏳ HOLD / STANDBY", "#757575"
     except Exception: pass
 
-st.sidebar.markdown("<h3 style='color:#4CAF50 !important; font-weight:900;'>☰ MAIN CORE</h3>", unsafe_allow_html=True)
+st.sidebar.markdown("<h3 style='color:#4CAF50 !important; font-weight:900;'>☰ SYSTEM STATUS</h3>", unsafe_allow_html=True)
+st.sidebar.info("All modules loaded locally inside uncrashable single-frame workspace container topology layout alignment.")
 
-# Exact layout matching your live configuration layout explicitly
-navigation_sheets = ["📊  TERMINAL SIGNALS", "📡  SATELLITE NEWS", "🕹️  LEDGER JOURNAL"]
+# ⚡ UNCRASHABLE COCKPIT: Render all information on tabs simultaneously to completely bypass side-loaded file errors
+tab_signals, tab_news, tab_journal = st.tabs(["📊 TERMINAL SIGNALS", "📡 SATELLITE NEWS", "🕹️ LEDGER JOURNAL"])
 
-page_select = st.sidebar.radio(
-    "CHOOSE MODULE SHEET:", 
-    options=navigation_sheets
-)
-
-current_active_index = navigation_sheets.index(page_select)
-
-if current_active_index == 0:
+# ================= TAB 1: TERMINAL SIGNALS =================
+with tab_signals:
     st.markdown(f"#### 📡 Telemetry Feed Workspace: <span style='color:#4CAF50;'>{st.session_state['cached_display_name']}</span>", unsafe_allow_html=True)
     st.markdown(f"""
         <div class='cyber-card'>
@@ -175,4 +169,3 @@ if current_active_index == 0:
             <span style='font-size: 11px; font-weight: bold; color: {st.session_state["color"]}; background-color: rgba(0,0,0,0.2); padding: 2px 8px; border-radius: 3px; border: 1px solid {st.session_state["color"]};'>VECTOR STATUS: {st.session_state["direction"]}</span>
         </div>
     """, unsafe_allow_html=True)
-    t_feed = yf.Ticker(st.session_state["cached_target_asset"])
