@@ -16,8 +16,10 @@ PERSISTENT_FILE = "ledger_vault.csv"
 
 def load_persistent_ledger():
     if os.path.exists(PERSISTENT_FILE):
-        try: return pd.read_csv(PERSISTENT_FILE)
-        except Exception: pass
+        try:
+            return pd.read_csv(PERSISTENT_FILE)
+        except Exception:
+            pass
     return pd.DataFrame(columns=["Timestamp", "Asset", "Action", "Price", "Matrix RSI", "Status"])
 
 def save_persistent_ledger(df):
@@ -154,7 +156,7 @@ elif "SATELLITE NEWS" in page_select:
     getattr(np_view, "render_news_tab")(str(st.session_state["cached_target_asset"]), str(st.session_state["cached_display_name"]))
 
 elif "LEDGER JOURNAL" in page_select:
-    # FIXED: Embedded Journal Panel Logic Inline to eliminate cross-file import bottlenecks
     st.markdown(f"#### 🕹️ Institutional Ledger Core: <span style='color:#00E5FF;'>{st.session_state['cached_display_name']} Vault</span>", unsafe_allow_html=True)
     
+    # FIXED: Flawless layout indentation applied to the embedded ledger forms
     with st.form("ledger_input_form", clear_on_submit=True):
