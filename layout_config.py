@@ -2,12 +2,12 @@ import streamlit as st
 
 def load_ig_style():
     """
-    Sovereign Apex Emerald-Ultramarine Dark Matrix Skin
-    Enforces a rich, deep cobalt-infused dark purple canvas with glassmorphic elements.
+    Sovereign Apex Emerald-Ultramarine Stark Contrast Overhaul
+    Injects high-contrast solid white presentation backdrops into the technical grid frames.
     """
     st.markdown("""
         <style>
-            /* 🛸 1. RICH DARK ULTRAMARINE COBALT BACKDROP HUD SKIN OVERRIDES */
+            /* 🛸 1. RICH ULTRAMARINE COBALT OUTER VOID SKIN */
             html, body, [data-testid="stAppViewContainer"], [data-testid="stAppViewBlockContainer"] { 
                 background-color: #0B0518 !important; 
             }
@@ -15,19 +15,14 @@ def load_ig_style():
                 background: rgba(0,0,0,0) !important; 
             }
             
-            /* 🟢 High-Density Monospace Telemetry Typography */
-            h1, h2, h3, h4, h5, h6, p, div, span, label {
-                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
-                letter-spacing: 0.5px !important;
-            }
+            /* 🟢 Monospace Matrix Telemetry Data Text Tweaks */
             .matrix-num {
                 font-family: "Courier New", Courier, monospace !important;
                 font-weight: bold !important;
-                color: #4CAF50 !important;
-                text-shadow: 0 0 10px rgba(76, 175, 80, 0.35) !important;
+                color: #2E7D32 !important; /* Slightly darker green to retain crisp readability on white */
             }
             
-            /* 🔍 Glassmorphic Deep Ultramarine Dropdown Workspace Menu */
+            /* 🔍 Glassmorphic Deep Workspace Menu Options */
             div[data-baseweb="select"] {
                 background-color: #120A26 !important;
                 border: 1px solid #1F1140 !important;
@@ -39,7 +34,7 @@ def load_ig_style():
                 box-shadow: 0 0 14px rgba(76, 175, 80, 0.25) !important;
             }
             
-            /* 🛰️ Tactile Neon Emerald Scan Trigger Command */
+            /* 🛰️ Tactile Neon Emerald Scan Command Selector Switch */
             button[data-testid="baseButton-secondary"] {
                 background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%) !important;
                 color: #FFFFFF !important;
@@ -51,37 +46,38 @@ def load_ig_style():
                 box-shadow: 0 4px 14px rgba(76, 175, 80, 0.2) !important;
                 transition: all 0.2s ease-in-out;
             }
-            button[data-testid="baseButton-secondary"]:hover {
-                transform: translateY(-1px) !important;
-                box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4) !important;
-            }
             
-            /* 📊 Heavy Ultramarine Sidebar Console Overrides */
+            /* 📊 Heavy Ultramarine Sidebar Console Options Panel */
             [data-testid="stSidebar"] {
                 background-color: #070310 !important;
                 border-right: 1px solid #140C2B !important;
             }
             
-            /* 🕯️ Graphic Viewport Container Frames (Cobalt Velvet Glass) */
+            /* 🕯️ FIXED: THE STARK WHITE DISK CHARTS BACKGROUND LAYER */
             div.stPlotlyChart {
-                background-color: #110924 !important;
-                border: 1px solid #1E0F3D !important;
+                background-color: #FFFFFF !important;
+                border: 1px solid #E0E4E8 !important;
                 border-radius: 6px !important;
                 padding: 12px !important;
-                box-shadow: 0 10px 35px rgba(0, 0, 0, 0.65) !important;
+                box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4) !important;
             }
             
-            /* 🚀 Premium Telemetry Matrix Data Card Block */
+            /* 🚀 FIXED: THE STARK WHITE DATA CARD PRESENTATION DECK BLOCK */
             .cyber-card {
-                background: #110924;
-                border-left: 3px solid #4CAF50;
-                border-top: 1px solid #1E0F3D;
-                border-right: 1px solid #1E0F3D;
-                border-bottom: 1px solid #1E0F3D;
+                background: #FFFFFF;
+                border-left: 4px solid #2E7D32;
+                border-top: 1px solid #E0E4E8;
+                border-right: 1px solid #E0E4E8;
+                border-bottom: 1px solid #E0E4E8;
                 border-radius: 4px;
                 padding: 18px;
                 margin-bottom: 20px;
-                box-shadow: 0 10px 35px rgba(0, 0, 0, 0.55);
+                box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
             }
+            
+            /* Adjust internal text elements inside white modules for clear readability */
+            .cyber-card h3 { color: #0B0518 !important; }
+            .cyber-card p { color: #546E7A !important; }
+            .cyber-card hr { border-color: #ECEFF1 !important; }
         </style>
     """, unsafe_allow_html=True)
