@@ -4,6 +4,7 @@ import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
 import datetime
+import os
 import engine as eng
 import news_panel as np_view
 import journal_panel as jp_view
@@ -11,13 +12,27 @@ import layout_config as lc
 
 # Initialize premium terminal view window layout
 st.set_page_config(page_title="MARS_BOT V16.0", page_icon="👽", layout="centered", initial_sidebar_state="collapsed")
-
-# Execute our newly skinned premium external styling file
 lc.load_ig_style()
+
+# 🕹️ OPTION 3: PERMANENT FILE JOURNAL PERSISTENCE ENGINE LAYER
+PERSISTENT_FILE = "ledger_vault.csv"
+
+def load_persistent_ledger():
+    """Hydrates master shared database history directly from hidden local disk vault."""
+    if os.path.exists(PERSISTENT_FILE):
+        try:
+            return pd.read_csv(PERSISTENT_FILE)
+        except Exception:
+            pass
+    return pd.DataFrame(columns=["Timestamp", "Asset", "Action", "Price", "Matrix RSI", "Status"])
+
+def save_persistent_ledger(df):
+    """Saves updated user ledger inputs safely to local workspace block."""
+    df.to_csv(PERSISTENT_FILE, index=False)
 
 # Maintain system data session cores across sidebar tab navigation switches
 if "journal_db" not in st.session_state:
-    st.session_state.journal_db = pd.DataFrame(columns=["Asset", "Action", "Cash In (R)", "Cash Out (R)", "Net P&L (ZAR)", "Entry Price", "Win/Loss %", "Status"])
+    st.session_state.journal_db = load_persistent_ledger()
 if "live_balance" not in st.session_state:
     st.session_state.live_balance = 500.0
 if "cached_target_asset" not in st.session_state:
@@ -27,11 +42,15 @@ if "cached_display_name" not in st.session_state:
 if "price" not in st.session_state:
     st.session_state.price = 0.0
 if "direction" not in st.session_state:
-    st.session_state.direction = "HOLD"
+    st.session_state.direction = "HOLD / STANDBY"
 if "color" not in st.session_state:
-    st.session_state.color = "#FFB300"
-if "hourly_rsi" not in st.session_state:
-    st.session_state.hourly_rsi = 50.0
+    st.session_state.color = "#757575"
+if "m15_rsi" not in st.session_state:
+    st.session_state.m15_rsi = 50.0
+if "h1_rsi" not in st.session_state:
+    st.session_state.h1_rsi = 50.0
+if "h4_rsi" not in st.session_state:
+    st.session_state.h4_rsi = 50.0
 
 # 📅 MULTI-NATION TRADING SECTOR CLOCK TICKER GRID (WITH PULSING STYLE OVERLAYS)
 current_hour_sa = datetime.datetime.now().hour
@@ -65,30 +84,43 @@ selected_ticker = reverse_map.get(chosen_display, "USDZAR=X")
 with col_trigger:
     search_activated = st.button("🛰️ SCAN")
 
-# Data fetch layer handling pipeline with persistent caching fallbacks
+# 🚀 OPTION 2: MULTI-TIMEFRAME CONVERGENCE MATRIX PIPELINE FETCH
 if search_activated or st.session_state.price == 0.0:
     st.session_state.cached_target_asset = selected_ticker
     st.session_state.cached_display_name = chosen_display
     try:
         ticker_feed = yf.Ticker(st.session_state.cached_target_asset)
-        daily_df = ticker_feed.history(period="3mo", interval="1d")
-        hourly_df = ticker_feed.history(period="1mo", interval="1h")
-        if hourly_df.empty and not daily_df.empty:
-            hourly_df = daily_df.copy()
-        if not daily_df.empty and not hourly_df.empty:
-            daily_df['RSI'] = eng.calculate_rsi(daily_df)
-            hourly_df['RSI'] = eng.calculate_rsi(hourly_df)
-            st.session_state.price = daily_df['Close'].iloc[-1]
-            st.session_state.hourly_rsi = hourly_df['RSI'].iloc[-1]
+        
+        # Pull discrete interval tracks
+        df_15m = ticker_feed.history(period="5d", interval="15m")
+        df_1h = ticker_feed.history(period="30d", interval="1h")
+        df_4h = ticker_feed.history(period="60d", interval="4h")
+        
+        # Safe fallback checks
+        if df_15m.empty: df_15m = df_1h.copy()
+        if df_4h.empty: df_4h = df_1h.copy()
+        
+        if not df_1h.empty:
+            # Process calculations across each matrix layer independently
+            rsi_15m = eng.calculate_rsi(df_15m).iloc[-1]
+            rsi_1h = eng.calculate_rsi(df_1h).iloc[-1]
+            rsi_4h = eng.calculate_rsi(df_4h).iloc[-1]
             
-            recent_low = hourly_df['Low'].tail(24).min()
-            recent_high = hourly_df['High'].tail(24).max()
-            if st.session_state.hourly_rsi < 35 or (st.session_state.price <= (recent_low * 1.005)):
-                st.session_state.direction, st.session_state.color = "BUY / LONG", "#4CAF50"
-            elif st.session_state.hourly_rsi > 65 or (st.session_state.price >= (recent_high * 0.995)):
-                st.session_state.direction, st.session_state.color = "SELL / SHORT", "#E53935"
+            st.session_state.price = df_1h['Close'].iloc[-1]
+            st.session_state.m15_rsi = rsi_15m
+            st.session_state.h1_rsi = rsi_1h
+            st.session_state.h4_rsi = rsi_4h
+            
+            # 🔥 MULTI-TIMEFRAME ALIGNMENT CRITERIA (REQUIRES OVERLAPPING CONCURRENCE)
+            bullish_alignment = (rsi_15m < 40) and (rsi_1h < 45) and (rsi_4h < 50)
+            bearish_alignment = (rsi_15m > 60) and (rsi_1h > 55) and (rsi_4h > 50)
+            
+            if bullish_alignment:
+                st.session_state.direction, st.session_state.color = "🚀 CONVERGENT BUY", "#4CAF50"
+            elif bearish_alignment:
+                st.session_state.direction, st.session_state.color = "💥 CONVERGENT SELL", "#E53935"
             else:
-                st.session_state.direction, st.session_state.color = "HOLD / STANDBY", "#757575"
+                st.session_state.direction, st.session_state.color = "⏳ HOLD / STANDBY", "#757575"
     except Exception as e:
         pass
 
@@ -102,7 +134,9 @@ st.sidebar.caption("👽 Core Apex Emerald Multi-Module Layout Architecture.")
 target_asset = st.session_state.cached_target_asset
 ig_display_name = st.session_state.cached_display_name
 price = st.session_state.price
-hourly_rsi = st.session_state.hourly_rsi
+m15_rsi = st.session_state.m15_rsi
+h1_rsi = st.session_state.h1_rsi
+h4_rsi = st.session_state.h4_rsi
 direction = st.session_state.direction
 color = st.session_state.color
 
@@ -118,14 +152,13 @@ if page_select == "📊 TERMINAL SIGNALS":
     if hourly_df.empty:
         st.warning("🔄 Connecting to core telemetry stream grid...")
     else:
-        # 🔥 FIXED: Broken inline text concatenation broken down cleanly onto a safe expression
-        c_sym = "R " if ("ZAR" in target_asset or ".JO" in target_asset) else "$ "
+        c_sym = "R " if ("ZAR" in target_asset or ".JO" in target_asset) else "$"
         formatted_price = f"{price:.4f}" if "ZAR" in target_asset else (f"{price:.5f}" if "=" in target_asset else f"{price:.2f}")
         
         # 🚀 High-Density Emerald Glowing Data Container Grid Wrapper Block
         st.markdown(f"""
             <div class='cyber-card'>
-                <h3 style='text-align:center; color:#FFFFFF; margin-top:0px; font-weight:800; font-family:monospace; letter-spacing:1px;'>⚡ {ig_display_name} CORE SUMMARY</h3>
+                <h3 style='text-align:center; color:#FFFFFF; margin-top:0px; font-weight:800; font-family:monospace; letter-spacing:1px;'>⚡ {ig_display_name} MULTI-MATRIX</h3>
                 <hr style='border-color:#1F1140; margin:15px 0;'>
                 <div style='display: flex; justify-content: space-between; text-align: center;'>
                     <div style='flex: 1;'>
@@ -133,20 +166,25 @@ if page_select == "📊 TERMINAL SIGNALS":
                         <h2 class='matrix-num' style='margin:0; font-size:24px;'>{c_sym}{formatted_price}</h2>
                     </div>
                     <div style='flex: 1; border-left: 1px solid #1F1140; border-right: 1px solid #1F1140;'>
-                        <p style='color:#90A4AE; font-size:10px; margin-bottom:5px; font-weight:bold; letter-spacing:1px;'>SYS SIGNAL</p>
-                        <h2 style='color:{color}; margin:0; font-weight:bold; font-size:20px;'>{direction}</h2>
+                        <p style='color:#90A4AE; font-size:10px; margin-bottom:5px; font-weight:bold; letter-spacing:1px;'>CONVERGENCE SIGNAL</p>
+                        <h2 style='color:{color}; margin:0; font-weight:bold; font-size:18px;'>{direction}</h2>
                     </div>
                     <div style='flex: 1;'>
-                        <p style='color:#90A4AE; font-size:10px; margin-bottom:5px; font-weight:bold; letter-spacing:1px;'>MATRIX RSI</p>
-                        <h2 class='matrix-num' style='margin:0; font-size:24px;'>{hourly_rsi:.1f}</h2>
+                        <p style='color:#90A4AE; font-size:10px; margin-bottom:5px; font-weight:bold; letter-spacing:1px;'>H1 MATRIX RSI</p>
+                        <h2 class='matrix-num' style='margin:0; font-size:24px;'>{h1_rsi:.1f}</h2>
                     </div>
+                </div>
+                <hr style='border-color:#1F1140; margin:15px 0;'>
+                <div style='display: flex; justify-content: space-around; text-align: center; font-family:monospace; font-size:11px; color:#CFD8DC;'>
+                    <div>15M RSI: <b style='color:#4CAF50;'>{m15_rsi:.1f}</b></div>
+                    <div>1H RSI: <b style='color:#4CAF50;'>{h1_rsi:.1f}</b></div>
+                    <div>4H RSI: <b style='color:#4CAF50;'>{h4_rsi:.1f}</b></div>
                 </div>
             </div>
         """, unsafe_allow_html=True)
         
         st.markdown("<p style='font-size:11px; font-weight:bold; letter-spacing:1px; color:#90A4AE; margin-bottom:12px; font-family:monospace;'>🕯️ REAL-TIME TELEMETRY CANDLESTICK GRID ARRAY</p>", unsafe_allow_html=True)
         
-        # Polished Emerald Technical Candlestick Execution Configuration Layer
         plot_df = hourly_df.tail(48)
         fig_sig = go.Figure()
         fig_sig.add_trace(go.Candlestick(
@@ -156,28 +194,3 @@ if page_select == "📊 TERMINAL SIGNALS":
             increasing_fillcolor='#1B5E20', decreasing_fillcolor='#7F0000'
         ))
         
-        fig_sig.update_layout(
-            template="plotly_white", 
-            paper_bgcolor='rgba(0,0,0,0)',   
-            plot_bgcolor='#FFFFFF',          
-            xaxis_rangeslider_visible=False, 
-            height=330, 
-            margin=dict(l=10, r=10, t=15, b=10),
-            xaxis=dict(
-                gridcolor='#E0E4E8',         
-                zerolinecolor='#CFD8DC', 
-                tickfont=dict(family='monospace', size=10, color='#37474F')
-            ),
-            yaxis=dict(
-                gridcolor='#E0E4E8', 
-                zerolinecolor='#CFD8DC', 
-                tickfont=dict(family='monospace', size=10, color='#37474F')
-            )
-        )
-        st.plotly_chart(fig_sig, use_container_width=True)
-
-elif page_select == "📡 SATELLITE NEWS":
-    np_view.render_news_tab(target_asset, ig_display_name)
-
-elif page_select == "🕹️ LEDGER JOURNAL":
-    jp_view.render_journal_tab(target_asset, ig_display_name, price)
