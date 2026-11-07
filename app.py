@@ -19,8 +19,10 @@ PERSISTENT_FILE = "ledger_vault.csv"
 
 def load_persistent_ledger():
     if os.path.exists(PERSISTENT_FILE):
-        try: return pd.read_csv(PERSISTENT_FILE)
-        except Exception: pass
+        try: 
+            return pd.read_csv(PERSISTENT_FILE)
+        except Exception: 
+            pass
     return pd.DataFrame(columns=["Timestamp", "Asset", "Action", "Price", "Matrix RSI", "Status"])
 
 def save_persistent_ledger(df):
@@ -33,12 +35,18 @@ if "cached_target_asset" not in st.session_state:
     st.session_state.cached_target_asset = "USDZAR=X"
 if "cached_display_name" not in st.session_state:
     st.session_state.cached_display_name = "USD/ZAR"
-if "price" not in st.session_state: st.session_state.price = 16.5170
-if "direction" not in st.session_state: st.session_state.direction = "HOLD / STANDBY"
-if "color" not in st.session_state: st.session_state.color = "#757575"
-if "m15_rsi" not in st.session_state: st.session_state.m15_rsi = 50.0
-if "h1_rsi" not in st.session_state: st.session_state.h1_rsi = 50.0
-if "h4_rsi" not in st.session_state: st.session_state.h4_rsi = 50.0
+if "price" not in st.session_state: 
+    st.session_state.price = 16.5170
+if "direction" not in st.session_state: 
+    st.session_state.direction = "HOLD / STANDBY"
+if "color" not in st.session_state: 
+    st.session_state.color = "#757575"
+if "m15_rsi" not in st.session_state: 
+    st.session_state.m15_rsi = 50.0
+if "h1_rsi" not in st.session_state: 
+    st.session_state.h1_rsi = 50.0
+if "h4_rsi" not in st.session_state: 
+    st.session_state.h4_rsi = 50.0
 
 # 🛰️ OPTION 1: HIGH-IMPACT AUTOMATED MACRO ECONOMIC VOLATILITY RADAR
 def process_macro_volatility_gauge():
@@ -49,6 +57,7 @@ def process_macro_volatility_gauge():
         {"event": "🇺🇸 Federal Reserve FOMC Decision", "date": datetime.date(2026, 12, 16), "hour": 21, "minute": 0},
     ]
     active_threat = None
+    time_str = ""
     for item in macro_calendar:
         event_datetime = datetime.datetime.combine(item["date"], datetime.time(item["hour"], item["minute"]))
         if event_datetime > current_time:
@@ -116,7 +125,8 @@ if search_activated or st.session_state.price == 16.5170 or st.session_state.cac
                 st.session_state.direction, st.session_state.color = "💥 CONVERGENT SELL", "#E53935"
             else:
                 st.session_state.direction, st.session_state.color = "⏳ HOLD / STANDBY", "#757575"
-    except Exception: pass
+    except Exception: 
+        pass
 
 # 🧭 SIDEBAR MATRIX CONSOLE RADIO COMMAND PANEL
 st.sidebar.markdown("<h3 style='color:#4CAF50 !important; font-weight:900;'>☰ MAIN CORE</h3>", unsafe_allow_html=True)
@@ -175,5 +185,3 @@ if page_select == "📊 TERMINAL SIGNALS":
         if not h_df.empty:
             plot_df = h_df.tail(48)
             fig_sig = go.Figure()
-            fig_sig.add_trace(go.Candlestick(
-                x=plot_df.index, open=plot_df['Open'], high=plot_df['High'],
