@@ -7,7 +7,7 @@ def render_journal_tab(target_asset, ig_display_name, price):
     st.markdown("#### 🕹️ Quantitative Ledger Desk & Risk Control Engine")
     st.divider()
 
-    # 🧾 1. APP RECONCILIATION LAYER (MANUAL CAPITAL OVERRIDE RIGHT AT TOP)
+    # 🧾 1. APP RECONCILIATION CONTROL LAYER
     st.markdown("<p style='font-size:12px; font-weight:bold; color:#90A4AE; letter-spacing:0.5px;'>🏦 APP RECONCILIATION CONTROL LAYER:</p>", unsafe_allow_html=True)
     
     manual_balance = st.number_input("💵 Sync Live Trading App Balance (ZAR):", min_value=1.0, value=float(st.session_state.live_balance), step=50.0)
@@ -22,37 +22,30 @@ def render_journal_tab(target_asset, ig_display_name, price):
         
     st.divider()
     
-    # 🎛️ TWO-COLUMN ACTION WORKSPACE
     col_entry, col_summary = st.columns([1.2, 1.0])
     
     with col_entry:
         st.markdown("<p style='font-size:12px; font-weight:bold; color:#90A4AE; letter-spacing:0.5px;'>📝 RISK ESTIMATION & TRANSACTION TICKET:</p>", unsafe_allow_html=True)
         
-        # 🧮 UPGRADE 1: DYNAMIC POSITION SIZE CALCULATOR INSIDE ENTRY PANEL
         with st.expander("🧮 LIVE IG CONTRACT LOT SIZE CALCULATOR", expanded=True):
             stop_distance_pts = st.number_input("Stop Loss Distance (In Points / Pips):", min_value=1.0, value=20.0, step=1.0)
             point_value_zar = st.number_input("ZAR Value Per Point (1 standard lot value):", min_value=0.1, value=10.0, step=0.5)
-            
-            # Mathematical calculation of contract fraction size needed to equal max 2% loss
             max_recommended_lots = risk_allowance_2pct / (stop_distance_pts * point_value_zar) if (stop_distance_pts * point_value_zar) > 0 else 0.01
             st.info(f"🛸 **Recommended Execution Size:** `{max_recommended_lots:.3f} Lots` to limit risk strictly to R{risk_allowance_2pct:.2f}.")
 
         with st.form("ledger_input_form_v4"):
             form_asset = st.text_input("Asset Row:", value=ig_display_name)
             form_dir = st.selectbox("Execution Vector:", ["LONG BUY", "SHORT SELL"])
-            
             form_cashin = st.number_input("Manual Cash Inflow (ZAR Gross Profit):", min_value=0.0, value=0.0, step=10.0)
             form_cashout = st.number_input("Manual Cash Outflow (ZAR Gross Loss):", min_value=0.0, value=0.0, step=10.0)
-            
             form_entry = st.number_input("Execution Entry Floor Price:", value=float(price) if price > 0 else 1.3355, format="%.5f")
             form_status = st.selectbox("Current State:", ["CLOSED SETTLED", "ACTIVE OPEN POSITION"])
             
             submit_btn = st.form_submit_button("AFFECT SPREADSHEET CASHFLOWS")
             
             if submit_btn:
-                # 🛡️ UPGRADE 2: RULE BREAKER GUARDRAIL PROTOCOL BLOCK
                 if form_cashout > risk_allowance_2pct:
-                    st.error(f"🚨 **RISK PARAMETERS VIOLATED:** Your input loss of R{form_cashout:.2f} breaks your strict 2% protective allowance limit of R{risk_allowance_2pct:.2f}! Trade rejected by rule breaker guardrail.")
+                    st.error(f"🚨 **RISK PARAMETERS VIOLATED:** Your input loss of R{form_cashout:.2f} breaks your protective limit of R{risk_allowance_2pct:.2f}!")
                 else:
                     net_pnl = form_cashin - form_cashout
                     pct_calc = (net_pnl / st.session_state.live_balance) * 100 if st.session_state.live_balance > 0 else 0.0
@@ -67,10 +60,9 @@ def render_journal_tab(target_asset, ig_display_name, price):
                         "Win/Loss %": round(pct_calc, 2),
                         "Status": form_status
                     }
-                    
                     st.session_state.journal_db = pd.concat([st.session_state.journal_db, pd.DataFrame([new_row])], ignore_index=True)
                     st.session_state.live_balance += net_pnl
-                    st.toast("Cashflows successfully computed and added to logs!")
+                    st.toast("Cashflows successfully computed!")
                     st.rerun()
 
     with col_summary:
@@ -88,7 +80,6 @@ def render_journal_tab(target_asset, ig_display_name, price):
             total_trades = len(st.session_state.journal_db)
             win_ratio = (len(win_rows) / total_trades * 100) if total_trades > 0 else 0.0
             
-            # 📈 UPGRADE 3: ADVANCED PERFORMANCE METRICS PANEL BLOCK
             avg_win = win_rows["Net P&L (ZAR)"].mean() if not win_rows.empty else 0.0
             avg_loss = abs(loss_rows["Net P&L (ZAR)"].mean()) if not loss_rows.empty else 0.0
             profit_factor = total_cashin / total_cashout if total_cashout > 0 else total_cashin
@@ -101,18 +92,17 @@ def render_journal_tab(target_asset, ig_display_name, price):
                 st.divider()
                 
                 if daily_net_change > 0:
-                    st.success(f"🚀 **VELOCITY:** Net income compounding effectively. Capital base expanding at **{win_ratio:.1f}% efficiency**. Speed of cash generation outpaces leakage.")
+                    st.success(f"🚀 **VELOCITY:** Net income compounding effectively. Capital base expanding at **{win_ratio:.1f}% efficiency**.")
                 elif daily_net_change < 0:
-                    st.error(f"📉 **VELOCITY:** Drawdown momentum present. Speed of leakage outpaces inflows. Review execution parameters to defend remaining funds.")
+                    st.error(f"📉 **VELOCITY:** Drawdown momentum present. Speed of leakage outpaces inflows.")
                 else:
-                    st.warning("⏳ **VELOCITY:** Station equilibrium. Inflows match outflows down to the integer. Flat session profile.")
+                    st.warning("⏳ **VELOCITY:** Station equilibrium reached.")
 
-    # 📈 UPGRADE 3 PART B: ROLLING EQUITY CURVE CHART PLOTTER
+    # EQUITY CURVE PLOTTER
     if not st.session_state.journal_db.empty:
         st.divider()
         st.markdown("<p style='font-size:13px; font-weight:bold; letter-spacing:0.5px; color:#90A4AE;'>📈 CONTINUOUS SESSION EQUITY CURVE TRACKING GRAPH</p>", unsafe_allow_html=True)
         
-        # Calculate rolling wealth curve starting from base balance minus recent pnl sum up increments
         starting_capital_node = st.session_state.live_balance - st.session_state.journal_db["Net P&L (ZAR)"].sum()
         pnl_array = st.session_state.journal_db["Net P&L (ZAR)"].tolist()
         equity_curve_points = [starting_capital_node]
@@ -121,28 +111,28 @@ def render_journal_tab(target_asset, ig_display_name, price):
             
         fig_equity = go.Figure()
         fig_equity.add_trace(go.Scatter(
-            x=list(range(len(equity_curve_points))), 
-            y=equity_curve_points, 
-            mode='lines+markers',
-            name='Capital (ZAR)',
-            line=dict(color='#00A4E4', width=2),
-            marker=dict(size=6, color='#FFFFFF', line=dict(color='#00A4E4', width=1.5))
+            x=list(range(len(equity_curve_points))), y=equity_curve_points, mode='lines+markers', name='Capital (ZAR)',
+            line=dict(color='#00A4E4', width=2), marker=dict(size=6, color='#FFFFFF', line=dict(color='#00A4E4', width=1.5))
         ))
-        fig_equity.update_layout(
-            template="plotly_dark", 
-            paper_bgcolor='rgba(0,0,0,0)', 
-            plot_bgcolor='#161A1E', 
-            height=260, 
-            margin=dict(l=10, r=10, t=10, b=10),
-            xaxis=dict(title="Transaction Event Count Sequence", showgrid=False),
-            yaxis=dict(title="Account Balance Value (R)", showgrid=True, gridcolor='#23292F')
-        )
+        fig_equity.update_layout(template="plotly_dark", paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='#161A1E', height=240, margin=dict(l=10, r=10, t=10, b=10))
         st.plotly_chart(fig_equity, use_container_width=True)
 
         st.divider()
         st.markdown("##### 📁 Master Transaction Sequence Table Database")
         st.dataframe(st.session_state.journal_db, use_container_width=True)
-        if st.button("🗑️ PURGE MASTER LEDGER DATA RECORDS"):
-            st.session_state.journal_db = pd.DataFrame(columns=["Asset", "Action", "Cash In (R)", "Cash Out (R)", "Net P&L (ZAR)", "Entry Price", "Win/Loss %", "Status"])
-            st.session_state.live_balance = 500.0
-            st.rerun()
+        
+        # 💾 UPGRADE 3: ONE-CLICK LOCAL LEDGER DATA SPREADSHEET EXPORTER ENGINE
+        col_dl, col_purge = st.columns(2)
+        with col_dl:
+            csv_data_stream = st.session_state.journal_db.to_csv(index=False).encode('utf-8')
+            st.download_button(
+                label="💾 DOWNLOAD LEDGER ARCHIVE (.CSV)",
+                data=csv_data_stream,
+                file_name="MARS_BOT_Trading_Ledger.csv",
+                mime="text/csv"
+            )
+        with col_purge:
+            if st.button("🗑️ PURGE MASTER LEDGER DATA RECORDS"):
+                st.session_state.journal_db = pd.DataFrame(columns=["Asset", "Action", "Cash In (R)", "Cash Out (R)", "Net P&L (ZAR)", "Entry Price", "Win/Loss %", "Status"])
+                st.session_state.live_balance = 500.0
+                st.rerun()
