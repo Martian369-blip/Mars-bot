@@ -25,25 +25,24 @@ def save_persistent_ledger(df):
     df.to_csv(PERSISTENT_FILE, index=False)
 
 def append_ledger_record(new_df):
-    st.session_state.journal_db = pd.concat([st.session_state.journal_db, new_df], axis=0, ignore_index=True)
-    save_persistent_ledger(st.session_state.journal_db)
+    st.session_state["journal_db"] = pd.concat([st.session_state["journal_db"], new_df], axis=0, ignore_index=True)
+    save_persistent_ledger(st.session_state["journal_db"])
 
 def clear_ledger_records():
-    st.session_state.journal_db = pd.DataFrame(columns=["Timestamp", "Asset", "Action", "Price", "Matrix RSI", "Status"])
-    save_persistent_ledger(st.session_state.journal_db)
+    st.session_state["journal_db"] = pd.DataFrame(columns=["Timestamp", "Asset", "Action", "Price", "Matrix RSI", "Status"])
+    save_persistent_ledger(st.session_state["journal_db"])
 
-# Core Session Storage Hydration
-if "journal_db" not in st.session_state: st.session_state.journal_db = load_persistent_ledger()
-if "cached_target_asset" not in st.session_state: st.session_state.cached_target_asset = "USDZAR=X"
-if "cached_display_name" not in st.session_state: st.session_state.cached_display_name = "USD/ZAR"
-if "price" not in st.session_state: st.session_state.price = 16.5170
-if "direction" not in st.session_state: st.session_state.direction = "⏳ HOLD / STANDBY"
-if "color" not in st.session_state: st.session_state.color = "#757575"
-if "m15_rsi" not in st.session_state: st.session_state.m15_rsi = 50.0
-if "h1_rsi" not in st.session_state: st.session_state.h1_rsi = 50.0
-if "h4_rsi" not in st.session_state: st.session_state.h4_rsi = 50.0
+# Robust Dictionary-Style Session Initialization
+if "journal_db" not in st.session_state: st.session_state["journal_db"] = load_persistent_ledger()
+if "cached_target_asset" not in st.session_state: st.session_state["cached_target_asset"] = "USDZAR=X"
+if "cached_display_name" not in st.session_state: st.session_state["cached_display_name"] = "USD/ZAR"
+if "price" not in st.session_state: st.session_state["price"] = 16.5170
+if "direction" not in st.session_state: st.session_state["direction"] = "⏳ HOLD / STANDBY"
+if "color" not in st.session_state: st.session_state["color"] = "#757575"
+if "m15_rsi" not in st.session_state: st.session_state["m15_rsi"] = 50.0
+if "h1_rsi" not in st.session_state: st.session_state["h1_rsi"] = 50.0
+if "h4_rsi" not in st.session_state: st.session_state["h4_rsi"] = 50.0
 
-# Macro Indicator Row Panel
 def process_macro_volatility_gauge():
     current_time = datetime.datetime.now()
     macro_calendar = [
@@ -52,6 +51,7 @@ def process_macro_volatility_gauge():
         {"event": "🇺🇸 Federal Reserve FOMC Decision", "date": datetime.date(2026, 12, 16), "hour": 21, "minute": 0},
     ]
     active_threat = None
+    time_str = ""
     for item in macro_calendar:
         event_datetime = datetime.datetime.combine(item["date"], datetime.time(item["hour"], item["minute"]))
         if event_datetime > current_time:
@@ -83,72 +83,67 @@ reverse_map = {v: k for k, v in ig_name_map.items()}
 selected_ticker = reverse_map.get(chosen_display, "USDZAR=X")
 with col_trigger: search_activated = st.button("🛰️ SCAN")
 
-# Global Telemetry Synchronizer Row
-if search_activated or st.session_state.cached_target_asset != selected_ticker:
-    st.session_state.cached_target_asset = selected_ticker
-    st.session_state.cached_display_name = chosen_display
+if search_activated or st.session_state["cached_target_asset"] != selected_ticker:
+    st.session_state["cached_target_asset"] = selected_ticker
+    st.session_state["cached_display_name"] = chosen_display
     try:
-        ticker_feed = yf.Ticker(st.session_state.cached_target_asset)
+        ticker_feed = yf.Ticker(st.session_state["cached_target_asset"])
         df_15m = ticker_feed.history(period="5d", interval="15m")
         df_1h = ticker_feed.history(period="30d", interval="1h")
         df_4h = ticker_feed.history(period="60d", interval="4h")
         if not df_1h.empty:
-            st.session_state.price = df_1h['Close'].iloc[-1]
-            st.session_state.m15_rsi = eng.calculate_rsi(df_15m).iloc[-1] if not df_15m.empty else 50.0
-            st.session_state.h1_rsi = eng.calculate_rsi(df_1h).iloc[-1]
-            st.session_state.h4_rsi = eng.calculate_rsi(df_4h).iloc[-1] if not df_4h.empty else 50.0
-            if st.session_state.m15_rsi < 40 and st.session_state.h1_rsi < 45 and st.session_state.h4_rsi < 50:
-                st.session_state.direction, st.session_state.color = "🚀 CONVERGENT BUY", "#4CAF50"
-            elif st.session_state.m15_rsi > 60 and st.session_state.h1_rsi > 55 and st.session_state.h4_rsi > 50:
-                st.session_state.direction, st.session_state.color = "💥 CONVERGENT SELL", "#E53935"
+            st.session_state["price"] = df_1h['Close'].iloc[-1]
+            st.session_state["m15_rsi"] = eng.calculate_rsi(df_15m).iloc[-1] if not df_15m.empty else 50.0
+            st.session_state["h1_rsi"] = eng.calculate_rsi(df_1h).iloc[-1]
+            st.session_state["h4_rsi"] = eng.calculate_rsi(df_4h).iloc[-1] if not df_4h.empty else 50.0
+            if st.session_state["m15_rsi"] < 40 and st.session_state["h1_rsi"] < 45 and st.session_state["h4_rsi"] < 50:
+                st.session_state["direction"], st.session_state["color"] = "🚀 CONVERGENT BUY", "#4CAF50"
+            elif st.session_state["m15_rsi"] > 60 and st.session_state["h1_rsi"] > 55 and st.session_state["h4_rsi"] > 50:
+                st.session_state["direction"], st.session_state["color"] = "💥 CONVERGENT SELL", "#E53935"
             else:
-                st.session_state.direction, st.session_state.color = "⏳ HOLD / STANDBY", "#757575"
+                st.session_state["direction"], st.session_state["color"] = "⏳ HOLD / STANDBY", "#757575"
     except Exception: pass
 
 st.sidebar.markdown("<h3 style='color:#4CAF50 !important; font-weight:900;'>☰ MAIN CORE</h3>", unsafe_allow_html=True)
 page_select = st.sidebar.radio("CHOOSE MODULE SHEET:", ["📊 TERMINAL SIGNALS", "📡 SATELLITE NEWS", "🕹️ LEDGER JOURNAL"])
 
-# Router Matrix Execution Layers
 if page_select == "📊 TERMINAL SIGNALS":
-    st.markdown(f"#### 📡 Telemetry Feed Workspace: <span style='color:#4CAF50;'>{st.session_state.cached_display_name}</span>", unsafe_allow_html=True)
+    st.markdown(f"#### 📡 Telemetry Feed Workspace: <span style='color:#4CAF50;'>{st.session_state['cached_display_name']}</span>", unsafe_allow_html=True)
     st.markdown(f"""
         <div class='cyber-card'>
-            <h3 style='text-align:center; color:#FFFFFF; margin-top:0px; font-family:monospace;'>⚡ {st.session_state.cached_display_name} MULTI-MATRIX</h3>
+            <h3 style='text-align:center; color:#FFFFFF; margin-top:0px; font-family:monospace;'>⚡ {st.session_state['cached_display_name']} MULTI-MATRIX</h3>
             <hr style='border-color:#1F1140; margin:15px 0;'>
             <div style='display: flex; justify-content: space-between; text-align: center;'>
                 <div style='flex: 1;'>
                     <p style='color:#90A4AE; font-size:10px; margin-bottom:5px; font-weight:bold;'>SPOT VALUE</p>
-                    <h2 class='matrix-num' style='margin:0; font-size:24px;'>{"R " if "ZAR" in st.session_state.cached_target_asset else "$ "}{st.session_state.price:.4f}</h2>
+                    <h2 class='matrix-num' style='margin:0; font-size:24px;'>{"R " if "ZAR" in st.session_state['cached_target_asset'] else "$ "}{st.session_state['price']:.4f}</h2>
                 </div>
                 <div style='flex: 1; border-left: 1px solid #1F1140; border-right: 1px solid #1F1140;'>
                     <p style='color:#90A4AE; font-size:10px; margin-bottom:5px; font-weight:bold;'>CONVERGENCE</p>
-                    <h2 style='color:{st.session_state.color}; margin:0; font-size:18px;'>{st.session_state.direction}</h2>
+                    <h2 style='color:{st.session_state['color']}; margin:0; font-size:18px;'>{st.session_state['direction']}</h2>
                 </div>
                 <div style='flex: 1;'>
                     <p style='color:#90A4AE; font-size:10px; margin-bottom:5px; font-weight:bold;'>H1 RSI</p>
-                    <h2 class='matrix-num' style='margin:0; font-size:24px;'>{st.session_state.h1_rsi:.1f}</h2>
+                    <h2 class='matrix-num' style='margin:0; font-size:24px;'>{st.session_state['h1_rsi']:.1f}</h2>
                 </div>
             </div>
             <hr style='border-color:#1F1140; margin:15px 0;'>
             <div style='display: flex; justify-content: space-around; text-align: center; font-family:monospace; font-size:11px; color:#CFD8DC;'>
-                <div>15M RSI: <b style='color:#4CAF50;'>{st.session_state.m15_rsi:.1f}</b></div>
-                <div>1H RSI: <b style='color:#4CAF50;'>{st.session_state.h1_rsi:.1f}</b></div>
-                <div>4H RSI: <b style='color:#4CAF50;'>{st.session_state.h4_rsi:.1f}</b></div>
+                <div>15M RSI: <b style='color:#4CAF50;'>{st.session_state['m15_rsi']:.1f}</b></div>
+                <div>1H RSI: <b style='color:#4CAF50;'>{st.session_state['h1_rsi']:.1f}</b></div>
+                <div>4H RSI: <b style='color:#4CAF50;'>{st.session_state['h4_rsi']:.1f}</b></div>
             </div>
         </div>
     """, unsafe_allow_html=True)
-    st.markdown("<p style='font-size:11px; font-weight:bold; color:#90A4AE; margin-bottom:12px; font-family:monospace;'>🕯️ REAL-TIME TELEMETRY CANDLESTICK GRID ARRAY</p>", unsafe_allow_html=True)
     
-    t_feed = yf.Ticker(st.session_state.cached_target_asset)
+    t_feed = yf.Ticker(st.session_state["cached_target_asset"])
     h_df = t_feed.history(period="1mo", interval="1h")
     if not h_df.empty:
         fig_sig = cr.generate_candlestick_chart(h_df.tail(48))
         st.plotly_chart(fig_sig, use_container_width=True)
-    else:
-        st.warning("⚠️ Telemetry streaming node response pending...")
 
 elif page_select == "📡 SATELLITE NEWS":
-    np_view.render_news_tab(st.session_state.cached_target_asset, st.session_state.cached_display_name)
+    np_view.render_news_tab(st.session_state["cached_target_asset"], st.session_state["cached_display_name"])
 
 elif page_select == "🕹️ LEDGER JOURNAL":
-    jp_view.render_journal_tab(st.session_state.cached_display_name, st.session_state.price, st.session_state.h1_rsi, append_ledger_record, clear_ledger_records)
+    jp_view.render_journal_tab(st.session_state["cached_display_name"], st.session_state["price"], st.session_state["h1_rsi"], append_ledger_record, clear_ledger_records)
