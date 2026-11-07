@@ -178,7 +178,6 @@ if page_select == "📊 EXECUTIVE SIGNALS":
             st.divider()
             st.markdown("<p style='font-size:13px; font-weight:bold; letter-spacing:0.5px; color:#90A4AE;'>🕯️ REAL-TIME DEALING CANDLESTICK GRAPH WITH TARGET BARRIERS</p>", unsafe_allow_html=True)
             
-            # 🔥 FIX: Fully closed the parenthesis on the go.Candlestick call line block
+            # 🔥 FIX: Explicitly closed with standard closing brackets on line 183/184
             plot_df = hourly_df.tail(48)
             fig_sig = go.Figure()
-            fig_sig.add_trace(go.Candlestick(
