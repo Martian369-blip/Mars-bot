@@ -1,19 +1,19 @@
 import streamlit as st
 import pandas as pd
 import datetime
+import os
 
 def render_journal_tab(ig_display_name, price, h1_rsi, save_callback, clear_callback):
     """Institutional quantitative ledger matrix with complete cashflow logging tracks."""
     st.markdown("### 🕹️ Persistent Quant Ledger Session")
     
-    # 📊 Live Dashboard Scoreboard Aggregations
-    total_trades = len(st.session_state.get("journal_db", pd.DataFrame()))
-    
-    # Load separate cashflow ledger database if not set
+    # Secure separate cashflow ledger database file matrix
     if "cashflow_db" not in st.session_state:
         if os.path.exists("cashflow_vault.csv"):
-            try: st.session_state["cashflow_db"] = pd.read_csv("cashflow_vault.csv")
-            except Exception: st.session_state["cashflow_db"] = pd.DataFrame(columns=["Timestamp", "Type", "Amount", "Currency", "Status"])
+            try: 
+                st.session_state["cashflow_db"] = pd.read_csv("cashflow_vault.csv")
+            except Exception: 
+                st.session_state["cashflow_db"] = pd.DataFrame(columns=["Timestamp", "Type", "Amount", "Currency", "Status"])
         else:
             st.session_state["cashflow_db"] = pd.DataFrame(columns=["Timestamp", "Type", "Amount", "Currency", "Status"])
 
