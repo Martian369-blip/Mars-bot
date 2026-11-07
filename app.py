@@ -40,7 +40,7 @@ ig_name_map = {
 }
 display_options = list(ig_name_map.values())
 
-col_search, col_trigger = st.columns([3, 1])
+col_search, col_trigger = st.columns()
 with col_search:
     chosen_display = st.selectbox("🔍 SELECT MARKET WORKSPACE:", options=display_options, label_visibility="collapsed")
 
@@ -161,13 +161,12 @@ if page_select == "📊 EXECUTIVE SIGNALS":
             fig_sig.update_layout(template="plotly_dark", paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='#161A1E', xaxis_rangeslider_visible=False, height=350, margin=dict(l=10, r=10, t=10, b=10))
             st.plotly_chart(fig_sig, use_container_width=True)
             
-            # 🚨 MULTILATERAL INTER-ASSET CORRELATION MATRIX PANELS (FIXED SYNTAX INDENTATION)
+            # 🚨 MULTILATERAL INTER-ASSET CORRELATION FLAT STRUCTURE BLOCK
             st.divider()
             st.markdown("<p style='font-size:12px; font-weight:bold; color:#90A4AE; letter-spacing:0.5px;'>🚨 MULTILATERAL ALIGNMENT CORRELATION FOOTER:</p>", unsafe_allow_html=True)
             
-            try:
-                if "BUY" in direction and "USDZAR" in target_asset:
-                    st.error("🚨 **CORRELATION MATRIX ALERT:** Strong Capital flight into Safe Haven Dollars is active. Emerging Market assets face high short-term liquidations. Align lot configurations accordingly.")
-                elif "BUY" in direction and "GC=F" in target_asset:
-                    st.success("🚀 **CORRELATION MATRIX ALERT:** Gold accumulation confirms classic safe haven rotation. Expect systematic pressure onto secondary risk asset valuations.")
-                else:
+            if "BUY" in direction and "ZAR" in target_asset:
+                st.error("🚨 **CORRELATION MATRIX ALERT:** Strong Capital flight into Safe Haven Dollars is active. Emerging Market assets face high short-term liquidations. Align lot configurations accordingly.")
+            elif "BUY" in direction and "GC=F" in target_asset:
+                st.success("🚀 **CORRELATION MATRIX ALERT:** Gold accumulation confirms classic safe haven rotation. Expect systematic pressure onto secondary risk asset valuations.")
+            else:
