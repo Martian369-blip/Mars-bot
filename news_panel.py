@@ -1,35 +1,25 @@
 import streamlit as st
-import pandas as pd
-import datetime
+import yfinance as yf
 
-def render_journal_tab(ig_display_name, price, h1_rsi, save_callback, clear_callback):
-    """Autonomous ledger vault data management panel."""
-    st.markdown("### 🕹️ Persistent Quant Ledger Session")
-    col_l1, col_l2 = st.columns(2)
-    with col_l1:
-        log_action = st.selectbox("ACTION:", ["BUY / LONG", "SELL / SHORT"])
-    with col_l2:
-        log_price = st.number_input("ENTRY PRICE VALUE:", value=float(price), format="%.4f")
-        
-    if st.button("🚀 TRANSMIT RECORD TO CLOUD VAULT"):
-        new_row = pd.DataFrame([{
-            "Timestamp": datetime.datetime.now().strftime("%Y-%m-%d %H:%M"), 
-            "Asset": ig_display_name, 
-            "Action": log_action, 
-            "Price": log_price, 
-            "Matrix RSI": h1_rsi, 
-            "Status": "LIVE UNREALIZED"
-        }])
-        save_callback(new_row)
-        st.success("🛰️ Sequence captured securely into terminal storage!")
-        st.rerun()
-        
-    st.divider()
-    st.markdown("#### 📦 CLOUD SECURED LEDGER ROWS:")
-    if st.session_state.journal_db.empty:
-        st.info("⏳ Core ledger database is currently clean and awaiting transmissions.")
-    else:
-        st.dataframe(st.session_state.journal_db, use_container_width=True)
-        if st.button("⚠️ ERASE GLOBAL STORAGE HISTORY"):
-            clear_callback()
-            st.rerun()
+def render_news_tab(target_asset, ig_display_name):
+    """Autonomous satellite intelligence stream parser block."""
+    st.markdown(f"#### 📡 Active Intel Stream: <span style='color:#4CAF50;'>{ig_display_name}</span>", unsafe_allow_html=True)
+    try:
+        n_ticker = yf.Ticker(target_asset)
+        news_list = n_ticker.news
+        if news_list:
+            for item in news_list[:5]:
+                title = item.get("title", "No Title Available")
+                publisher = item.get("publisher", "Global Feed")
+                link = item.get("link", "#")
+                st.markdown(f"""
+                    <div class='cyber-card'>
+                        <h5 style='margin:0; color:#4CAF50; font-family:monospace;'>📰 {publisher.upper()}</h5>
+                        <p style='color:#FFFFFF; font-size:13px; font-weight:bold; margin:8px 0;'>{title}</p>
+                        <a href='{link}' target='_blank' style='color:#90A4AE; font-size:11px; text-decoration:none; font-family:monospace;'>🔗 DECRYPT WIRE FEED →</a>
+                    </div>
+                """, unsafe_allow_html=True)
+        else:
+            st.info("⏳ Scanning frequencies... No active news briefs caught in this sector.")
+    except Exception:
+        st.error("❌ Intelligence stream fetch interrupted.")
