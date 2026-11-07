@@ -146,6 +146,14 @@ if page_select == "📊 TERMINAL SIGNALS":
         </div>
     """, unsafe_allow_html=True)
     
+    # ⚡ NEW INTEGRATED HIGH-VISIBILITY CHART STATUS AND LABELS PANEL BANNER
+    st.markdown(f"""
+        <div style='display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-family: monospace;'>
+            <span style='font-size: 11px; font-weight: bold; color: #90A4AE;'>🕯️ REAL-TIME TELEMETRY CANDLESTICK GRID ARRAY</span>
+            <span style='font-size: 11px; font-weight: bold; color: {st.session_state["color"]}; background-color: rgba(0,0,0,0.2); padding: 2px 8px; border-radius: 3px; border: 1px solid {st.session_state["color"]};'>VECTOR STATUS: {st.session_state["direction"]}</span>
+        </div>
+    """, unsafe_allow_html=True)
+    
     t_feed = yf.Ticker(st.session_state["cached_target_asset"])
     h_df = t_feed.history(period="1mo", interval="1h")
     if not h_df.empty:
@@ -156,4 +164,3 @@ elif page_select == "📡 SATELLITE NEWS":
     getattr(np_view, "render_news_tab")(str(st.session_state["cached_target_asset"]), str(st.session_state["cached_display_name"]))
 
 elif page_select == "🕹️ LEDGER JOURNAL":
-    getattr(jp_view, "render_journal_tab")(str(st.session_state["cached_display_name"]), st.session_state["price"], st.session_state["h1_rsi"], append_ledger_record, clear_ledger_records)
