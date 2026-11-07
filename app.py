@@ -123,11 +123,10 @@ if page_select == "📊 EXECUTIVE SIGNALS":
             
             st.divider()
             
-            # 📊 UPGRADE 2: LIVE INSTITUTIONAL VOLATILITY & ATR PIP METER CARD
+            # 📊 LIVE INSTITUTIONAL VOLATILITY & ATR PIP METER CARD
             st.markdown("<p style='font-size:12px; font-weight:bold; color:#90A4AE; letter-spacing:0.5px;'>📊 MARKET RANGE & VOLATILITY GAUGES:</p>", unsafe_allow_html=True)
             col_v1, col_v2 = st.columns(2)
             
-            # Mathematical conversion to user-friendly pips/points
             pip_multiplier = 10000 if ("=" in target_asset and "ZAR" not in target_asset) else 1
             atr_pips = hourly_atr * pip_multiplier
             
@@ -144,7 +143,7 @@ if page_select == "📊 EXECUTIVE SIGNALS":
             st.divider()
             st.markdown("<p style='font-size:13px; font-weight:bold; letter-spacing:0.5px; color:#90A4AE;'>🕯️ REAL-TIME DEALING CANDLESTICK GRAPH WITH TARGET BARRIERS</p>", unsafe_allow_html=True)
             
-            # 🎯 UPGRADE 1: DYNAMIC TARGET LEVEL OVERLAYS ON PLOTLY CHART
+            # DYNAMIC TARGET LEVEL OVERLAYS ON PLOTLY CHART
             fig_sig = go.Figure()
             plot_df = hourly_df.tail(48)
             
@@ -154,7 +153,6 @@ if page_select == "📊 EXECUTIVE SIGNALS":
                 increasing_line_color='#4CAF50', decreasing_line_color='#E53935'
             ))
             
-            # If we are in an active signal state, plot continuous horizon target bands
             if direction != "⏳ HOLD / PRESERVE CASH":
                 fig_sig.add_shape(type="line", x0=plot_df.index[0], y0=take_profit, x1=plot_df.index[-1], y1=take_profit, line=dict(color="#4CAF50", width=2, dash="dash"), name="Take Profit")
                 fig_sig.add_shape(type="line", x0=plot_df.index[0], y0=stop_loss, x1=plot_df.index[-1], y1=stop_loss, line=dict(color="#E53935", width=2, dash="dash"), name="Stop Loss")
@@ -163,11 +161,13 @@ if page_select == "📊 EXECUTIVE SIGNALS":
             fig_sig.update_layout(template="plotly_dark", paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='#161A1E', xaxis_rangeslider_visible=False, height=350, margin=dict(l=10, r=10, t=10, b=10))
             st.plotly_chart(fig_sig, use_container_width=True)
             
-            # 🚨 UPGRADE 3: MULTILATERAL INTER-ASSET CORRELATION MATRIX PANELS
+            # 🚨 MULTILATERAL INTER-ASSET CORRELATION MATRIX PANELS (FIXED SYNTAX INDENTATION)
             st.divider()
             st.markdown("<p style='font-size:12px; font-weight:bold; color:#90A4AE; letter-spacing:0.5px;'>🚨 MULTILATERAL ALIGNMENT CORRELATION FOOTER:</p>", unsafe_allow_html=True)
             
             try:
-                # Lightweight baseline matrix check between core currency flow vs gold safe haven parameters
-                if direction == "🚀 BUY / LONG" and "USDZAR" in target_asset:
+                if "BUY" in direction and "USDZAR" in target_asset:
                     st.error("🚨 **CORRELATION MATRIX ALERT:** Strong Capital flight into Safe Haven Dollars is active. Emerging Market assets face high short-term liquidations. Align lot configurations accordingly.")
+                elif "BUY" in direction and "GC=F" in target_asset:
+                    st.success("🚀 **CORRELATION MATRIX ALERT:** Gold accumulation confirms classic safe haven rotation. Expect systematic pressure onto secondary risk asset valuations.")
+                else:
