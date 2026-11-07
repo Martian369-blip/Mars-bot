@@ -154,19 +154,23 @@ if page_select == "📊 EXECUTIVE SIGNALS":
             ))
             
             if direction != "⏳ HOLD / PRESERVE CASH":
-                fig_sig.add_shape(type="line", x0=plot_df.index[0], y0=take_profit, x1=plot_df.index[-1], y1=take_profit, line=dict(color="#4CAF50", width=2, dash="dash"), name="Take Profit")
-                fig_sig.add_shape(type="line", x0=plot_df.index[0], y0=stop_loss, x1=plot_df.index[-1], y1=stop_loss, line=dict(color="#E53935", width=2, dash="dash"), name="Stop Loss")
-                fig_sig.add_shape(type="line", x0=plot_df.index[0], y0=price, x1=plot_df.index[-1], y1=price, line=dict(color="#00A4E4", width=1.5, dash="dot"), name="Entry Price")
+                fig_sig.add_shape(type="line", x0=plot_df.index, y0=take_profit, x1=plot_df.index[-1], y1=take_profit, line=dict(color="#4CAF50", width=2, dash="dash"), name="Take Profit")
+                fig_sig.add_shape(type="line", x0=plot_df.index, y0=stop_loss, x1=plot_df.index[-1], y1=stop_loss, line=dict(color="#E53935", width=2, dash="dash"), name="Stop Loss")
+                fig_sig.add_shape(type="line", x0=plot_df.index, y0=price, x1=plot_df.index[-1], y1=price, line=dict(color="#00A4E4", width=1.5, dash="dot"), name="Entry Price")
             
             fig_sig.update_layout(template="plotly_dark", paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='#161A1E', xaxis_rangeslider_visible=False, height=350, margin=dict(l=10, r=10, t=10, b=10))
             st.plotly_chart(fig_sig, use_container_width=True)
             
-            # 🚨 MULTILATERAL INTER-ASSET CORRELATION FLAT STRUCTURE BLOCK
+            # 🚨 CORE FIXED CORRELATION OUTPUT FOOTER (ZERO LOOPS TO PREVENT CRASHES)
             st.divider()
             st.markdown("<p style='font-size:12px; font-weight:bold; color:#90A4AE; letter-spacing:0.5px;'>🚨 MULTILATERAL ALIGNMENT CORRELATION FOOTER:</p>", unsafe_allow_html=True)
             
             if "BUY" in direction and "ZAR" in target_asset:
-                st.error("🚨 **CORRELATION MATRIX ALERT:** Strong Capital flight into Safe Haven Dollars is active. Emerging Market assets face high short-term liquidations. Align lot configurations accordingly.")
+                st.error("🚨 **CORRELATION ALERT:** Dollar-Haven flight active. Emerging asset liquidation high.")
             elif "BUY" in direction and "GC=F" in target_asset:
-                st.success("🚀 **CORRELATION MATRIX ALERT:** Gold accumulation confirms classic safe haven rotation. Expect systematic pressure onto secondary risk asset valuations.")
+                st.success("🚀 **CORRELATION ALERT:** Gold safe-haven asset inflows active. Secondary valuations compressed.")
             else:
+                st.info("⏳ **CORRELATION MATRIX STATUS:** Balanced cross-asset flow profiles. Local trends dominating.")
+
+elif page_select == "📡 SPECIALIZED NEWS":
+    np_view.render_news_tab(target_asset, ig_display_name)
