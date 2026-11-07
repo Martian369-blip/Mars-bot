@@ -2,14 +2,14 @@ import streamlit as st
 
 def load_ig_style():
     """
-    Sovereign Apex Emerald Cyber Matrix Layout Overhaul
-    Implements high-density monospace tracking, neon green accenting, and glassmorphic cards.
+    Sovereign Apex Emerald Cyber Matrix Layout Overhaul - High Depth Edit
+    Targets all hidden wrapper containers to enforce absolute dark mode isolation.
     """
     st.markdown("""
         <style>
-            /* 🛸 Global App Workspace Skin Overrides */
-            [data-testid="stAppViewContainer"] { 
-                background-color: #0B0E11 !important; 
+            /* 🛸 1. MAXIMUM DEPTH WORKSPACE BACKGROUND SKIN OVERRIDES */
+            html, body, [data-testid="stAppViewContainer"], [data-testid="stAppViewBlockContainer"] { 
+                background-color: #050709 !important; 
             }
             [data-testid="stHeader"] { 
                 background: rgba(0,0,0,0) !important; 
@@ -24,13 +24,13 @@ def load_ig_style():
                 font-family: "Courier New", Courier, monospace !important;
                 font-weight: bold !important;
                 color: #4CAF50 !important;
-                text-shadow: 0 0 8px rgba(76, 175, 80, 0.3) !important;
+                text-shadow: 0 0 10px rgba(76, 175, 80, 0.35) !important;
             }
             
             /* 🔍 Glassmorphic Active Dropdown Menu Grid */
             div[data-baseweb="select"] {
-                background-color: #12161B !important;
-                border: 1px solid #1E252D !important;
+                background-color: #0E1216 !important;
+                border: 1px solid #171E24 !important;
                 border-radius: 4px !important;
                 transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             }
@@ -58,30 +58,30 @@ def load_ig_style():
             
             /* 📊 Cyberpunk Console Sidebar Menu Overrides */
             [data-testid="stSidebar"] {
-                background-color: #07090C !important;
-                border-right: 1px solid #12161B !important;
+                background-color: #030406 !important;
+                border-right: 1px solid #0E1216 !important;
             }
             
             /* 🕯️ Graphic Viewport Container Frames */
             div.stPlotlyChart {
-                background-color: #12161B !important;
-                border: 1px solid #1E252D !important;
+                background-color: #0B0E11 !important;
+                border: 1px solid #161D24 !important;
                 border-radius: 6px !important;
                 padding: 12px !important;
-                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4) !important;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6) !important;
             }
             
             /* 🚀 Premium Telemetry Matrix Data Card Block */
             .cyber-card {
-                background: #12161B;
+                background: #0B0E11;
                 border-left: 3px solid #4CAF50;
-                border-top: 1px solid #1E252D;
-                border-right: 1px solid #1E252D;
-                border-bottom: 1px solid #1E252D;
+                border-top: 1px solid #161D24;
+                border-right: 1px solid #161D24;
+                border-bottom: 1px solid #161D24;
                 border-radius: 4px;
                 padding: 18px;
                 margin-bottom: 20px;
-                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
             }
         </style>
     """, unsafe_allow_html=True)
