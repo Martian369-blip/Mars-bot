@@ -110,8 +110,8 @@ if search_activated or st.session_state["cached_target_asset"] != selected_ticke
 
 st.sidebar.markdown("<h3 style='color:#4CAF50 !important; font-weight:900;'>☰ MAIN CORE</h3>", unsafe_allow_html=True)
 
-# Main sheet matrix list strings
-navigation_sheets = ["📊 TERMINAL SIGNALS", "📡 SATELLITE NEWS", "🕹️ LEDGER JOURNAL"]
+# Main sheet matrix lists matching the radio buttons
+navigation_sheets = ["📊 TERMINAL SIGNALS", "📡 SATELLITE NEWS", "🕹️  LEDGER JOURNAL"]
 
 page_select = st.sidebar.radio(
     "CHOOSE MODULE SHEET:", 
@@ -119,8 +119,8 @@ page_select = st.sidebar.radio(
     key="active_navigation_sheet"
 )
 
-# Indentation perfectly corrected for each branch block
-if page_select == "📊 TERMINAL SIGNALS":
+# FIXED: Standardized text parsing string qualifiers to eliminate character space mismatches
+if "TERMINAL SIGNALS" in page_select:
     st.markdown(f"#### 📡 Telemetry Feed Workspace: <span style='color:#4CAF50;'>{st.session_state['cached_display_name']}</span>", unsafe_allow_html=True)
     st.markdown(f"""
         <div class='cyber-card'>
@@ -162,6 +162,4 @@ if page_select == "📊 TERMINAL SIGNALS":
         fig_sig = cr.generate_candlestick_chart(h_df.tail(48))
         st.plotly_chart(fig_sig, use_container_width=True)
 
-elif page_select == "📡 SATELLITE NEWS":
-    getattr(np_view, "render_news_tab")(str(st.session_state["cached_target_asset"]), str(st.session_state["cached_display_name"]))
-
+elif "SATELLITE NEWS" in page_select:
