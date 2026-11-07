@@ -17,8 +17,7 @@ if "journal_db" not in st.session_state:
 if "live_balance" not in st.session_state:
     st.session_state.live_balance = 500.0
 
-# 📅 UPGRADE 2: GLOBAL TRADING SECTOR CLOCK TICKER GRID
-# Tracks institutional desks right at the top header segment of the interface
+# 📅 MULTI-NATION TRADING SECTOR CLOCK TICKER GRID
 current_hour_sa = datetime.datetime.now().hour
 
 london_status = "🟢 OPEN" if (9 <= current_hour_sa <= 17) else "🔴 CLOSED"
@@ -26,7 +25,7 @@ newyork_status = "🟢 OPEN" if (15 <= current_hour_sa <= 22) else "🔴 CLOSED"
 jse_status = "🟢 OPEN" if (9 <= current_hour_sa <= 17) else "🔴 CLOSED"
 
 st.markdown(
-    f"<div style='background-color:#161A1E; border:1px solid #23292F; padding:8px; border-radius:4px; text-align:center; font-size:11px; letter-spacing:0.5px; color:#90A4AE; margin-bottom:15px;'>"
+    f"<div style='background-color:#161A1E; border:1px solid #23292F; padding:8px; border-radius:4px; text-align:center; font-size:11px; letter-spacing:0.5px; color:#90A4AE; margin-bottom:15px;'> "
     f"🇬🇧 LONDON: <b style='color:#FFFFFF;'>{london_status}</b> | "
     f"🇺🇸 NEW YORK: <b style='color:#FFFFFF;'>{newyork_status}</b> | "
     f"🇿🇦 JOHANNESBURG JSE: <b style='color:#FFFFFF;'>{jse_status}</b>"
@@ -42,7 +41,8 @@ ig_name_map = {
 }
 display_options = list(ig_name_map.values())
 
-col_search, col_trigger = st.columns()
+# 🔥 FIX UPGRADE: Added proportional width ratio lists to resolve the layout crash
+col_search, col_trigger = st.columns([3, 1])
 with col_search:
     chosen_display = st.selectbox("🔍 SELECT MARKET WORKSPACE:", options=display_options, label_visibility="collapsed")
 
@@ -51,7 +51,7 @@ target_asset = reverse_map.get(chosen_display, "GBPUSD=X")
 ig_display_name = chosen_display
 
 with col_trigger:
-    search_activated = st.button("🛰️ SCAN ASSET NODE")
+    search_activated = st.button("🛰️ SCAN")
 
 st.sidebar.markdown("<h3 style='color:#00A4E4 !important;'>☰ IG CONSOLE</h3>", unsafe_allow_html=True)
 page_select = st.sidebar.radio("NAVIGATION PANEL:", ["📊 EXECUTIVE SIGNALS", "📡 SPECIALIZED NEWS", "🕹️ WORKSPACE JOURNAL"])
@@ -75,7 +75,6 @@ try:
         hourly_rsi = hourly_df['RSI'].iloc[-1]
         hourly_atr = eng.extract_hourly_atr(hourly_df)
         
-        # 🕯️ RUN LIVE CANDLESTICK SCANNER UPGRADE
         candle_pattern_alert = eng.scan_candlestick_patterns(hourly_df)
         
         recent_low = hourly_df['Low'].tail(24).min()
@@ -104,7 +103,6 @@ except Exception as e:
 if page_select == "📊 EXECUTIVE SIGNALS":
     st.markdown(f"#### 🎯 Live Sovereign Matrix Sheet: <span style='color:#00A4E4;'>{ig_display_name}</span>", unsafe_allow_html=True)
     
-    # NEON CANDLE ALIGNMENT NOTIFICATION ACCORDION BANNER
     if "ALIGNED" in candle_pattern_alert or "DETECTED" in candle_pattern_alert:
         st.warning(f"⚠️ **{candle_pattern_alert}**")
     else:
