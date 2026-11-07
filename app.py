@@ -2,19 +2,17 @@ import streamlit as st
 import yfinance as yf
 import pandas as pd
 import numpy as np
+import plotly.graph_objects as go
 import datetime
 import os
 import engine as eng
-import chart_render as cr
-import news_panel as np_view
-import journal_panel as jp_view
 import layout_config as lc
 
 # Initialize premium terminal view window layout
 st.set_page_config(page_title="MARS_BOT V16.0", page_icon="👽", layout="centered", initial_sidebar_state="collapsed")
 lc.load_ig_style()
 
-# PERSISTENT JOURNAL VAULT CONSTANTS
+# 🕹️ PERMANENT DATA LEDGER STORAGE SETUP
 PERSISTENT_FILE = "ledger_vault.csv"
 
 def load_persistent_ledger():
@@ -28,27 +26,21 @@ def load_persistent_ledger():
 def save_persistent_ledger(df):
     df.to_csv(PERSISTENT_FILE, index=False)
 
-# Secure active session memory cores
+# Hydrate permanent memory structures into active runtime cache
 if "journal_db" not in st.session_state:
     st.session_state.journal_db = load_persistent_ledger()
 if "cached_target_asset" not in st.session_state:
     st.session_state.cached_target_asset = "USDZAR=X"
 if "cached_display_name" not in st.session_state:
     st.session_state.cached_display_name = "USD/ZAR"
-if "price" not in st.session_state: 
-    st.session_state.price = 16.5170
-if "direction" not in st.session_state: 
-    st.session_state.direction = "HOLD / STANDBY"
-if "color" not in st.session_state: 
-    st.session_state.color = "#757575"
-if "m15_rsi" not in st.session_state: 
-    st.session_state.m15_rsi = 50.0
-if "h1_rsi" not in st.session_state: 
-    st.session_state.h1_rsi = 50.0
-if "h4_rsi" not in st.session_state: 
-    st.session_state.h4_rsi = 50.0
+if "price" not in st.session_state: st.session_state.price = 16.5170
+if "direction" not in st.session_state: st.session_state.direction = "⏳ HOLD / STANDBY"
+if "color" not in st.session_state: st.session_state.color = "#757575"
+if "m15_rsi" not in st.session_state: st.session_state.m15_rsi = 50.0
+if "h1_rsi" not in st.session_state: st.session_state.h1_rsi = 50.0
+if "h4_rsi" not in st.session_state: st.session_state.h4_rsi = 50.0
 
-# 🛰️ OPTION 1: HIGH-IMPACT AUTOMATED MACRO ECONOMIC VOLATILITY RADAR
+# 🛰️ MODULE 1: AUTOMATED SATELLITE MACRO ECONOMIC VOLATILITY RADAR
 def process_macro_volatility_gauge():
     current_time = datetime.datetime.now()
     macro_calendar = [
@@ -75,13 +67,13 @@ def process_macro_volatility_gauge():
 
 process_macro_volatility_gauge()
 
-# 📅 MULTI-NATION CLOCK TICKS
+# 📅 MULTI-NATION GLOBAL SECTOR CLOCK TICKS
 current_hour_sa = datetime.datetime.now().hour
 london_status = "<span style='color:#4CAF50;'>● OPEN</span>" if (9 <= current_hour_sa <= 17) else "<span style='color:#E53935;'>○ CLOSED</span>"
 newyork_status = "<span style='color:#4CAF50;'>● OPEN</span>" if (15 <= current_hour_sa <= 22) else "<span style='color:#E53935;'>○ CLOSED</span>"
 st.markdown(f"<div style='background-color:#120A26; border:1px solid #1F1140; padding:8px; border-radius:4px; text-align:center; font-size:10px; font-family:monospace; color:#90A4AE; margin-bottom:20px;'>LON: {london_status} | NYC: {newyork_status}</div>", unsafe_allow_html=True)
 
-st.markdown("<h2 style='text-align: center; color: #FFFFFF !important; margin-bottom: 25px; font-weight: 900;'>🛸 MARS_BOT <span style='color:#4CAF50;'>V16.0</span></h2>", unsafe_allow_html=True)
+st.markdown("<h2 style='text-align: center; color: #FFFFFF !important; margin-bottom: 25px; font-weight: 900; letter-spacing: 2px;'>🛸 MARS_BOT <span style='color:#4CAF50;'>V16.0</span></h2>", unsafe_allow_html=True)
 
 ig_name_map = {
     "USDZAR=X": "USD/ZAR", "GBPUSD=X": "GBP/USD", "GC=F": "Gold", "EURUSD=X": "EUR/USD", 
@@ -99,8 +91,8 @@ selected_ticker = reverse_map.get(chosen_display, "USDZAR=X")
 with col_trigger:
     search_activated = st.button("🛰️ SCAN")
 
-# 📥 GLOBAL HIGH-SPEED TELEMETRY FETCH PIPELINE
-if search_activated or st.session_state.price == 16.5170 or st.session_state.cached_target_asset != selected_ticker:
+# 📥 GLOBAL ASYNCHRONOUS TELEMETRY ENGINE FETCH (PULLS RECURSIVELY AT ROOT LAYER)
+if search_activated or st.session_state.cached_target_asset != selected_ticker:
     st.session_state.cached_target_asset = selected_ticker
     st.session_state.cached_display_name = chosen_display
     try:
@@ -128,13 +120,13 @@ if search_activated or st.session_state.price == 16.5170 or st.session_state.cac
     except Exception: 
         pass
 
-# 🧭 SIDEBAR MATRIX CONSOLE RADIO COMMAND PANEL
+# 🧭 SIDEBAR INSTANCE COMMAND SWITCHBOARD
 st.sidebar.markdown("<h3 style='color:#4CAF50 !important; font-weight:900;'>☰ MAIN CORE</h3>", unsafe_allow_html=True)
 page_select = st.sidebar.radio("CHOOSE MODULE SHEET:", ["📊 TERMINAL SIGNALS", "📡 SATELLITE NEWS", "🕹️ LEDGER JOURNAL"])
 st.sidebar.divider()
-st.sidebar.caption("👽 V16.0 Flight Deck Multi-Module Schema.")
+st.sidebar.caption("👽 V16.0 Sovereign Unified Monolithic Frame.")
 
-# Load active dataset from root states
+# Extract memory nodes for active page execution layout arrays
 target_asset = st.session_state.cached_target_asset
 ig_display_name = st.session_state.cached_display_name
 price = st.session_state.price
@@ -145,7 +137,7 @@ direction = st.session_state.direction
 color = st.session_state.color
 
 # ==================================================================================
-# SWITCHBOARD ROUTING MODULES
+# 📊 SHEET 1: SIGNAL TELEMETRY READOUTS & PLOT GENERATOR
 # ==================================================================================
 if page_select == "📊 TERMINAL SIGNALS":
     st.markdown(f"#### 📡 Telemetry Feed Workspace: <span style='color:#4CAF50;'>{ig_display_name}</span>", unsafe_allow_html=True)
@@ -179,10 +171,10 @@ if page_select == "📊 TERMINAL SIGNALS":
     
     st.markdown("<p style='font-size:11px; font-weight:bold; color:#90A4AE; margin-bottom:12px; font-family:monospace;'>🕯️ REAL-TIME TELEMETRY CANDLESTICK GRID ARRAY</p>", unsafe_allow_html=True)
     
-    # 🕯️ DIRECT UNWRAPPED CALL TO AUTONOMOUS RENDERING PIPELINE ENGINE
+    # Fully self-contained Plotly pipeline block to circumvent layout bugs
     t_feed = yf.Ticker(target_asset)
     h_df = t_feed.history(period="1mo", interval="1h")
     if not h_df.empty:
         plot_df = h_df.tail(48)
-        fig_sig = cr.generate_candlestick_chart(plot_df)
-        st.plotly_chart(fig_sig, use_container_width=True)
+        fig_sig = go.Figure()
+        fig_sig.add_trace(go.Candlestick(
