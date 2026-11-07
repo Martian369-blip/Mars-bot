@@ -4,26 +4,12 @@ import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
 import engine as eng
-import news_panel as np_view  # 📡 Link directly into your new news file module
+import news_panel as np_view
+import layout_config as lc  # 🎛️ Link directly into your new styling file module
 
-# 🏛️ 1. CYBERPUNK TERMINAL SKINNING ENGINE
+# 🏛️ 1. SETUP TERMINAL AND LOAD ISOLATED INTERFACE SKIN
 st.set_page_config(page_title="MARS_BOT V12.6", page_icon="👽", layout="centered", initial_sidebar_state="collapsed")
-
-st.markdown("""
-<style>
-    .stApp { background-color: #12161A; color: #ECEFF1; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
-    h1, h2, h3, h4, h5, h6 { color: #FFFFFF !important; font-weight: 600 !important; }
-    div[data-testid="stContainer"] { border: 1px solid #23292F !important; background-color: #1C2127 !important; border-radius: 6px; padding: 18px; margin-bottom: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
-    .stButton>button { background-color: #1C2127 !important; color: #00A4E4 !important; border: 1px solid #00A4E4 !important; border-radius: 4px; font-size: 14px; width: 100%; height: 45px; font-weight: bold; transition: all 0.3s ease; }
-    .stButton>button:hover { background-color: #00A4E4 !important; color: #FFFFFF !important; box-shadow: 0 0 10px rgba(0,164,228,0.4); }
-    .stTextInput>div>div>input { background-color: #161A1E !important; color: #FFFFFF !important; border: 1px solid #2A323A !important; border-radius: 4px; text-align: center; font-size: 16px; height: 45px; }
-    .stTextInput>div>div>input:focus { border-color: #00A4E4 !important; }
-    .stSelectbox>div>div>div { background-color: #161A1E !important; color: #FFFFFF !important; border: 1px solid #2A323A !important; }
-    .stNumberInput>div>div>input { background-color: #161A1E !important; color: #FFFFFF !important; border: 1px solid #2A323A !important; }
-    section[data-testid="stSidebar"] { background-color: #161A1E !important; border-right: 1px solid #23292F !important; }
-    section[data-testid="stSidebar"] .stRadio>div { color: #ECEFF1 !important; }
-</style>
-""", unsafe_allow_html=True)
+lc.load_ig_style()
 
 if "journal_db" not in st.session_state:
     st.session_state.journal_db = pd.DataFrame(columns=["Asset", "Action", "Size", "Entry Price", "Profit/Loss (ZAR)", "Status"])
@@ -32,7 +18,8 @@ if "live_balance" not in st.session_state:
 
 st.markdown("<h2 style='text-align: center; color: #00A4E4 !important; margin-bottom: 5px;'>🛸 MARS_BOT V12.6</h2>", unsafe_allow_html=True)
 
-col_search, col_trigger = st.columns()
+# 🔥 FIX UPGRADE: Added proportional layouts [5, 1] into columns to resolve calculation constraints
+col_search, col_trigger = st.columns([5, 1])
 with col_search:
     user_input = st.text_input("🔍 SEARCH ASSET SYMBOL:", value="GBPUSD=X", label_visibility="collapsed").strip().upper()
 
@@ -91,7 +78,7 @@ except Exception as e:
     st.sidebar.error(f"Telemetry Core Sync Warning: {str(e)}")
 
 # ==================================================================================
-# SWITCHBOARD ROUTING LAYER (SUPER INDENTATION RESILIENT)
+# SWITCHBOARD ROUTING LAYER
 # ==================================================================================
 if page_select == "📊 EXECUTIVE SIGNALS":
     st.markdown(f"#### 🎯 Live Sovereign Matrix Sheet: <span style='color:#00A4E4;'>{ig_display_name}</span>", unsafe_allow_html=True)
@@ -132,7 +119,6 @@ if page_select == "📊 EXECUTIVE SIGNALS":
             st.plotly_chart(fig_sig, use_container_width=True)
 
 elif page_select == "📡 SPECIALIZED NEWS":
-    # 💥 CLEAN MODULE DELEGATION: Offloads the entire loop to eliminate indentation risk!
     np_view.render_news_tab(target_asset, ig_display_name)
 
 elif page_select == "🕹️ WORKSPACE JOURNAL":
@@ -150,3 +136,21 @@ elif page_select == "🕹️ WORKSPACE JOURNAL":
             increasing_line_color='#4CAF50', decreasing_line_color='#E53935'
         ))
         fig.add_trace(go.Scatter(x=chart_df.index, y=chart_df['tenkan_sen'], line=dict(color='#00FFFF', width=1.2), name="Tenkan"))
+        fig.add_trace(go.Scatter(x=chart_df.index, y=chart_df['kijun_sen'], line=dict(color='#FF00FF', width=1.2), name="Kijun"))
+        fig.add_trace(go.Scatter(x=chart_df.index, y=chart_df['senkou_span_a'], line=dict(color='rgba(76,175,80,0.4)', width=1, dash='dot'), name="Cloud A"))
+        fig.add_trace(go.Scatter(x=chart_df.index, y=chart_df['senkou_span_b'], line=dict(color='rgba(229,57,53,0.4)', width=1, dash='dot'), name="Cloud B"))
+        fig.update_layout(template="plotly_dark", paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='#161A1E', xaxis_rangeslider_visible=False, height=380, margin=dict(l=10, r=10, t=10, b=10))
+        st.plotly_chart(fig, use_container_width=True)
+    st.divider()
+    st.markdown("##### 🧾 Active Ledger & Cashflow Calculator Book")
+    col_b1, col_b2, col_b3 = st.columns(3)
+    with col_b1: st.metric("💵 Capital Funds (ZAR)", f"R{st.session_state.live_balance:.2f}")
+    with col_b2: st.metric("🛡️ Strict 2% Position Limit", f"R{(st.session_state.live_balance * 0.02):.2f}")
+    with col_b3: st.metric("🛸 Next Funding Milestone Target", "R1000.00", f"{((st.session_state.live_balance / 1000.0) * 100):.1f}%")
+    st.divider()
+    st.markdown("<p style='font-size:12px; font-weight:bold; color:#90A4AE;'>📝 DISPATCH RECENT COMPLETED CONTRACT FLOOR TRANSACTION:</p>", unsafe_allow_html=True)
+    with st.form("ledger_input_form"):
+        col_f1, col_f2 = st.columns(2)
+        with col_f1:
+            form_asset = st.text_input("Asset Row:", value=ig_display_name)
+            form_dir = st.selectbox("Execution Vector:", ["LONG BUY", "SHORT SELL"])
