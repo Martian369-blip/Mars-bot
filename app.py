@@ -7,7 +7,7 @@ import urllib.request
 import xml.etree.ElementTree as ET
 
 # 🏛️ 1. CYBERPUNK TERMINAL SKINNING ENGINE
-st.set_page_config(page_title="MARS_BOT V11.5", page_icon="👽", layout="centered", initial_sidebar_state="collapsed")
+st.set_page_config(page_title="MARS_BOT V11.6", page_icon="👽", layout="centered", initial_sidebar_state="collapsed")
 
 st.markdown("""
 <style>
@@ -32,6 +32,7 @@ if "live_balance" not in st.session_state:
 
 # Core Mathematical Indicators Engine
 def calculate_rsi(df, window=14):
+    if len(df) < window: return pd.Series(50.0, index=df.index)
     delta = df['Close'].diff()
     gain = (delta.where(delta > 0, 0)).rolling(window=window).mean()
     loss = (-delta.where(delta < 0, 0)).rolling(window=window).mean()
@@ -40,6 +41,7 @@ def calculate_rsi(df, window=14):
     return rsi.fillna(50.0)
 
 def extract_hourly_atr(df_hourly, window=14):
+    if len(df_hourly) < window: return df_hourly['Close'].iloc[-1] * 0.002 if not df_hourly.empty else 0.01
     high_low = df_hourly['High'] - df_hourly['Low']
     high_close = np.abs(df_hourly['High'] - df_hourly['Close'].shift())
     low_close = np.abs(df_hourly['Low'] - df_hourly['Close'].shift())
@@ -48,6 +50,12 @@ def extract_hourly_atr(df_hourly, window=14):
     return atr if not pd.isna(atr) else df_hourly['Close'].iloc[-1] * 0.002
 
 def compute_ichimoku(df):
+    if len(df) < 52:
+        df['tenkan_sen'] = df['Close']
+        df['kijun_sen'] = df['Close']
+        df['senkou_span_a'] = df['Close']
+        df['senkou_span_b'] = df['Close']
+        return df
     high_9 = df['High'].rolling(window=9).max()
     low_9 = df['Low'].rolling(window=9).min()
     df['tenkan_sen'] = (high_9 + low_9) / 2
@@ -86,7 +94,7 @@ def fetch_specialized_news(query_ticker):
 # ==================================================================================
 # 🕹️ PERSISTENT TOP-CENTERED SEARCH HUB (RUNS GLOBAL ON ALL PAGES)
 # ==================================================================================
-st.markdown("<h1 style='text-align: center;'>🛸 MARS_BOT V11.5</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center;'>🛸 MARS_BOT V11.6</h1>", unsafe_allow_html=True)
 
 col_search, col_trigger = st.columns([4, 1])
 with col_search:
@@ -103,51 +111,56 @@ page_select = st.sidebar.radio(
 st.sidebar.divider()
 st.sidebar.caption("👽 Active Core Framework. Click top-left arrow on mobile layout to open/close menu.")
 
-# 🏛️ GLOBAL CORE HARVESTER - Runs outside individual tabs to prevent page blanking bugs
-with st.spinner("Synchronizing orbital telemetry nodes..."):
-    try:
-        ticker_feed = yf.Ticker(target_asset)
-        daily_df = ticker_feed.history(period="3mo", interval="1d")
-        hourly_df = ticker_feed.history(period="1wk", interval="1h")
-        asset_name = ticker_feed.info.get('shortName', target_asset)
+# 🏛️ GLOBAL CORE HARVESTER - Fixed data period window lengths to insulate weekend close data dropoffs
+price, daily_rsi, hourly_rsi, hourly_atr, direction, color, stop_loss, take_profit = 0.0, 50.0, 50.0, 0.001, "HOLD", "#FFFF00", 0.0, 0.0
+asset_name = target_asset
+daily_df = pd.DataFrame()
+hourly_df = pd.DataFrame()
+
+try:
+    ticker_feed = yf.Ticker(target_asset)
+    daily_df = ticker_feed.history(period="3mo", interval="1d")
+    # Widened period to 1mo so weekend periods always contain historical candles to render charts smoothly
+    hourly_df = ticker_feed.history(period="1mo", interval="1h")
+    asset_name = ticker_feed.info.get('shortName', target_asset)
+    
+    if hourly_df.empty and not daily_df.empty:
+        hourly_df = daily_df.copy() # Stable layout fallback layer
+    
+    if not daily_df.empty and not hourly_df.empty:
+        daily_df['RSI'] = calculate_rsi(daily_df)
+        hourly_df['RSI'] = calculate_rsi(hourly_df)
         
-        if not daily_df.empty and not hourly_df.empty:
-            daily_df['RSI'] = calculate_rsi(daily_df)
-            hourly_df['RSI'] = calculate_rsi(hourly_df)
-            
-            price = daily_df['Close'].iloc[-1]
-            daily_rsi = daily_df['RSI'].iloc[-1]
-            hourly_rsi = hourly_df['RSI'].iloc[-1]
-            hourly_atr = extract_hourly_atr(hourly_df)
-            
-            recent_low = hourly_df['Low'].tail(24).min()
-            recent_high = hourly_df['High'].tail(24).max()
-            
-            if hourly_rsi < 35 or (price <= (recent_low * 1.005)):
-                direction, color = "🚀 BUY / LONG", "#00FF00"
-                stop_loss = price - (hourly_atr * 1.5)
-                take_profit = price + ((price - stop_loss) * 2.5)
-            elif hourly_rsi > 65 or (price >= (recent_high * 0.995)):
-                direction, color = "💥 SELL / SHORT", "#FF0000"
-                stop_loss = price + (hourly_atr * 1.5)
-                take_profit = price - ((stop_loss - price) * 2.5)
-            else:
-                direction, color = "⏳ HOLD / PRESERVE CASH", "#FFFF00"
-                stop_loss, take_profit = price, price
+        price = daily_df['Close'].iloc[-1]
+        daily_rsi = daily_df['RSI'].iloc[-1]
+        hourly_rsi = hourly_df['RSI'].iloc[-1]
+        hourly_atr = extract_hourly_atr(hourly_df)
+        
+        recent_low = hourly_df['Low'].tail(24).min()
+        recent_high = hourly_df['High'].tail(24).max()
+        
+        if hourly_rsi < 35 or (price <= (recent_low * 1.005)):
+            direction, color = "🚀 BUY / LONG", "#00FF00"
+            stop_loss = price - (hourly_atr * 1.5)
+            take_profit = price + ((price - stop_loss) * 2.5)
+        elif hourly_rsi > 65 or (price >= (recent_high * 0.995)):
+            direction, color = "💥 SELL / SHORT", "#FF0000"
+            stop_loss = price + (hourly_atr * 1.5)
+            take_profit = price - ((stop_loss - price) * 2.5)
         else:
-            price, daily_rsi, hourly_rsi, hourly_atr, direction, color, stop_loss, take_profit = 0.0, 50.0, 50.0, 0.0, "UNKNOWN", "#FFFF00", 0.0, 0.0
-    except Exception:
-        daily_df, hourly_df, asset_name = pd.DataFrame(), pd.DataFrame(), target_asset
-        price, daily_rsi, hourly_rsi, hourly_atr, direction, color, stop_loss, take_profit = 0.0, 50.0, 50.0, 0.0, "UNKNOWN", "#FFFF00", 0.0, 0.0
+            direction, color = "⏳ HOLD / PRESERVE CASH", "#FFFF00"
+            stop_loss, take_profit = price, price
+except Exception as e:
+    st.sidebar.error(f"Harvester sync warning: {str(e)}")
 
 # ==================================================================================
-# 📊 NAVIGATION ROW 1: EXECUTIVE SIGNALS (CANDLESTICK UPGRADE)
+# 📊 NAVIGATION ROW 1: EXECUTIVE SIGNALS
 # ==================================================================================
 if page_select == "📊 EXECUTIVE SIGNALS":
     st.markdown(f"### 🎯 Live Sovereign Matrix Sheet: {target_asset}")
     
     if daily_df.empty or hourly_df.empty:
-        st.error(f"❌ Empty market node feedback. Verify format on database rules: '{target_asset}'")
+        st.error(f"❌ Empty market node feedback. Verify format: '{target_asset}'")
     else:
         c_sym = "R" if ("ZAR" in target_asset or ".JO" in target_asset) else "$"
         formatted_price = f"{price:.4f}" if "ZAR" in target_asset else (f"{price:.5f}" if "=" in target_asset else f"{price:.2f}")
@@ -173,10 +186,3 @@ if page_select == "📊 EXECUTIVE SIGNALS":
                 with col_sl:
                     st.markdown(f"<div style='border: 1px solid #FF0000; padding:10px; border-radius:4px; text-align:center;'><span style='color:#FF0000; font-weight:bold;'>🛑 STOP-LOSS FIELD:</span><br><code style='font-size:18px;'>{pts_sl:.1f} pts away</code></div>", unsafe_allow_html=True)
                 with col_tp:
-                    st.markdown(f"<div style='border: 1px solid #00FF00; padding:10px; border-radius:4px; text-align:center;'><span style='color:#00FF00; font-weight:bold;'>🎯 TAKE-PROFIT FIELD:</span><br><code style='font-size:18px;'>{pts_tp:.1f} pts away</code></div>", unsafe_allow_html=True)
-            
-            st.divider()
-            st.markdown("#### 🕯️ Real-Time Intraday Candlestick Trend")
-            
-            # UPGRADE: Converted Line Chart to standard Candlestick format
-            fig_sig = go.Figure()
