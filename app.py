@@ -12,6 +12,36 @@ import news_panel as np_view
 st.set_page_config(page_title="MARS_BOT V16.0", page_icon="👽", layout="centered", initial_sidebar_state="collapsed")
 lc.load_ig_style()
 
+# 🛸 GLOBAL CYBERPUNK STYLING RESCUE MATRIX LAYER
+st.markdown("""
+    <style>
+        div[data-baseweb="select"], div[data-testid="stNumberInput"], .stButton button {
+            background-color: #120A26 !important;
+            border: 1px solid #2A1B4E !important;
+            color: #FFFFFF !important;
+            min-height: 42px !important;
+        }
+        div[data-testid="stDataFrame"] {
+            background-color: #120A26 !important;
+            border: 1px solid #1F1140 !important;
+            border-radius: 4px;
+            padding: 10px;
+        }
+        label, p, span {
+            color: #90A4AE !important;
+            font-family: monospace !important;
+        }
+        .cyber-card {
+            background-color: #120A26;
+            border: 1px solid #2A1B4E;
+            padding: 20px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
+    </style>
+""", unsafe_allow_html=True)
+
 PERSISTENT_FILE = "ledger_vault.csv"
 
 def load_persistent_ledger():
@@ -144,16 +174,3 @@ if page_select == "📊 TERMINAL SIGNALS":
     """, unsafe_allow_html=True)
     t_feed = yf.Ticker(st.session_state["cached_target_asset"])
     h_df = t_feed.history(period="1mo", interval="1h")
-    if not h_df.empty: st.plotly_chart(cr.generate_candlestick_chart(h_df.tail(48)), use_container_width=True)
-
-elif page_select == "📡 SATELLITE NEWS":
-    getattr(np_view, "render_news_tab")(str(st.session_state["cached_target_asset"]), str(st.session_state["cached_display_name"]))
-
-elif page_select == "🕹️ LEDGER JOURNAL":
-    st.markdown(f"#### 🕹️ Institutional Ledger Core: <span style='color:#00E5FF;'>{st.session_state['cached_display_name']} Vault</span>", unsafe_allow_html=True)
-    st.markdown("<p style='font-family:monospace; color:#90A4AE; font-size:11px; margin-bottom:5px;'>🛰️ INJECT TRANSACTION VECTOR MANUAL OVERRIDE:</p>", unsafe_allow_html=True)
-    
-    # B bulletproof flat layout controller array
-    c_act, c_prc, c_sts = st.columns([0.3, 0.4, 0.3])
-    input_action = c_act.selectbox("ACTION UNIT:", options=["🚀 BUY / LONG", "💥 SELL / SHORT"], key="flat_action")
-    input_price = c_prc.number_input("EXECUTION PRICE:", value=float(st.session_state["price"]), format="%.4f", key="flat_price")
