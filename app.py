@@ -120,7 +120,7 @@ page_select = st.sidebar.radio(
 )
 
 # Indentation corrected for each conditional section block branch
-if page_select == navigation_sheets[0]:
+if page_select == navigation_sheets:
     st.markdown(f"#### 📡 Telemetry Feed Workspace: <span style='color:#4CAF50;'>{st.session_state['cached_display_name']}</span>", unsafe_allow_html=True)
     st.markdown(f"""
         <div class='cyber-card'>
@@ -162,6 +162,6 @@ if page_select == navigation_sheets[0]:
         fig_sig = cr.generate_candlestick_chart(h_df.tail(48))
         st.plotly_chart(fig_sig, use_container_width=True)
 
-elif page_select == navigation_sheets[1]:
+elif page_select == navigation_sheets:
     getattr(np_view, "render_news_tab")(str(st.session_state["cached_target_asset"]), str(st.session_state["cached_display_name"]))
 
