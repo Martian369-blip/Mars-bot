@@ -119,7 +119,7 @@ page_select = st.sidebar.radio(
     key="active_navigation_sheet"
 )
 
-# FIXED: Strict block indentation alignment locked in for all execution sub-routines
+# FIXED: Single-line block structure used to bypass Python indentation quirks completely
 if "TERMINAL SIGNALS" in page_select:
     st.markdown(f"#### 📡 Telemetry Feed Workspace: <span style='color:#4CAF50;'>{st.session_state['cached_display_name']}</span>", unsafe_allow_html=True)
     st.markdown(f"""
@@ -148,18 +148,16 @@ if "TERMINAL SIGNALS" in page_select:
             </div>
         </div>
     """, unsafe_allow_html=True)
-    
     st.markdown(f"""
         <div style='display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-family: monospace;'>
             <span style='font-size: 11px; font-weight: bold; color: #90A4AE;'>🕯️ REAL-TIME TELEMETRY CANDLESTICK GRID ARRAY</span>
             <span style='font-size: 11px; font-weight: bold; color: {st.session_state["color"]}; background-color: rgba(0,0,0,0.2); padding: 2px 8px; border-radius: 3px; border: 1px solid {st.session_state["color"]};'>VECTOR STATUS: {st.session_state["direction"]}</span>
         </div>
     """, unsafe_allow_html=True)
-    
     t_feed = yf.Ticker(st.session_state["cached_target_asset"])
     h_df = t_feed.history(period="1mo", interval="1h")
     if not h_df.empty:
-        fig_sig = cr.generate_candlestick_chart(h_df.tail(48))
-        st.plotly_chart(fig_sig, use_container_width=True)
+        st.plotly_chart(cr.generate_candlestick_chart(h_df.tail(48)), use_container_width=True)
 
-elif "SATELLITE NEWS" in page_select:
+elif "SATELLITE NEWS" in page_select: getattr(np_view, "render_news_tab")(str(st.session_state["cached_target_asset"]), str(st.session_state["cached_display_name"]))
+
