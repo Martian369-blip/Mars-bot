@@ -16,7 +16,9 @@ PERSISTENT_FILE = "ledger_vault.csv"
 
 def load_persistent_ledger():
     if os.path.exists(PERSISTENT_FILE):
-        try: return pd.read_csv(PERSISTENT_FILE)
+        try:
+            df = pd.read_csv(PERSISTENT_FILE)
+            if not df.empty: return df
         except Exception: pass
     return pd.DataFrame(columns=["Timestamp", "Asset", "Action", "Price", "Matrix RSI", "Status"])
 
@@ -99,7 +101,6 @@ if search_activated or st.session_state["cached_target_asset"] != selected_ticke
 
 st.sidebar.markdown("<h3 style='color:#4CAF50 !important; font-weight:900;'>☰ MAIN CORE</h3>", unsafe_allow_html=True)
 
-# Exact Core Navigation Arrays
 navigation_sheets = ["📊 TERMINAL SIGNALS", "📡 SATELLITE NEWS", "🕹️ LEDGER JOURNAL"]
 
 page_select = st.sidebar.radio(
@@ -150,6 +151,9 @@ elif page_select == "📡 SATELLITE NEWS":
 
 elif page_select == "🕹️ LEDGER JOURNAL":
     st.markdown(f"#### 🕹️ Institutional Ledger Core: <span style='color:#00E5FF;'>{st.session_state['cached_display_name']} Vault</span>", unsafe_allow_html=True)
-    st.markdown("<p style='font-family:monospace; color:#90A4AE; font-size:11px; margin-bottom:15px;'>🛰️ TRANSACTION LEDGER STATUS ACTIVE</p>", unsafe_allow_html=True)
+    st.markdown("<p style='font-family:monospace; color:#90A4AE; font-size:11px; margin-bottom:5px;'>🛰️ INJECT TRANSACTION VECTOR MANUAL OVERRIDE:</p>", unsafe_allow_html=True)
     
-    # ULTIMATE COMPRESSION BYPASS: Single-line evaluation removes all indentation logic constraints entirely
+    # B bulletproof flat layout controller array
+    c_act, c_prc, c_sts = st.columns([0.3, 0.4, 0.3])
+    input_action = c_act.selectbox("ACTION UNIT:", options=["🚀 BUY / LONG", "💥 SELL / SHORT"], key="flat_action")
+    input_price = c_prc.number_input("EXECUTION PRICE:", value=float(st.session_state["price"]), format="%.4f", key="flat_price")
