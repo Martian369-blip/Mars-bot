@@ -43,6 +43,10 @@ if "m15_rsi" not in st.session_state: st.session_state["m15_rsi"] = 50.0
 if "h1_rsi" not in st.session_state: st.session_state["h1_rsi"] = 50.0
 if "h4_rsi" not in st.session_state: st.session_state["h4_rsi"] = 50.0
 
+# Bind Navigation Sheet explicitly to persistent cache core memory
+if "active_navigation_sheet" not in st.session_state: 
+    st.session_state["active_navigation_sheet"] = "📊 TERMINAL SIGNALS"
+
 def process_macro_volatility_gauge():
     current_time = datetime.datetime.now()
     macro_calendar = [
@@ -105,7 +109,13 @@ if search_activated or st.session_state["cached_target_asset"] != selected_ticke
     except Exception: pass
 
 st.sidebar.markdown("<h3 style='color:#4CAF50 !important; font-weight:900;'>☰ MAIN CORE</h3>", unsafe_allow_html=True)
-page_select = st.sidebar.radio("CHOOSE MODULE SHEET:", ["📊 TERMINAL SIGNALS", "📡 SATELLITE NEWS", "🕹️ LEDGER JOURNAL"])
+
+# Lock navigation strictly to state management keys
+page_select = st.sidebar.radio(
+    "CHOOSE MODULE SHEET:", 
+    ["📊 TERMINAL SIGNALS", "📡 SATELLITE NEWS", "🕹️ LEDGER JOURNAL"],
+    key="active_navigation_sheet"
+)
 
 if page_select == "📊 TERMINAL SIGNALS":
     st.markdown(f"#### 📡 Telemetry Feed Workspace: <span style='color:#4CAF50;'>{st.session_state['cached_display_name']}</span>", unsafe_allow_html=True)
@@ -143,7 +153,6 @@ if page_select == "📊 TERMINAL SIGNALS":
         st.plotly_chart(fig_sig, use_container_width=True)
 
 elif page_select == "📡 SATELLITE NEWS":
-    # Secure dynamic method execution to bypass hot-reload module attribute errors
     getattr(np_view, "render_news_tab")(str(st.session_state["cached_target_asset"]), str(st.session_state["cached_display_name"]))
 
 elif page_select == "🕹️ LEDGER JOURNAL":
