@@ -1,4 +1,4 @@
-  import streamlit as st
+import streamlit as st
 import yfinance as yf
 import pandas as pd
 import numpy as np
@@ -46,24 +46,19 @@ def extract_hourly_atr(df_hourly, window=14):
     return atr if not pd.isna(atr) else df_hourly['Close'].iloc[-1] * 0.002
 
 def compute_ichimoku(df):
-    # Conversion Line (Tenkan-sen): (9-period high + 9-period low)/2
     high_9 = df['High'].rolling(window=9).max()
     low_9 = df['Low'].rolling(window=9).min()
     df['tenkan_sen'] = (high_9 + low_9) / 2
     
-    # Base Line (Kijun-sen): (26-period high + 26-period low)/2
     high_26 = df['High'].rolling(window=26).max()
     low_26 = df['Low'].rolling(window=26).min()
     df['kijun_sen'] = (high_26 + low_26) / 2
     
-    # Leading Span A (Senkou Span A): (Conversion Line + Base Line)/2 shifted 26 periods forward
     df['senkou_span_a'] = ((df['tenkan_sen'] + df['kijun_sen']) / 2).shift(26)
     
-    # Leading Span B (Senkou Span B): (52-period high + 52-period low)/2 shifted 26 periods forward
     high_52 = df['High'].rolling(window=52).max()
     low_52 = df['Low'].rolling(window=52).min()
     df['senkou_span_b'] = ((high_52 + low_52) / 2).shift(26)
-    
     return df
 
 # ==================================================================================
@@ -71,7 +66,6 @@ def compute_ichimoku(df):
 # ==================================================================================
 st.markdown("<h1 style='text-align: center;'>🛸 MARS_BOT V11.0</h1>", unsafe_allow_html=True)
 
-# Unified Global Entry Tracker Layout with an explicit execution button next to it
 col_search, col_trigger = st.columns([4, 1])
 with col_search:
     target_asset = st.text_input("🔍 SEARCH ASSET SYMBOL:", value="GBPUSD=X", label_visibility="collapsed").strip().upper()
@@ -135,13 +129,11 @@ if page_select == "📊 EXECUTIVE SIGNALS":
             st.markdown(f"<h3 style='text-align: center; margin: 0px;'>📦 {asset_name}</h3>", unsafe_allow_html=True)
             st.divider()
             
-            # Displays main numerical state configurations
             col_a, col_b, col_c = st.columns(3)
             with col_a: st.markdown(f"**Spot Rate:**\n### {c_sym}{formatted_price}")
             with col_b: st.markdown(f"**Live Signal:**\n<h3 style='color:{color}; margin-top:5px;'>{direction}</h3>", unsafe_allow_html=True)
             with col_c: st.markdown(f"**Hourly RSI:**\n### `{hourly_rsi:.1f}`")
             
-            # CRITICAL DESIGN ITEM: Stop Loss and Take Profit calculated and displayed BEFORE the chart
             if direction != "⏳ HOLD / PRESERVE CASH":
                 st.divider()
                 mult = 10000 if ("=" in target_asset and "ZAR" not in target_asset) else 1
@@ -168,6 +160,17 @@ elif page_select == "📡 SPECIALIZED NEWS":
     st.divider()
     
     if not ticker_feed.news:
-        st.warning(f"📡 Sweeping global networks... No localized headline logs returned for target string: '{target_asset}' right now. Displaying baseline sovereign intelligence feeds:")
+        st.warning(f"📡 Sweeping global networks... No localized headline logs returned for target string: '{target_asset}'. Displaying baseline sovereign intelligence feeds:")
         news_list = [
             {"title": "🦅 Federal Reserve Enforces Data-Dependence Over Late-Autumn Sessions", "summary": "Institutional dollar desks verify that robust labor metrics (165K payrolls) give central bankers room to hold interest rates steady to absorb supply anomalies."},
+            {"title": "🇿🇦 SA Rand Defends Structural Support Channels Near Multi-Day Demand Zones", "summary": "Local currency tracking confirms emerging markets buy volume actively sweeping local floors near R16.40 against the greenback."}
+        ]
+        for article in news_list:
+            with st.container():
+                st.markdown(f"##### {article['title']}")
+                st.write(article['summary'])
+    else:
+        for article in ticker_feed.news[:4]:
+            with st.container():
+                st.markdown(f"##### 🛰️ {article.get('title')}")
+                st.caption(f"Source: {article.get('publisher')} | Type: Core Macro Asset Node")
