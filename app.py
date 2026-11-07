@@ -40,7 +40,7 @@ newyork_status = "<span style='color:#4CAF50;'>● OPEN</span>" if (15 <= curren
 jse_status = "<span style='color:#4CAF50;'>● OPEN</span>" if (9 <= current_hour_sa <= 17) else "<span style='color:#E53935;'>○ CLOSED</span>"
 
 st.markdown(
-    f"<div style='background-color:#12161B; border:1px solid #1E252D; padding:8px; border-radius:4px; text-align:center; font-size:10px; font-family:monospace; letter-spacing:1px; color:#90A4AE; margin-bottom:20px;'> "
+    f"<div style='background-color:#120A26; border:1px solid #1F1140; padding:8px; border-radius:4px; text-align:center; font-size:10px; font-family:monospace; letter-spacing:1px; color:#90A4AE; margin-bottom:20px;'> "
     f"LON: {london_status} | NYC: {newyork_status} | JSE: {jse_status}"
     f"</div>", 
     unsafe_allow_html=True
@@ -65,7 +65,7 @@ selected_ticker = reverse_map.get(chosen_display, "USDZAR=X")
 with col_trigger:
     search_activated = st.button("🛰️ SCAN")
 
-# Persistent memory data sync pipeline loop
+# Data fetch layer handling pipeline with persistent caching fallbacks
 if search_activated or st.session_state.price == 0.0:
     st.session_state.cached_target_asset = selected_ticker
     st.session_state.cached_display_name = chosen_display
@@ -118,20 +118,20 @@ if page_select == "📊 TERMINAL SIGNALS":
     if hourly_df.empty:
         st.warning("🔄 Connecting to core telemetry stream grid...")
     else:
-        c_sym = "R " if ("ZAR" in target_asset or ".JO" in target_asset) else "$ "
+        c_sym = "R " if ("ZAR" in target_asset or ".JO" in target_asset) else "$" prefix = ""
         formatted_price = f"{price:.4f}" if "ZAR" in target_asset else (f"{price:.5f}" if "=" in target_asset else f"{price:.2f}")
         
         # 🚀 High-Density Emerald Glowing Data Container Grid Wrapper Block
         st.markdown(f"""
             <div class='cyber-card'>
                 <h3 style='text-align:center; color:#FFFFFF; margin-top:0px; font-weight:800; font-family:monospace; letter-spacing:1px;'>⚡ {ig_display_name} CORE SUMMARY</h3>
-                <hr style='border-color:#1E252D; margin:15px 0;'>
+                <hr style='border-color:#1F1140; margin:15px 0;'>
                 <div style='display: flex; justify-content: space-between; text-align: center;'>
                     <div style='flex: 1;'>
                         <p style='color:#90A4AE; font-size:10px; margin-bottom:5px; font-weight:bold; letter-spacing:1px;'>SPOT VALUE</p>
                         <h2 class='matrix-num' style='margin:0; font-size:24px;'>{c_sym}{formatted_price}</h2>
                     </div>
-                    <div style='flex: 1; border-left: 1px solid #1E252D; border-right: 1px solid #1E252D;'>
+                    <div style='flex: 1; border-left: 1px solid #1F1140; border-right: 1px solid #1F1140;'>
                         <p style='color:#90A4AE; font-size:10px; margin-bottom:5px; font-weight:bold; letter-spacing:1px;'>SYS SIGNAL</p>
                         <h2 style='color:{color}; margin:0; font-weight:bold; font-size:20px;'>{direction}</h2>
                     </div>
@@ -146,33 +146,33 @@ if page_select == "📊 TERMINAL SIGNALS":
         st.markdown("<p style='font-size:11px; font-weight:bold; letter-spacing:1px; color:#90A4AE; margin-bottom:12px; font-family:monospace;'>🕯️ REAL-TIME TELEMETRY CANDLESTICK GRID ARRAY</p>", unsafe_allow_html=True)
         
         # Polished Emerald Technical Candlestick Execution Configuration Layer
+        plot_df = hourly_df.tail(48)
         fig_sig = go.Figure()
         fig_sig.add_trace(go.Candlestick(
-            x=hourly_df.tail(48).index, open=hourly_df.tail(48)['Open'], high=hourly_df.tail(48)['High'],
-            low=hourly_df.tail(48)['Low'], close=hourly_df.tail(48)['Close'], name="Market",
+            x=plot_df.index, open=plot_df['Open'], high=plot_df['High'],
+            low=plot_df['Low'], close=plot_df['Close'], name="Market",
             increasing_line_color='#4CAF50', decreasing_line_color='#B71C1C',
             increasing_fillcolor='#1B5E20', decreasing_fillcolor='#7F0000'
         ))
-                # 🔥 PURE WHITE INNER CANDLE CANVAS WITH HIGH-CONTRAST DATA READOUTS
+        
+        # 🔥 FIXED: Extracted clean, light inner graphing parameters with correct brackets
         fig_sig.update_layout(
             template="plotly_white", 
-            paper_bgcolor='rgba(0,0,0,0)',   # Translucent outer mount layer to preserve purple box border
-            plot_bgcolor='#FFFFFF',          # FORCES INTERNAL CANDLE BACKDROP PURE WHITE
+            paper_bgcolor='rgba(0,0,0,0)',   
+            plot_bgcolor='#FFFFFF',          
             xaxis_rangeslider_visible=False, 
             height=330, 
             margin=dict(l=10, r=10, t=15, b=10),
             xaxis=dict(
-                gridcolor='#E0E4E8',         # Soft clean inner grid divider lines
+                gridcolor='#E0E4E8',         
                 zerolinecolor='#CFD8DC', 
-                tickfont=dict(family='monospace', size=10, color='#37474F', weight='bold') # Dark readable labels
+                tickfont=dict(family='monospace', size=10, color='#37474F')
             ),
             yaxis=dict(
                 gridcolor='#E0E4E8', 
                 zerolinecolor='#CFD8DC', 
-                tickfont=dict(family='monospace', size=10, color='#37474F', weight='bold')
+                tickfont=dict(family='monospace', size=10, color='#37474F')
             )
-        )
-
         )
         st.plotly_chart(fig_sig, use_container_width=True)
 
