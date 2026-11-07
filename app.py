@@ -12,7 +12,7 @@ import news_panel as np_view
 st.set_page_config(page_title="MARS_BOT V16.0", page_icon="👽", layout="centered", initial_sidebar_state="collapsed")
 lc.load_ig_style()
 
-# 🛸 UNBLOCKABLE INLINE CSS MATRIX RESCUE LAYER
+# Global CSS override rescue layer for element visibility
 st.markdown("""
     <style>
         div[data-baseweb="select"], div[data-testid="stNumberInput"], .stButton button {
@@ -55,10 +55,6 @@ if "color" not in st.session_state: st.session_state["color"] = "#757575"
 if "m15_rsi" not in st.session_state: st.session_state["m15_rsi"] = 50.0
 if "h1_rsi" not in st.session_state: st.session_state["h1_rsi"] = 50.0
 if "h4_rsi" not in st.session_state: st.session_state["h4_rsi"] = 50.0
-
-# Bind Navigation Sheet explicitly to persistent cache core memory
-if "active_navigation_sheet" not in st.session_state: 
-    st.session_state["active_navigation_sheet"] = "📊 TERMINAL SIGNALS"
 
 def process_macro_volatility_gauge():
     current_time = datetime.datetime.now()
@@ -123,17 +119,18 @@ if search_activated or st.session_state["cached_target_asset"] != selected_ticke
 
 st.sidebar.markdown("<h3 style='color:#4CAF50 !important; font-weight:900;'>☰ MAIN CORE</h3>", unsafe_allow_html=True)
 
-# Main sheet matrix lists matching the radio buttons
+# Main sheet layout arrays matching your screen strings exactly
 navigation_sheets = ["📊 TERMINAL SIGNALS", "📡 SATELLITE NEWS", "🕹️  LEDGER JOURNAL"]
 
 page_select = st.sidebar.radio(
     "CHOOSE MODULE SHEET:", 
-    options=navigation_sheets,
-    key="active_navigation_sheet"
+    options=navigation_sheets
 )
 
-# Core Page Conditional Routing
-if "TERMINAL SIGNALS" in page_select:
+# UNBREAKABLE BYPASS TRIGGER: Find position index numbers within the selection tuple
+current_page_index = navigation_sheets.index(page_select)
+
+if current_page_index == 0:
     st.markdown(f"#### 📡 Telemetry Feed Workspace: <span style='color:#4CAF50;'>{st.session_state['cached_display_name']}</span>", unsafe_allow_html=True)
     st.markdown(f"""
         <div class='cyber-card'>
@@ -171,3 +168,4 @@ if "TERMINAL SIGNALS" in page_select:
     h_df = t_feed.history(period="1mo", interval="1h")
     if not h_df.empty: st.plotly_chart(cr.generate_candlestick_chart(h_df.tail(48)), use_container_width=True)
 
+elif current_page_index == 1:
