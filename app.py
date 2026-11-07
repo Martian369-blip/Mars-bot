@@ -5,13 +5,12 @@ import numpy as np
 import plotly.graph_objects as go
 import engine as eng
 import news_panel as np_view
-import journal_panel as jp_view  # 🕹️ Import your premium automated cash ledger file
+import journal_panel as jp_view
 import layout_config as lc
 
 st.set_page_config(page_title="MARS_BOT V12.6", page_icon="👽", layout="centered", initial_sidebar_state="collapsed")
 lc.load_ig_style()
 
-# Automated initialization using the updated structured keys
 if "journal_db" not in st.session_state:
     st.session_state.journal_db = pd.DataFrame(columns=["Asset", "Action", "Cash In (R)", "Cash Out (R)", "Net P&L (ZAR)", "Entry Price", "Win/Loss %", "Status"])
 if "live_balance" not in st.session_state:
@@ -19,19 +18,34 @@ if "live_balance" not in st.session_state:
 
 st.markdown("<h2 style='text-align: center; color: #00A4E4 !important; margin-bottom: 5px;'>🛸 MARS_BOT V12.6</h2>", unsafe_allow_html=True)
 
-col_search, col_trigger = st.columns([4, 1])
-with col_search:
-    user_input = st.text_input("🔍 SEARCH ASSET SYMBOL:", value="GBPUSD=X", label_visibility="collapsed").strip().upper()
-
+# 🏛️ 1. RE-ARCHITECTED IG ASSET DROPDOWN MAPPER (INTEGRATING YOUR POPULAR INSTRUMENTS)
 ig_name_map = {
-    "EURUSD=X": "EUR/USD", "USDJPY=X": "USD/JPY", "AUDUSD=X": "AUD/USD", "GBPUSD=X": "GBP/USD",
-    "EURJPY=X": "EUR/JPY", "USDCAD=X": "USD/CAD", "USDCHF=X": "USD/CHF", "EURGBP=X": "EUR/GBP",
-    "USDZAR=X": "USD/ZAR", "GBPZAR=X": "GBP/ZAR", "GC=F": "Gold", "CL=F": "Oil - US Crude"
+    "GBPUSD=X": "GBP/USD",
+    "USDZAR=X": "USD/ZAR",
+    "EURUSD=X": "EUR/USD",
+    "USDJPY=X": "USD/JPY",
+    "AUDUSD=X": "AUD/USD",
+    "EURJPY=X": "EUR/JPY",
+    "USDCAD=X": "USD/CAD",
+    "GC=F": "Gold",
+    "CL=F": "Oil - US Crude",
+    "BZ=F": "Oil - Brent Crude",
+    "NG=F": "Natural Gas",
+    "RB=F": "Gasoline"
 }
 
-reverse_map = {v.upper(): k for k, v in ig_name_map.items()}
-target_asset = reverse_map.get(user_input, user_input)
-ig_display_name = ig_name_map.get(target_asset, target_asset)
+# Invert dictionary to match human titles back to data tickers
+display_options = list(ig_name_map.values())
+
+col_search, col_trigger = st.columns([3, 1])
+with col_search:
+    # Changed input box into a premium dropdown menu row selection array
+    chosen_display = st.selectbox("🔍 SELECT MARKET WORKSPACE:", options=display_options, label_visibility="collapsed")
+
+# Reverse map to locate the underlying asset
+reverse_map = {v: k for k, v in ig_name_map.items()}
+target_asset = reverse_map.get(chosen_display, "GBPUSD=X")
+ig_display_name = chosen_display
 
 with col_trigger:
     search_activated = st.button("🛰️ SCAN")
@@ -74,7 +88,6 @@ try:
             direction, color = "⏳ HOLD / PRESERVE CASH", "#FFB300"
             stop_loss, take_profit = price, price
             
-        # Push variables to state memory so news modules can reference them instantly
         st.session_state['hourly_rsi'] = hourly_rsi
         st.session_state['current_price'] = price
         st.session_state['current_direction'] = direction
