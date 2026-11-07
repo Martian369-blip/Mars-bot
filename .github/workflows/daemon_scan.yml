@@ -1,0 +1,30 @@
+name: 🛰️ Mars Bot Autonomous Market Radar
+on:
+  schedule:
+    # Executes the simultaneous matrix calculation loop every 15 minutes automatically
+    - cron: '*/15 * * * *'
+  workflow_dispatch: # Allows you to manually trigger a full market scan from GitHub anytime
+
+jobs:
+  execute-radar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🛸 Checkout Source Matrix Code
+        uses: actions/checkout@v4
+
+      - name: 🐍 Initialize Python Engine Environment
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+          cache: 'pip'
+
+      - name: 📦 Install Data Packages
+        run: |
+          pip install yfinance pandas requests
+
+      - name: 📡 Execute Simultaneous 7-Market Matrix Scan
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          python daemon.py
