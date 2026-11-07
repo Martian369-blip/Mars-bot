@@ -6,20 +6,21 @@ import plotly.graph_objects as go
 import engine as eng  # 🛰️ Link directly into your custom computation file module
 
 # 🏛️ 1. CYBERPUNK TERMINAL SKINNING ENGINE
-st.set_page_config(page_title="MARS_BOT V11.6", page_icon="👽", layout="centered", initial_sidebar_state="collapsed")
+st.set_page_config(page_title="MARS_BOT V12.5", page_icon="👽", layout="centered", initial_sidebar_state="collapsed")
 
 st.markdown("""
 <style>
-    .stApp { background-color: #000000; color: #FFFFFF; }
-    h1, h2, h3, h4, h5, h6 { color: #00FF00 !important; font-family: 'Courier New', monospace; }
-    div[data-testid="stContainer"] { border: 1px solid #00FF00 !important; background-color: #050505 !important; border-radius: 4px; padding: 15px; margin-bottom: 15px; }
-    .stButton>button { background-color: #000000 !important; color: #00FF00 !important; border: 1px solid #00FF00 !important; font-family: 'Courier New', monospace; width: 100%; height: 45px; font-weight: bold; }
-    .stButton>button:hover { background-color: #00FF00 !important; color: #000000 !important; }
-    .stTextInput>div>div>input { background-color: #050505 !important; color: #00FF00 !important; border: 1px solid #00FF00 !important; font-family: 'Courier New', monospace; text-align: center; font-size: 18px; }
-    .stSelectbox>div>div>div { background-color: #050505 !important; color: #00FF00 !important; border: 1px solid #00FF00 !important; }
-    .stNumberInput>div>div>input { background-color: #050505 !important; color: #00FF00 !important; border: 1px solid #00FF00 !important; }
-    section[data-testid="stSidebar"] { background-color: #000000 !important; border-right: 1px solid #00FF00 !important; }
-    section[data-testid="stSidebar"] .stRadio>div { color: #00FF00 !important; font-family: 'Courier New', monospace; }
+    .stApp { background-color: #12161A; color: #ECEFF1; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+    h1, h2, h3, h4, h5, h6 { color: #FFFFFF !important; font-weight: 600 !important; }
+    div[data-testid="stContainer"] { border: 1px solid #23292F !important; background-color: #1C2127 !important; border-radius: 6px; padding: 18px; margin-bottom: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
+    .stButton>button { background-color: #1C2127 !important; color: #00A4E4 !important; border: 1px solid #00A4E4 !important; border-radius: 4px; font-size: 14px; width: 100%; height: 45px; font-weight: bold; transition: all 0.3s ease; }
+    .stButton>button:hover { background-color: #00A4E4 !important; color: #FFFFFF !important; box-shadow: 0 0 10px rgba(0,164,228,0.4); }
+    .stTextInput>div>div>input { background-color: #161A1E !important; color: #FFFFFF !important; border: 1px solid #2A323A !important; border-radius: 4px; text-align: center; font-size: 16px; height: 45px; }
+    .stTextInput>div>div>input:focus { border-color: #00A4E4 !important; }
+    .stSelectbox>div>div>div { background-color: #161A1E !important; color: #FFFFFF !important; border: 1px solid #2A323A !important; }
+    .stNumberInput>div>div>input { background-color: #161A1E !important; color: #FFFFFF !important; border: 1px solid #2A323A !important; }
+    section[data-testid="stSidebar"] { background-color: #161A1E !important; border-right: 1px solid #23292F !important; }
+    section[data-testid="stSidebar"] .stRadio>div { color: #ECEFF1 !important; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -30,11 +31,10 @@ if "live_balance" not in st.session_state:
     st.session_state.live_balance = 500.0
 
 # ==================================================================================
-# 🕹️ PERSISTENT TOP-CENTERED SEARCH HUB (RUNS GLOBAL ON ALL PAGES)
+# 🕹️ PERSISTENT TOP-CENTERED IG-STYLE SEARCH BAR HUB
 # ==================================================================================
-st.markdown("<h1 style='text-align: center;'>🛸 MARS_BOT V11.6</h1>", unsafe_allow_html=True)
+st.markdown("<h2 style='text-align: center; color: #00A4E4 !important; margin-bottom: 5px;'>🛸 MARS_BOT V12.5</h2>", unsafe_allow_html=True)
 
-# FIXED DESIGN LAYOUT LAYER: Explicit proportional parameters passed right into columns
 col_search, col_trigger = st.columns([5, 1])
 with col_search:
     target_asset = st.text_input("🔍 SEARCH ASSET SYMBOL:", value="GBPUSD=X", label_visibility="collapsed").strip().upper()
@@ -42,17 +42,55 @@ with col_trigger:
     search_activated = st.button("🛰️ SCAN")
 
 # LEFT-SIDE THREE-BAR HAMBURGER MENU NAVIGATION DRAWER
-st.sidebar.markdown("### ☰ CORE CONSOLE")
+st.sidebar.markdown("<h3 style='color:#00A4E4 !important;'>☰ IG CONSOLE</h3>", unsafe_allow_html=True)
 page_select = st.sidebar.radio(
     "NAVIGATION PANEL:",
     ["📊 EXECUTIVE SIGNALS", "📡 SPECIALIZED NEWS", "🕹️ WORKSPACE JOURNAL"]
 )
 st.sidebar.divider()
-st.sidebar.caption("👽 Active Core Framework. Click top-left arrow on mobile layout to open/close menu.")
+st.sidebar.caption("👽 Active IG Core. Click top-left arrow on mobile layout to open/close menu drawers.")
+
+# 🏛️ IG OFFICIAL PLATFORM VISUAL DISPLAY TRANSLATOR DICTIONARY
+ig_name_map = {
+    # MAJOR FX
+    "EURUSD=X": "EUR/USD",
+    "USDJPY=X": "USD/JPY",
+    "AUDUSD=X": "AUD/USD",
+    "GBPUSD=X": "GBP/USD",
+    "EURJPY=X": "EUR/JPY",
+    "USDCAD=X": "USD/CAD",
+    "USDCHF=X": "USD/CHF",
+    "EURGBP=X": "EUR/GBP",
+    "EURCHF=X": "EUR/CHF",
+    "GBPEUR=X": "GBP/EUR",
+    # MINOR FX
+    "GBPJPY=X": "GBPJPY",
+    "CADJPY=X": "CAD/JPY",
+    "USDZAR=X": "USD/ZAR",
+    "EURCAD=X": "EUR/CAD",
+    "GBPZAR=X": "GBP/ZAR",
+    "GBPCAD=X": "GBP/CAD",
+    "CHFJPY=X": "CHF/JPY",
+    "GBPCHF=X": "GBP/CHF",
+    "USDSGD=X": "USD/SGD",
+    "CADCHF=X": "CAD/CHF",
+    # COMMODITIES
+    "CL=F": "Oil - US Crude",
+    "BZ=F": "Oil - Brent Crude",
+    "NG=F": "Natural Gas",
+    "RB=F": "Gasoline",
+    "GC=F": "Gold",
+    "SI=F": "Silver",
+    "PL=F": "Platinum",
+    "PA=F": "Palladium",
+    "HG=F": "High Grade Copper"
+}
+
+# Apply naming check or fallback safely to database text
+ig_display_name = ig_name_map.get(target_asset, target_asset)
 
 # 🏛️ GLOBAL VARIABLE INITIALIZATION
-price, daily_rsi, hourly_rsi, hourly_atr, direction, color, stop_loss, take_profit = 0.0, 50.0, 50.0, 0.001, "HOLD", "#FFFF00", 0.0, 0.0
-asset_name = target_asset
+price, daily_rsi, hourly_rsi, hourly_atr, direction, color, stop_loss, take_profit = 0.0, 50.0, 50.0, 0.001, "HOLD", "#E53935", 0.0, 0.0
 daily_df = pd.DataFrame()
 hourly_df = pd.DataFrame()
 
@@ -60,7 +98,6 @@ try:
     ticker_feed = yf.Ticker(target_asset)
     daily_df = ticker_feed.history(period="3mo", interval="1d")
     hourly_df = ticker_feed.history(period="1mo", interval="1h")
-    asset_name = ticker_feed.info.get('shortName', target_asset)
     
     if hourly_df.empty and not daily_df.empty:
         hourly_df = daily_df.copy()
@@ -78,15 +115,15 @@ try:
         recent_high = hourly_df['High'].tail(24).max()
         
         if hourly_rsi < 35 or (price <= (recent_low * 1.005)):
-            direction, color = "🚀 BUY / LONG", "#00FF00"
+            direction, color = "🚀 BUY / LONG", "#4CAF50"
             stop_loss = price - (hourly_atr * 1.5)
             take_profit = price + ((price - stop_loss) * 2.5)
         elif hourly_rsi > 65 or (price >= (recent_high * 0.995)):
-            direction, color = "💥 SELL / SHORT", "#FF0000"
+            direction, color = "💥 SELL / SHORT", "#E53935"
             stop_loss = price + (hourly_atr * 1.5)
             take_profit = price - ((stop_loss - price) * 2.5)
         else:
-            direction, color = "⏳ HOLD / PRESERVE CASH", "#FFFF00"
+            direction, color = "⏳ HOLD / PRESERVE CASH", "#FFB300"
             stop_loss, take_profit = price, price
 except Exception as e:
     st.sidebar.error(f"Telemetry Core Sync Warning: {str(e)}")
@@ -95,7 +132,7 @@ except Exception as e:
 # 📊 NAVIGATION ROW 1: EXECUTIVE SIGNALS Panel View
 # ==================================================================================
 if page_select == "📊 EXECUTIVE SIGNALS":
-    st.markdown(f"### 🎯 Live Sovereign Matrix Sheet: {target_asset}")
+    st.markdown(f"#### 🎯 Live Sovereign Matrix Sheet: <span style='color:#00A4E4;'>{ig_display_name}</span>", unsafe_allow_html=True)
     
     if daily_df.empty or hourly_df.empty:
         st.error(f"❌ Empty market node feedback. Verify symbol format: '{target_asset}'")
@@ -104,7 +141,7 @@ if page_select == "📊 EXECUTIVE SIGNALS":
         formatted_price = f"{price:.4f}" if "ZAR" in target_asset else (f"{price:.5f}" if "=" in target_asset else f"{price:.2f}")
         
         with st.container():
-            st.markdown(f"<h3 style='text-align: center; margin: 0px;'>📦 {asset_name}</h3>", unsafe_allow_html=True)
+            st.markdown(f"<h3 style='text-align: center; margin: 0px; color:#FFFFFF;'>📦 {ig_display_name}</h3>", unsafe_allow_html=True)
             st.divider()
             
             col_a, col_b, col_c = st.columns(3)
@@ -119,56 +156,22 @@ if page_select == "📊 EXECUTIVE SIGNALS":
                 pts_tp = np.abs(take_profit - price) * mult
                 if "ZAR" in target_asset: pts_sl, pts_tp = 800.0, 2000.0
                 
-                st.markdown("### 📲 NATIVE IG TICKET CODES (ENTRY PROTECTIONS):")
+                st.markdown("<p style='font-size:13px; font-weight:bold; letter-spacing:0.5px; color:#90A4AE; text-transform:uppercase;'>📲 NATIVE IG DEAL TICKET LIMITS:</p>", unsafe_allow_html=True)
                 col_sl, col_tp = st.columns(2)
                 with col_sl:
-                    st.markdown(f"<div style='border:1px solid #FF0000; padding:10px; border-radius:4px; text-align:center;'><span style='color:#FF0000; font-weight:bold;'>🛑 STOP-LOSS:</span><br><code>{pts_sl:.1f} pts</code></div>", unsafe_allow_html=True)
+                    st.markdown(f"<div style='border: 1.5px solid #E53935; background-color:#261C1E; padding:12px; border-radius:4px; text-align:center;'><span style='color:#E53935; font-size:11px; font-weight:bold; letter-spacing:0.5px;'>🛑 IG STOP PRICE DISTANCE</span><br><span style='font-size:22px; font-weight:bold; color:#FFFFFF;'>{pts_sl:.1f} <span style='font-size:13px; color:#E53935;'>pts</span></span></div>", unsafe_allow_html=True)
                 with col_tp:
-                    st.markdown(f"<div style='border:1px solid #00FF00; padding:10px; border-radius:4px; text-align:center;'><span style='color:#00FF00; font-weight:bold;'>🎯 TAKE-PROFIT:</span><br><code>{pts_tp:.1f} pts</code></div>", unsafe_allow_html=True)
+                    st.markdown(f"<div style='border: 1.5px solid #4CAF50; background-color:#1B241C; padding:12px; border-radius:4px; text-align:center;'><span style='color:#4CAF50; font-size:11px; font-weight:bold; letter-spacing:0.5px;'>🎯 IG LIMIT PROFIT DISTANCE</span><br><span style='font-size:22px; font-weight:bold; color:#FFFFFF;'>{pts_tp:.1f} <span style='font-size:13px; color:#4CAF50;'>pts</span></span></div>", unsafe_allow_html=True)
             
             st.divider()
-            st.markdown("#### 🕯️ Real-Time Intraday Candlestick Trend")
+            st.markdown("<p style='font-size:13px; font-weight:bold; letter-spacing:0.5px; color:#90A4AE;'>🕯️ REAL-TIME DEALING CANDLESTICK GRAPH</p>", unsafe_allow_html=True)
             fig_sig = go.Figure()
             fig_sig.add_trace(go.Candlestick(
                 x=hourly_df.tail(48).index, open=hourly_df.tail(48)['Open'], high=hourly_df.tail(48)['High'],
-                low=hourly_df.tail(48)['Low'], close=hourly_df.tail(48)['Close'], name="Market"
+                low=hourly_df.tail(48)['Low'], close=hourly_df.tail(48)['Close'], name="Market",
+                increasing_line_color='#4CAF50', decreasing_line_color='#E53935',
+                increasing_fillcolor='#4CAF50', decreasing_fillcolor='#E53935'
             ))
-            fig_sig.update_layout(template="plotly_dark", paper_bgcolor='#000000', plot_bgcolor='#050505', xaxis_rangeslider_visible=False, height=350, margin=dict(l=10, r=10, t=10, b=10))
+            fig_sig.update_layout(theme="dark", paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='#161A1E', xaxis_rangeslider_visible=False, height=350, margin=dict(l=10, r=10, t=10, b=10))
             st.plotly_chart(fig_sig, use_container_width=True)
 
-# ==================================================================================
-# 📡 NAVIGATION ROW 2: LIVE SPECIALIZED WIRE STREAM NEWS DESK
-# ==================================================================================
-elif page_select == "📡 SPECIALIZED NEWS":
-    st.markdown(f"### 📰 Mars_bot Custom Research Desk: {target_asset}")
-    st.divider()
-    
-    live_news = eng.fetch_specialized_news(target_asset)
-    if not live_news:
-        st.warning("📡 Sweeping global networks... Displaying baseline sovereign intelligence feeds:")
-        st.markdown("##### 🦅 Federal Reserve Enforces Measured Approach Over Late-Autumn Sessions")
-        st.write("Institutional dollar desks verify that robust labor metrics give central bankers massive scope to hold baseline borrowing yields steady.")
-    else:
-        for article in live_news:
-            with st.container():
-                st.markdown(f"##### 🛰️ {article['title']}")
-                st.caption(f"Published Line: {article['pubDate']} | Type: Dynamic Intelligence Node")
-                st.markdown(f"[Launch Source Feed Link]({article['link']})")
-
-# ==================================================================================
-# 🕹️ NAVIGATION ROW 3: WORKSPACE JOURNAL (ICHIMOKU CURVES & CASHFLOW LEDGER BOOK)
-# ==================================================================================
-elif page_select == "🕹️ WORKSPACE JOURNAL":
-    st.markdown("### 🕹️ Quantitative Analytics & Ledger Command")
-    st.divider()
-    
-    st.markdown(f"#### 🇯🇵 Live Ichimoku Technical Analysis Matrix: {target_asset}")
-    if hourly_df.empty:
-        st.error("❌ Node memory link un-established. Scan a valid symbol to display charts.")
-    else:
-        chart_df = eng.compute_ichimoku(hourly_df.tail(60))
-        fig = go.Figure()
-        fig.add_trace(go.Candlestick(
-            x=chart_df.index, open=chart_df['Open'], high=chart_df['High'],
-            low=chart_df['Low'], close=chart_df['Close'], name="Candles"
-        ))
