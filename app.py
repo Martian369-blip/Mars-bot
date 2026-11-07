@@ -12,28 +12,6 @@ import news_panel as np_view
 st.set_page_config(page_title="MARS_BOT V16.0", page_icon="👽", layout="centered", initial_sidebar_state="collapsed")
 lc.load_ig_style()
 
-# Global CSS override rescue layer for element visibility
-st.markdown("""
-    <style>
-        div[data-baseweb="select"], div[data-testid="stNumberInput"], .stButton button {
-            background-color: #120A26 !important;
-            border: 1px solid #2A1B4E !important;
-            color: #FFFFFF !important;
-            min-height: 42px !important;
-        }
-        div[data-testid="stDataFrame"] {
-            background-color: #120A26 !important;
-            border: 1px solid #1F1140 !important;
-            border-radius: 4px;
-            padding: 10px;
-        }
-        label, p {
-            color: #90A4AE !important;
-            font-family: monospace !important;
-        }
-    </style>
-""", unsafe_allow_html=True)
-
 PERSISTENT_FILE = "ledger_vault.csv"
 
 def load_persistent_ledger():
@@ -91,10 +69,12 @@ ig_name_map = {
 display_options = list(ig_name_map.values())
 
 col_search, col_trigger = st.columns([0.75, 0.25])
-chosen_display = col_search.selectbox("🔍 MARKET:", options=display_options, label_visibility="collapsed")
+with col_search:
+    chosen_display = st.selectbox("🔍 MARKET:", options=display_options, label_visibility="collapsed")
 reverse_map = {v: k for k, v in ig_name_map.items()}
 selected_ticker = reverse_map.get(chosen_display, "USDZAR=X")
-search_activated = col_trigger.button("🛰️ SCAN")
+with col_trigger:
+    search_activated = st.button("🛰️ SCAN")
 
 if search_activated or st.session_state["cached_target_asset"] != selected_ticker:
     st.session_state["cached_target_asset"] = selected_ticker
@@ -119,18 +99,15 @@ if search_activated or st.session_state["cached_target_asset"] != selected_ticke
 
 st.sidebar.markdown("<h3 style='color:#4CAF50 !important; font-weight:900;'>☰ MAIN CORE</h3>", unsafe_allow_html=True)
 
-# Main sheet layout arrays matching your screen strings exactly
-navigation_sheets = ["📊 TERMINAL SIGNALS", "📡 SATELLITE NEWS", "🕹️  LEDGER JOURNAL"]
+# EXACT ORIGINAL NAVIGATION LABELS FROM REPOSITORY RESTORED
+navigation_sheets = ["📊 TERMINAL SIGNALS", "📡 SATELLITE NEWS", "🕹️ LEDGER JOURNAL"]
 
 page_select = st.sidebar.radio(
     "CHOOSE MODULE SHEET:", 
     options=navigation_sheets
 )
 
-# UNBREAKABLE BYPASS TRIGGER: Find position index numbers within the selection tuple
-current_page_index = navigation_sheets.index(page_select)
-
-if current_page_index == 0:
+if page_select == "📊 TERMINAL SIGNALS":
     st.markdown(f"#### 📡 Telemetry Feed Workspace: <span style='color:#4CAF50;'>{st.session_state['cached_display_name']}</span>", unsafe_allow_html=True)
     st.markdown(f"""
         <div class='cyber-card'>
@@ -166,6 +143,16 @@ if current_page_index == 0:
     """, unsafe_allow_html=True)
     t_feed = yf.Ticker(st.session_state["cached_target_asset"])
     h_df = t_feed.history(period="1mo", interval="1h")
-    if not h_df.empty: st.plotly_chart(cr.generate_candlestick_chart(h_df.tail(48)), use_container_width=True)
+    if not h_df.empty:
+        st.plotly_chart(cr.generate_candlestick_chart(h_df.tail(48)), use_container_width=True)
 
-elif current_page_index == 1:
+elif page_select == "📡 SATELLITE NEWS":
+    getattr(np_view, "render_news_tab")(str(st.session_state["cached_target_asset"]), str(st.session_state["cached_display_name"]))
+
+elif page_select == "🕹️ LEDGER JOURNAL":
+    st.markdown(f"#### 🕹️ Institutional Ledger Core: <span style='color:#00E5FF;'>{st.session_state['cached_display_name']} Vault</span>", unsafe_allow_html=True)
+    st.markdown("<p style='font-family:monospace; color:#90A4AE; font-size:11px; margin-bottom:15px;'>🛰️ TRANSACTION LEDGER STATUS ACTIVE</p>", unsafe_allow_html=True)
+    
+    if st.session_state["journal_db"].empty:
+        st.markdown("<div style='background-color:#120A26; border:1px dashed #2A1B4E; padding:30px; border-radius:4px; text-align:center;'><span style='color:#607D8B; font-family:monospace; font-size:12px;'>🛸 NO LOGGED DATA METRICS FOUND INSIDE VAULT LEDGER.</span></div>", unsafe_allow_html=True)
+    else:
