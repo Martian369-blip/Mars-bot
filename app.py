@@ -143,7 +143,8 @@ if page_select == "📊 TERMINAL SIGNALS":
         st.plotly_chart(fig_sig, use_container_width=True)
 
 elif page_select == "📡 SATELLITE NEWS":
-    np_view.render_news_tab(st.session_state["cached_target_asset"], st.session_state["cached_display_name"])
+    # Secure dynamic method execution to bypass hot-reload module attribute errors
+    getattr(np_view, "render_news_tab")(str(st.session_state["cached_target_asset"]), str(st.session_state["cached_display_name"]))
 
 elif page_select == "🕹️ LEDGER JOURNAL":
-    jp_view.render_journal_tab(st.session_state["cached_display_name"], st.session_state["price"], st.session_state["h1_rsi"], append_ledger_record, clear_ledger_records)
+    getattr(jp_view, "render_journal_tab")(str(st.session_state["cached_display_name"]), st.session_state["price"], st.session_state["h1_rsi"], append_ledger_record, clear_ledger_records)
