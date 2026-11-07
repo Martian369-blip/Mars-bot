@@ -119,7 +119,7 @@ page_select = st.sidebar.radio(
     key="active_navigation_sheet"
 )
 
-# FIXED: Standardized text parsing string qualifiers to eliminate character space mismatches
+# FIXED: Strict block indentation alignment locked in for all execution sub-routines
 if "TERMINAL SIGNALS" in page_select:
     st.markdown(f"#### 📡 Telemetry Feed Workspace: <span style='color:#4CAF50;'>{st.session_state['cached_display_name']}</span>", unsafe_allow_html=True)
     st.markdown(f"""
