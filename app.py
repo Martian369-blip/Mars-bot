@@ -153,11 +153,26 @@ if page_select == "📊 TERMINAL SIGNALS":
             increasing_line_color='#4CAF50', decreasing_line_color='#B71C1C',
             increasing_fillcolor='#1B5E20', decreasing_fillcolor='#7F0000'
         ))
+                # 🔥 PURE WHITE INNER CANDLE CANVAS WITH HIGH-CONTRAST DATA READOUTS
         fig_sig.update_layout(
-            template="plotly_dark", paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='#12161B',
-            xaxis_rangeslider_visible=False, height=330, margin=dict(l=10, r=10, t=10, b=10),
-            xaxis=dict(gridcolor='#1E252D', tickfont=dict(family='monospace', size=10)),
-            yaxis=dict(gridcolor='#1E252D', tickfont=dict(family='monospace', size=10))
+            template="plotly_white", 
+            paper_bgcolor='rgba(0,0,0,0)',   # Translucent outer mount layer to preserve purple box border
+            plot_bgcolor='#FFFFFF',          # FORCES INTERNAL CANDLE BACKDROP PURE WHITE
+            xaxis_rangeslider_visible=False, 
+            height=330, 
+            margin=dict(l=10, r=10, t=15, b=10),
+            xaxis=dict(
+                gridcolor='#E0E4E8',         # Soft clean inner grid divider lines
+                zerolinecolor='#CFD8DC', 
+                tickfont=dict(family='monospace', size=10, color='#37474F', weight='bold') # Dark readable labels
+            ),
+            yaxis=dict(
+                gridcolor='#E0E4E8', 
+                zerolinecolor='#CFD8DC', 
+                tickfont=dict(family='monospace', size=10, color='#37474F', weight='bold')
+            )
+        )
+
         )
         st.plotly_chart(fig_sig, use_container_width=True)
 
