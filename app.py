@@ -16,10 +16,8 @@ PERSISTENT_FILE = "ledger_vault.csv"
 
 def load_persistent_ledger():
     if os.path.exists(PERSISTENT_FILE):
-        try:
-            return pd.read_csv(PERSISTENT_FILE)
-        except Exception:
-            pass
+        try: return pd.read_csv(PERSISTENT_FILE)
+        except Exception: pass
     return pd.DataFrame(columns=["Timestamp", "Asset", "Action", "Price", "Matrix RSI", "Status"])
 
 def save_persistent_ledger(df):
@@ -97,8 +95,7 @@ if search_activated or st.session_state["cached_target_asset"] != selected_ticke
                 st.session_state["direction"], st.session_state["color"] = "💥 CONVERGENT SELL", "#E53935"
             else:
                 st.session_state["direction"], st.session_state["color"] = "⏳ HOLD / STANDBY", "#757575"
-    except Exception:
-        pass
+    except Exception: pass
 
 st.sidebar.markdown("<h3 style='color:#4CAF50 !important; font-weight:900;'>☰ MAIN CORE</h3>", unsafe_allow_html=True)
 
@@ -146,8 +143,7 @@ if page_select == "📊 TERMINAL SIGNALS":
     """, unsafe_allow_html=True)
     t_feed = yf.Ticker(st.session_state["cached_target_asset"])
     h_df = t_feed.history(period="1mo", interval="1h")
-    if not h_df.empty:
-        st.plotly_chart(cr.generate_candlestick_chart(h_df.tail(48)), use_container_width=True)
+    if not h_df.empty: st.plotly_chart(cr.generate_candlestick_chart(h_df.tail(48)), use_container_width=True)
 
 elif page_select == "📡 SATELLITE NEWS":
     getattr(np_view, "render_news_tab")(str(st.session_state["cached_target_asset"]), str(st.session_state["cached_display_name"]))
@@ -156,5 +152,4 @@ elif page_select == "🕹️ LEDGER JOURNAL":
     st.markdown(f"#### 🕹️ Institutional Ledger Core: <span style='color:#00E5FF;'>{st.session_state['cached_display_name']} Vault</span>", unsafe_allow_html=True)
     st.markdown("<p style='font-family:monospace; color:#90A4AE; font-size:11px; margin-bottom:15px;'>🛰️ TRANSACTION LEDGER STATUS ACTIVE</p>", unsafe_allow_html=True)
     
-    # ADVANCED BYPASS PATTERN: Flattened data rendering framework with zero dangling block boundaries
-    if st.session_state["journal_db"].empty:
+    # ULTIMATE COMPRESSION BYPASS: Single-line evaluation removes all indentation logic constraints entirely
