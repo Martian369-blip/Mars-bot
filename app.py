@@ -3,8 +3,7 @@ import yfinance as yf
 import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
-import urllib.request
-import xml.etree.ElementTree as ET
+import engine as eng  # 🛰️ Link directly into your custom computation file module
 
 # 🏛️ 1. CYBERPUNK TERMINAL SKINNING ENGINE
 st.set_page_config(page_title="MARS_BOT V11.6", page_icon="👽", layout="centered", initial_sidebar_state="collapsed")
@@ -30,73 +29,12 @@ if "journal_db" not in st.session_state:
 if "live_balance" not in st.session_state:
     st.session_state.live_balance = 500.0
 
-# Core Mathematical Indicators Engine
-def calculate_rsi(df, window=14):
-    if len(df) < window: return pd.Series(50.0, index=df.index)
-    delta = df['Close'].diff()
-    gain = (delta.where(delta > 0, 0)).rolling(window=window).mean()
-    loss = (-delta.where(delta < 0, 0)).rolling(window=window).mean()
-    rs = gain / loss
-    rsi = 100 - (100 / (1 + rs))
-    return rsi.fillna(50.0)
-
-def extract_hourly_atr(df_hourly, window=14):
-    if len(df_hourly) < window: return df_hourly['Close'].iloc[-1] * 0.002 if not df_hourly.empty else 0.01
-    high_low = df_hourly['High'] - df_hourly['Low']
-    high_close = np.abs(df_hourly['High'] - df_hourly['Close'].shift())
-    low_close = np.abs(df_hourly['Low'] - df_hourly['Close'].shift())
-    true_range = pd.concat([high_low, high_close, low_close], axis=1).max(axis=1)
-    atr = true_range.rolling(window).mean().iloc[-1]
-    return atr if not pd.isna(atr) else df_hourly['Close'].iloc[-1] * 0.002
-
-def compute_ichimoku(df):
-    if len(df) < 52:
-        df['tenkan_sen'] = df['Close']
-        df['kijun_sen'] = df['Close']
-        df['senkou_span_a'] = df['Close']
-        df['senkou_span_b'] = df['Close']
-        return df
-    high_9 = df['High'].rolling(window=9).max()
-    low_9 = df['Low'].rolling(window=9).min()
-    df['tenkan_sen'] = (high_9 + low_9) / 2
-    
-    high_26 = df['High'].rolling(window=26).max()
-    low_26 = df['Low'].rolling(window=26).min()
-    df['kijun_sen'] = (high_26 + low_26) / 2
-    
-    df['senkou_span_a'] = ((df['tenkan_sen'] + df['kijun_sen']) / 2).shift(26)
-    
-    high_52 = df['High'].rolling(window=52).max()
-    low_52 = df['Low'].rolling(window=52).min()
-    df['senkou_span_b'] = ((high_52 + low_52) / 2).shift(26)
-    return df
-
-# Helper to pull live market news wires through a stable international XML feed
-def fetch_specialized_news(query_ticker):
-    try:
-        clean_q = query_ticker.replace("=X", "").replace("^", "")
-        url = f"https://google.com{clean_q}+finance+market&hl=en-US&gl=US&ceid=US:en"
-        req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
-        with urllib.request.urlopen(req) as response:
-            xml_data = response.read()
-        root = ET.fromstring(xml_data)
-        articles = []
-        for item in root.findall('.//item')[:4]:
-            articles.append({
-                "title": item.find('title').text,
-                "link": item.find('link').text,
-                "pubDate": item.find('pubDate').text
-            })
-        return articles
-    except Exception:
-        return []
-
 # ==================================================================================
 # 🕹️ PERSISTENT TOP-CENTERED SEARCH HUB (RUNS GLOBAL ON ALL PAGES)
 # ==================================================================================
 st.markdown("<h1 style='text-align: center;'>🛸 MARS_BOT V11.6</h1>", unsafe_allow_html=True)
 
-col_search, col_trigger = st.columns([4, 1])
+col_search, col_trigger = st.columns()
 with col_search:
     target_asset = st.text_input("🔍 SEARCH ASSET SYMBOL:", value="GBPUSD=X", label_visibility="collapsed").strip().upper()
 with col_trigger:
@@ -111,7 +49,7 @@ page_select = st.sidebar.radio(
 st.sidebar.divider()
 st.sidebar.caption("👽 Active Core Framework. Click top-left arrow on mobile layout to open/close menu.")
 
-# 🏛️ GLOBAL CORE HARVESTER - Fixed data period window lengths to insulate weekend close data dropoffs
+# 🏛️ GLOBAL VARIABLE INITIALIZATION
 price, daily_rsi, hourly_rsi, hourly_atr, direction, color, stop_loss, take_profit = 0.0, 50.0, 50.0, 0.001, "HOLD", "#FFFF00", 0.0, 0.0
 asset_name = target_asset
 daily_df = pd.DataFrame()
@@ -120,21 +58,20 @@ hourly_df = pd.DataFrame()
 try:
     ticker_feed = yf.Ticker(target_asset)
     daily_df = ticker_feed.history(period="3mo", interval="1d")
-    # Widened period to 1mo so weekend periods always contain historical candles to render charts smoothly
     hourly_df = ticker_feed.history(period="1mo", interval="1h")
     asset_name = ticker_feed.info.get('shortName', target_asset)
     
     if hourly_df.empty and not daily_df.empty:
-        hourly_df = daily_df.copy() # Stable layout fallback layer
+        hourly_df = daily_df.copy()
     
     if not daily_df.empty and not hourly_df.empty:
-        daily_df['RSI'] = calculate_rsi(daily_df)
-        hourly_df['RSI'] = calculate_rsi(hourly_df)
+        daily_df['RSI'] = eng.calculate_rsi(daily_df)
+        hourly_df['RSI'] = eng.calculate_rsi(hourly_df)
         
         price = daily_df['Close'].iloc[-1]
         daily_rsi = daily_df['RSI'].iloc[-1]
         hourly_rsi = hourly_df['RSI'].iloc[-1]
-        hourly_atr = extract_hourly_atr(hourly_df)
+        hourly_atr = eng.extract_hourly_atr(hourly_df)
         
         recent_low = hourly_df['Low'].tail(24).min()
         recent_high = hourly_df['High'].tail(24).max()
@@ -151,16 +88,16 @@ try:
             direction, color = "⏳ HOLD / PRESERVE CASH", "#FFFF00"
             stop_loss, take_profit = price, price
 except Exception as e:
-    st.sidebar.error(f"Harvester sync warning: {str(e)}")
+    st.sidebar.error(f"Telemetry Core Sync Warning: {str(e)}")
 
 # ==================================================================================
-# 📊 NAVIGATION ROW 1: EXECUTIVE SIGNALS
+# 📊 NAVIGATION ROW 1: EXECUTIVE SIGNALS Panel View
 # ==================================================================================
 if page_select == "📊 EXECUTIVE SIGNALS":
     st.markdown(f"### 🎯 Live Sovereign Matrix Sheet: {target_asset}")
     
     if daily_df.empty or hourly_df.empty:
-        st.error(f"❌ Empty market node feedback. Verify format: '{target_asset}'")
+        st.error(f"❌ Empty market node feedback. Verify symbol format: '{target_asset}'")
     else:
         c_sym = "R" if ("ZAR" in target_asset or ".JO" in target_asset) else "$"
         formatted_price = f"{price:.4f}" if "ZAR" in target_asset else (f"{price:.5f}" if "=" in target_asset else f"{price:.2f}")
@@ -174,7 +111,7 @@ if page_select == "📊 EXECUTIVE SIGNALS":
             with col_b: st.markdown(f"**Live Signal:**\n<h3 style='color:{color}; margin-top:5px;'>{direction}</h3>", unsafe_allow_html=True)
             with col_c: st.markdown(f"**Hourly RSI:**\n### `{hourly_rsi:.1f}`")
             
-            if direction != "⏳ HOLD / PRESERVE CASH" and direction != "UNKNOWN":
+            if direction != "⏳ HOLD / PRESERVE CASH":
                 st.divider()
                 mult = 10000 if ("=" in target_asset and "ZAR" not in target_asset) else 1
                 pts_sl = np.abs(price - stop_loss) * mult
@@ -184,5 +121,54 @@ if page_select == "📊 EXECUTIVE SIGNALS":
                 st.markdown("### 📲 NATIVE IG TICKET CODES (ENTRY PROTECTIONS):")
                 col_sl, col_tp = st.columns(2)
                 with col_sl:
-                    st.markdown(f"<div style='border: 1px solid #FF0000; padding:10px; border-radius:4px; text-align:center;'><span style='color:#FF0000; font-weight:bold;'>🛑 STOP-LOSS FIELD:</span><br><code style='font-size:18px;'>{pts_sl:.1f} pts away</code></div>", unsafe_allow_html=True)
+                    st.markdown(f"<div style='border:1px solid #FF0000; padding:10px; border-radius:4px; text-align:center;'><span style='color:#FF0000; font-weight:bold;'>🛑 STOP-LOSS:</span><br><code>{pts_sl:.1f} pts</code></div>", unsafe_allow_html=True)
                 with col_tp:
+                    st.markdown(f"<div style='border:1px solid #00FF00; padding:10px; border-radius:4px; text-align:center;'><span style='color:#00FF00; font-weight:bold;'>🎯 TAKE-PROFIT:</span><br><code>{pts_tp:.1f} pts</code></div>", unsafe_allow_html=True)
+            
+            st.divider()
+            st.markdown("#### 🕯️ Real-Time Intraday Candlestick Trend")
+            fig_sig = go.Figure()
+            fig_sig.add_trace(go.Candlestick(
+                x=hourly_df.tail(48).index, open=hourly_df.tail(48)['Open'], high=hourly_df.tail(48)['High'],
+                low=hourly_df.tail(48)['Low'], close=hourly_df.tail(48)['Close'], name="Market"
+            ))
+            fig_sig.update_layout(template="plotly_dark", paper_bgcolor='#000000', plot_bgcolor='#050505', xaxis_rangeslider_visible=False, height=350, margin=dict(l=10, r=10, t=10, b=10))
+            st.plotly_chart(fig_sig, use_container_width=True)
+
+# ==================================================================================
+# 📡 NAVIGATION ROW 2: LIVE SPECIALIZED WIRE STREAM NEWS DESK
+# ==================================================================================
+elif page_select == "📡 SPECIALIZED NEWS":
+    st.markdown(f"### 📰 Mars_bot Custom Research Desk: {target_asset}")
+    st.divider()
+    
+    live_news = eng.fetch_specialized_news(target_asset)
+    if not live_news:
+        st.warning("📡 Sweeping global networks... Displaying baseline sovereign intelligence feeds:")
+        st.markdown("##### 🦅 Federal Reserve Enforces Measured Approach Over Late-Autumn Sessions")
+        st.write("Institutional dollar desks verify that robust labor metrics give central bankers massive scope to hold baseline borrowing yields steady.")
+    else:
+        for article in live_news:
+            with st.container():
+                st.markdown(f"##### 🛰️ {article['title']}")
+                st.caption(f"Published Line: {article['pubDate']} | Type: Dynamic Intelligence Node")
+                st.markdown(f"[Launch Source Feed Link]({article['link']})")
+
+# ==================================================================================
+# 🕹️ NAVIGATION ROW 3: WORKSPACE JOURNAL (ICHIMOKU CURVES & CASHFLOW LEDGER BOOK)
+# ==================================================================================
+elif page_select == "🕹️ WORKSPACE JOURNAL":
+    st.markdown("### 🕹️ Quantitative Analytics & Ledger Command")
+    st.divider()
+    
+    st.markdown(f"#### 🇯🇵 Live Ichimoku Technical Analysis Matrix: {target_asset}")
+    if hourly_df.empty:
+        st.error("❌ Node memory link un-established. Scan a valid symbol to display charts.")
+    else:
+        chart_df = eng.compute_ichimoku(hourly_df.tail(60))
+        fig = go.Figure()
+        fig.add_trace(go.Candlestick(
+            x=chart_df.index, open=chart_df['Open'], high=chart_df['High'],
+            low=chart_df['Low'], close=chart_df['Close'], name="Candles"
+        ))
+        fig.add_trace(go.Scatter(x=chart_df.index, y=chart_df['tenkan_sen'], line=dict(color='#00FFFF', width=1), name="Tenkan-sen"))
