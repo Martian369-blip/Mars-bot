@@ -48,16 +48,35 @@ def compute_ichimoku(df):
 
 def fetch_specialized_news(query_ticker):
     try:
-        clean_q = query_ticker.replace("=X", "").replace("^", "")
-        url = f"https://google.com{clean_q}+finance+market&hl=en-US&gl=US&ceid=US:en"
-        req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
-        with urllib.request.urlopen(req) as response:
+        ticker_map = {
+            "GC=F": "Gold commodity finance market",
+            "USDZAR=X": "South African Rand currency market",
+            "GBPUSD=X": "Pound Sterling currency market",
+            "EURUSD=X": "Euro Dollar currency market",
+            "USDJPY=X": "Yen currency market",
+            "AUDUSD=X": "Australian Dollar currency",
+            "EURJPY=X": "Euro Yen macro news",
+            "USDCAD=X": "Canadian Dollar macro news"
+        }
+        
+        search_phrase = ticker_map.get(query_ticker, f"{query_ticker} financial market")
+        encoded_phrase = urllib.parse.quote(search_phrase)
+        
+        url = f"https://google.com{encoded_phrase}&hl=en-US&gl=US&ceid=US:en"
+        req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'})
+        
+        with urllib.request.urlopen(req, timeout=7) as response:
             xml_data = response.read()
+            
         root = ET.fromstring(xml_data)
         articles = []
-        for item in root.findall('.//item')[:4]:
+        
+        for item in root.findall('.//item')[:5]:
+            title_text = item.find('title').text
+            if " - " in title_text:
+                title_text = title_text.rsplit(" - ", 1)[0]
             articles.append({
-                "title": item.find('title').text,
+                "title": title_text,
                 "link": item.find('link').text,
                 "pubDate": item.find('pubDate').text
             })
