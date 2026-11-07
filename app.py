@@ -4,7 +4,7 @@ import pandas as pd
 import numpy as np
 
 # 🏛️ 1. CYBERPUNK TERMINAL SKINNING ENGINE
-st.set_page_config(page_title="MARS_BOT V10.0", page_icon="👽", layout="centered", initial_sidebar_state="collapsed")
+st.set_page_config(page_title="MARS_BOT V10.1", page_icon="👽", layout="centered", initial_sidebar_state="collapsed")
 
 st.markdown("""
 <style>
@@ -45,7 +45,7 @@ def extract_hourly_atr(df_hourly, window=14):
 # ==================================================================================
 # 🕹️ PERSISTENT TOP-CENTERED SELECTION HUB (RUNS ON EVERY PAGE)
 # ==================================================================================
-st.markdown("<h1 style='text-align: center;'>🛸 MARS_BOT V10.0</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center;'>🛸 MARS_BOT V10.1</h1>", unsafe_allow_html=True)
 st.markdown("<p style='text-align: center; color: #888888; font-family: monospace;'>⚡ PRO-TICKET SNIPER ENGINE</p>", unsafe_allow_html=True)
 
 # Top Centered Active Focus Entry Asset Field
@@ -99,8 +99,17 @@ if page_select == "📊 EXECUTIVE SIGNALS":
                     else:
                         direction, color = "⏳ HOLD / PRESERVE CASH", "#FFFF00"
                     
+                    # Clean Currency Isolator Block to prevent raw inline print specification exceptions
                     c_sym = "R" if ("ZAR" in target_asset or ".JO" in target_asset) else "$"
                     short_name = feed.info.get('shortName', target_asset)
+                    
+                    # Format standard decimal padding safely before executing text layouts
+                    if "ZAR" in target_asset:
+                        formatted_price = f"{price:.4f}"
+                    elif "=" in target_asset:
+                        formatted_price = f"{price:.5f}"
+                    else:
+                        formatted_price = f"{price:.2f}"
                     
                     # 🕹️ SINGLE ASSET AUTOCHARTIST DOWN-AXIS SEQUENCE LAYOUT
                     with st.container():
@@ -111,7 +120,7 @@ if page_select == "📊 EXECUTIVE SIGNALS":
                         # Layer 2: Signal Parameters Data Field Grid (IN THE CENTER)
                         col1, col2, col3 = st.columns(3)
                         with col1:
-                            st.markdown(f"**Spot Rate:**\n### {c_sym}{price:.4f if 'ZAR' in target_asset else '.2f'}")
+                            st.markdown(f"**Spot Rate:**\n### {c_sym}{formatted_price}")
                         with col2:
                             st.markdown(f"**Live Signal:**\n<h3 style='color:{color}; margin-top:5px;'>{direction}</h3>", unsafe_allow_html=True)
                         with col3:
@@ -150,7 +159,3 @@ elif page_select == "📡 SPECIALIZED NEWS":
     st.divider()
     
     st.markdown("#### 📉 Trump Media's Investors Absorb $2.2 Billion Paper Carnage")
-    st.write("Outside public equity blocks have registered over **$2.2 billion in structural capital contraction** as shares slide heavily post-voting cycle, driving market caps back down to core underlying book multiples.")
-    st.divider()
-    
-    st.markdown("#### ⚡ FOCUS-AI Boom Turns Chip Packaging into Next Semiconductor Battleground")
