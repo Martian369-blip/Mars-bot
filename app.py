@@ -118,7 +118,8 @@ if page_select == "📊 TERMINAL SIGNALS":
     if hourly_df.empty:
         st.warning("🔄 Connecting to core telemetry stream grid...")
     else:
-        c_sym = "R " if ("ZAR" in target_asset or ".JO" in target_asset) else "$" prefix = ""
+        # 🔥 FIXED: Broken inline text concatenation broken down cleanly onto a safe expression
+        c_sym = "R " if ("ZAR" in target_asset or ".JO" in target_asset) else "$ "
         formatted_price = f"{price:.4f}" if "ZAR" in target_asset else (f"{price:.5f}" if "=" in target_asset else f"{price:.2f}")
         
         # 🚀 High-Density Emerald Glowing Data Container Grid Wrapper Block
@@ -155,7 +156,6 @@ if page_select == "📊 TERMINAL SIGNALS":
             increasing_fillcolor='#1B5E20', decreasing_fillcolor='#7F0000'
         ))
         
-        # 🔥 FIXED: Extracted clean, light inner graphing parameters with correct brackets
         fig_sig.update_layout(
             template="plotly_white", 
             paper_bgcolor='rgba(0,0,0,0)',   
