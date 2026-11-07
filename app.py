@@ -3,9 +3,11 @@ import yfinance as yf
 import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
+import urllib.request
+import xml.etree.ElementTree as ET
 
 # 🏛️ 1. CYBERPUNK TERMINAL SKINNING ENGINE
-st.set_page_config(page_title="MARS_BOT V11.0", page_icon="👽", layout="centered", initial_sidebar_state="collapsed")
+st.set_page_config(page_title="MARS_BOT V11.5", page_icon="👽", layout="centered", initial_sidebar_state="collapsed")
 
 st.markdown("""
 <style>
@@ -61,10 +63,30 @@ def compute_ichimoku(df):
     df['senkou_span_b'] = ((high_52 + low_52) / 2).shift(26)
     return df
 
+# Helper to pull live market news wires through a stable international XML feed
+def fetch_specialized_news(query_ticker):
+    try:
+        clean_q = query_ticker.replace("=X", "").replace("^", "")
+        url = f"https://google.com{clean_q}+finance+market&hl=en-US&gl=US&ceid=US:en"
+        req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+        with urllib.request.urlopen(req) as response:
+            xml_data = response.read()
+        root = ET.fromstring(xml_data)
+        articles = []
+        for item in root.findall('.//item')[:4]:
+            articles.append({
+                "title": item.find('title').text,
+                "link": item.find('link').text,
+                "pubDate": item.find('pubDate').text
+            })
+        return articles
+    except Exception:
+        return []
+
 # ==================================================================================
-# 🕹️ PERSISTENT TOP-CENTERED SEARCH CONFIGURATION MODULE (RUNS GLOBAL)
+# 🕹️ PERSISTENT TOP-CENTERED SEARCH HUB (RUNS GLOBAL ON ALL PAGES)
 # ==================================================================================
-st.markdown("<h1 style='text-align: center;'>🛸 MARS_BOT V11.0</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center;'>🛸 MARS_BOT V11.5</h1>", unsafe_allow_html=True)
 
 col_search, col_trigger = st.columns([4, 1])
 with col_search:
@@ -81,17 +103,45 @@ page_select = st.sidebar.radio(
 st.sidebar.divider()
 st.sidebar.caption("👽 Active Core Framework. Click top-left arrow on mobile layout to open/close menu.")
 
-# Fetch asset market data safely at top-level loop to synchronize pages
-try:
-    ticker_feed = yf.Ticker(target_asset)
-    daily_df = ticker_feed.history(period="3mo", interval="1d")
-    hourly_df = ticker_feed.history(period="1wk", interval="1h")
-    asset_name = ticker_feed.info.get('shortName', target_asset)
-except Exception:
-    daily_df, hourly_df, asset_name = pd.DataFrame(), pd.DataFrame(), target_asset
+# 🏛️ GLOBAL CORE HARVESTER - Runs outside individual tabs to prevent page blanking bugs
+with st.spinner("Synchronizing orbital telemetry nodes..."):
+    try:
+        ticker_feed = yf.Ticker(target_asset)
+        daily_df = ticker_feed.history(period="3mo", interval="1d")
+        hourly_df = ticker_feed.history(period="1wk", interval="1h")
+        asset_name = ticker_feed.info.get('shortName', target_asset)
+        
+        if not daily_df.empty and not hourly_df.empty:
+            daily_df['RSI'] = calculate_rsi(daily_df)
+            hourly_df['RSI'] = calculate_rsi(hourly_df)
+            
+            price = daily_df['Close'].iloc[-1]
+            daily_rsi = daily_df['RSI'].iloc[-1]
+            hourly_rsi = hourly_df['RSI'].iloc[-1]
+            hourly_atr = extract_hourly_atr(hourly_df)
+            
+            recent_low = hourly_df['Low'].tail(24).min()
+            recent_high = hourly_df['High'].tail(24).max()
+            
+            if hourly_rsi < 35 or (price <= (recent_low * 1.005)):
+                direction, color = "🚀 BUY / LONG", "#00FF00"
+                stop_loss = price - (hourly_atr * 1.5)
+                take_profit = price + ((price - stop_loss) * 2.5)
+            elif hourly_rsi > 65 or (price >= (recent_high * 0.995)):
+                direction, color = "💥 SELL / SHORT", "#FF0000"
+                stop_loss = price + (hourly_atr * 1.5)
+                take_profit = price - ((stop_loss - price) * 2.5)
+            else:
+                direction, color = "⏳ HOLD / PRESERVE CASH", "#FFFF00"
+                stop_loss, take_profit = price, price
+        else:
+            price, daily_rsi, hourly_rsi, hourly_atr, direction, color, stop_loss, take_profit = 0.0, 50.0, 50.0, 0.0, "UNKNOWN", "#FFFF00", 0.0, 0.0
+    except Exception:
+        daily_df, hourly_df, asset_name = pd.DataFrame(), pd.DataFrame(), target_asset
+        price, daily_rsi, hourly_rsi, hourly_atr, direction, color, stop_loss, take_profit = 0.0, 50.0, 50.0, 0.0, "UNKNOWN", "#FFFF00", 0.0, 0.0
 
 # ==================================================================================
-# 📊 NAVIGATION ROW 1: EXECUTIVE SIGNALS (STOP/LIMIT PLACED BEFORE THE CHART)
+# 📊 NAVIGATION ROW 1: EXECUTIVE SIGNALS (CANDLESTICK UPGRADE)
 # ==================================================================================
 if page_select == "📊 EXECUTIVE SIGNALS":
     st.markdown(f"### 🎯 Live Sovereign Matrix Sheet: {target_asset}")
@@ -99,29 +149,6 @@ if page_select == "📊 EXECUTIVE SIGNALS":
     if daily_df.empty or hourly_df.empty:
         st.error(f"❌ Empty market node feedback. Verify format on database rules: '{target_asset}'")
     else:
-        daily_df['RSI'] = calculate_rsi(daily_df)
-        hourly_df['RSI'] = calculate_rsi(hourly_df)
-        
-        price = daily_df['Close'].iloc[-1]
-        daily_rsi = daily_df['RSI'].iloc[-1]
-        hourly_rsi = hourly_df['RSI'].iloc[-1]
-        hourly_atr = extract_hourly_atr(hourly_df)
-        
-        recent_low = hourly_df['Low'].tail(24).min()
-        recent_high = hourly_df['High'].tail(24).max()
-        
-        if hourly_rsi < 35 or (price <= (recent_low * 1.005)):
-            direction, color = "🚀 BUY / LONG", "#00FF00"
-            stop_loss = price - (hourly_atr * 1.5)
-            take_profit = price + ((price - stop_loss) * 2.5)
-        elif hourly_rsi > 65 or (price >= (recent_high * 0.995)):
-            direction, color = "💥 SELL / SHORT", "#FF0000"
-            stop_loss = price + (hourly_atr * 1.5)
-            take_profit = price - ((stop_loss - price) * 2.5)
-        else:
-            direction, color = "⏳ HOLD / PRESERVE CASH", "#FFFF00"
-            stop_loss, take_profit = price, price
-            
         c_sym = "R" if ("ZAR" in target_asset or ".JO" in target_asset) else "$"
         formatted_price = f"{price:.4f}" if "ZAR" in target_asset else (f"{price:.5f}" if "=" in target_asset else f"{price:.2f}")
         
@@ -134,7 +161,7 @@ if page_select == "📊 EXECUTIVE SIGNALS":
             with col_b: st.markdown(f"**Live Signal:**\n<h3 style='color:{color}; margin-top:5px;'>{direction}</h3>", unsafe_allow_html=True)
             with col_c: st.markdown(f"**Hourly RSI:**\n### `{hourly_rsi:.1f}`")
             
-            if direction != "⏳ HOLD / PRESERVE CASH":
+            if direction != "⏳ HOLD / PRESERVE CASH" and direction != "UNKNOWN":
                 st.divider()
                 mult = 10000 if ("=" in target_asset and "ZAR" not in target_asset) else 1
                 pts_sl = np.abs(price - stop_loss) * mult
@@ -149,28 +176,7 @@ if page_select == "📊 EXECUTIVE SIGNALS":
                     st.markdown(f"<div style='border: 1px solid #00FF00; padding:10px; border-radius:4px; text-align:center;'><span style='color:#00FF00; font-weight:bold;'>🎯 TAKE-PROFIT FIELD:</span><br><code style='font-size:18px;'>{pts_tp:.1f} pts away</code></div>", unsafe_allow_html=True)
             
             st.divider()
-            st.markdown("#### 📈 Intraday Price Wave Chart")
-            st.line_chart(hourly_df['Close'].tail(48))
-
-# ==================================================================================
-# 📡 NAVIGATION ROW 2: TICKER-DYNAMIC SPECIALIZED MACRO ECONOMICS NEWS TERMINAL
-# ==================================================================================
-elif page_select == "📡 SPECIALIZED NEWS":
-    st.markdown(f"### 📰 Mars_bot Custom Research Desk: {target_asset}")
-    st.divider()
-    
-    if not ticker_feed.news:
-        st.warning(f"📡 Sweeping global networks... No localized headline logs returned for target string: '{target_asset}'. Displaying baseline sovereign intelligence feeds:")
-        news_list = [
-            {"title": "🦅 Federal Reserve Enforces Data-Dependence Over Late-Autumn Sessions", "summary": "Institutional dollar desks verify that robust labor metrics (165K payrolls) give central bankers room to hold interest rates steady to absorb supply anomalies."},
-            {"title": "🇿🇦 SA Rand Defends Structural Support Channels Near Multi-Day Demand Zones", "summary": "Local currency tracking confirms emerging markets buy volume actively sweeping local floors near R16.40 against the greenback."}
-        ]
-        for article in news_list:
-            with st.container():
-                st.markdown(f"##### {article['title']}")
-                st.write(article['summary'])
-    else:
-        for article in ticker_feed.news[:4]:
-            with st.container():
-                st.markdown(f"##### 🛰️ {article.get('title')}")
-                st.caption(f"Source: {article.get('publisher')} | Type: Core Macro Asset Node")
+            st.markdown("#### 🕯️ Real-Time Intraday Candlestick Trend")
+            
+            # UPGRADE: Converted Line Chart to standard Candlestick format
+            fig_sig = go.Figure()
