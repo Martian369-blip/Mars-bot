@@ -34,7 +34,8 @@ if "live_balance" not in st.session_state:
 # ==================================================================================
 st.markdown("<h1 style='text-align: center;'>🛸 MARS_BOT V11.6</h1>", unsafe_allow_html=True)
 
-col_search, col_trigger = st.columns()
+# FIXED DESIGN LAYOUT LAYER: Explicit proportional parameters passed right into columns
+col_search, col_trigger = st.columns([5, 1])
 with col_search:
     target_asset = st.text_input("🔍 SEARCH ASSET SYMBOL:", value="GBPUSD=X", label_visibility="collapsed").strip().upper()
 with col_trigger:
@@ -171,4 +172,3 @@ elif page_select == "🕹️ WORKSPACE JOURNAL":
             x=chart_df.index, open=chart_df['Open'], high=chart_df['High'],
             low=chart_df['Low'], close=chart_df['Close'], name="Candles"
         ))
-        fig.add_trace(go.Scatter(x=chart_df.index, y=chart_df['tenkan_sen'], line=dict(color='#00FFFF', width=1), name="Tenkan-sen"))
