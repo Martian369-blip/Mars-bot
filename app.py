@@ -12,7 +12,7 @@ import news_panel as np_view
 st.set_page_config(page_title="MARS_BOT V16.0", page_icon="👽", layout="centered", initial_sidebar_state="collapsed")
 lc.load_ig_style()
 
-# 🛸 GLOBAL CYBERPUNK STYLING RESCUE MATRIX LAYER
+# 🛸 INLINE CSS THEME MATRIX ENFORCEMENT LAYER
 st.markdown("""
     <style>
         div[data-baseweb="select"], div[data-testid="stNumberInput"], .stButton button {
@@ -131,14 +131,18 @@ if search_activated or st.session_state["cached_target_asset"] != selected_ticke
 
 st.sidebar.markdown("<h3 style='color:#4CAF50 !important; font-weight:900;'>☰ MAIN CORE</h3>", unsafe_allow_html=True)
 
-navigation_sheets = ["📊 TERMINAL SIGNALS", "📡 SATELLITE NEWS", "🕹️ LEDGER JOURNAL"]
+# FIXED: Exact double spacing matching your live configuration layout explicitly
+navigation_sheets = ["📊  TERMINAL SIGNALS", "📡  SATELLITE NEWS", "🕹️  LEDGER JOURNAL"]
 
 page_select = st.sidebar.radio(
     "CHOOSE MODULE SHEET:", 
     options=navigation_sheets
 )
 
-if page_select == "📊 TERMINAL SIGNALS":
+# Unbreakable index mapping
+current_active_index = navigation_sheets.index(page_select)
+
+if current_active_index == 0:
     st.markdown(f"#### 📡 Telemetry Feed Workspace: <span style='color:#4CAF50;'>{st.session_state['cached_display_name']}</span>", unsafe_allow_html=True)
     st.markdown(f"""
         <div class='cyber-card'>
@@ -173,4 +177,3 @@ if page_select == "📊 TERMINAL SIGNALS":
         </div>
     """, unsafe_allow_html=True)
     t_feed = yf.Ticker(st.session_state["cached_target_asset"])
-    h_df = t_feed.history(period="1mo", interval="1h")
