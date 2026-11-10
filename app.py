@@ -35,7 +35,7 @@ st.markdown(
 
 st.markdown("<h2 style='text-align: center; color: #00A4E4 !important; margin-bottom: 5px;'>🛸 MARS_BOT V14.0</h2>", unsafe_allow_html=True)
 
-# Master Master Unified Asset Catalog Mapping Node
+# Master 60+ Unified Asset Catalog Mapping Node
 ig_name_map = {
     # 🇿🇦 South African Rand Exotic Vectors (ZAR Crosses)
     "USDZAR=X": "USD/ZAR (US Dollar)",
@@ -117,7 +117,6 @@ ig_name_map = {
 }
 display_options = list(ig_name_map.values())
 
-# Layout variables correctly weighted to eliminate layout breaks
 col_search, col_trigger = st.columns([3, 1])
 with col_search:
     chosen_display = st.selectbox("🔍 SELECT MARKET WORKSPACE:", options=display_options, label_visibility="collapsed")
@@ -210,7 +209,10 @@ if page_select == "📊 EXECUTIVE SIGNALS":
 elif page_select == "📡 SPECIALIZED NEWS":
     np_view.render_news_tab(target_asset, ig_display_name)
     try:
-        import macro_tracker; macro_tracker.render_macro_schedule_panel()
-    except Exception: pass
+        import macro_tracker
+        macro_tracker.render_macro_schedule_panel()
+    except Exception:
+        pass
 
 elif page_select == "🕹️ WORKSPACE JOURNAL":
+    jp_view.render_journal_tab(target_asset, ig_display_name, price)
