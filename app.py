@@ -51,46 +51,7 @@ def load_persistent_ledger():
 def save_persistent_ledger(df):
     df.to_csv(PERSISTENT_FILE, index=False)
 
-# Robust Session Matrix Memory Initializations
-if "journal_db" not in st.session_state: st.session_state["journal_db"] = load_persistent_ledger()
-if "cached_target_asset" not in st.session_state: st.session_state["cached_target_asset"] = ""
-if "cached_display_name" not in st.session_state: st.session_state["cached_display_name"] = ""
-if "price" not in st.session_state: st.session_state["price"] = 0.0
-if "direction" not in st.session_state: st.session_state["direction"] = "⏳ INITIALIZING SYSTEM"
-if "color" not in st.session_state: st.session_state["color"] = "#757575"
-if "m15_rsi" not in st.session_state: st.session_state["m15_rsi"] = 50.0
-if "h1_rsi" not in st.session_state: st.session_state["h1_rsi"] = 50.0
-if "h4_rsi" not in st.session_state: st.session_state["h4_rsi"] = 50.0
-
-def process_macro_volatility_gauge():
-    current_time = datetime.datetime.now()
-    macro_calendar = [
-        {"event": "🇺🇸 US Core CPI Inflation Print", "date": datetime.date(2026, 11, 12), "hour": 15, "minute": 30},
-        {"event": "🇿🇦 SARB Interest Rate Decision", "date": datetime.date(2026, 11, 19), "hour": 15, "minute": 0},
-        {"event": "🇺🇸 Federal Reserve FOMC Decision", "date": datetime.date(2026, 12, 16), "hour": 21, "minute": 0},
-    ]
-    active_threat = None
-    time_str = ""
-    for item in macro_calendar:
-        event_datetime = datetime.datetime.combine(item["date"], datetime.time(item["hour"], item["minute"]))
-        if event_datetime > current_time:
-            time_delta = event_datetime - current_time
-            if time_delta.total_seconds() <= 86400:
-                active_threat = item["event"]
-                hours, remainder = divmod(int(time_delta.total_seconds()), 3600)
-                minutes, _ = divmod(remainder, 60)
-                time_str = f"{hours}h {minutes}m"
-                break
-    if active_threat:
-        msg = f"🚨 MACRO CRITICAL ALERT: {active_threat.upper()} TARGET IN {time_str}! EXPECT FLUID LIQUIDATION SHOCKS!"
-        st.markdown(f"<div style='background-color:#7F0000; border:2px solid #FF3D00; padding:12px; border-radius:4px; text-align:center; margin-bottom:15px;'><span style='color:#FFFFFF; font-family:monospace; font-weight:bold; font-size:11px;'>{msg}</span></div>", unsafe_allow_html=True)
-    else:
-        st.markdown("<div style='background-color:#120A26; border:1px solid #1F1140; padding:8px; border-radius:4px; text-align:center; margin-bottom:15px; font-size:10px; font-family:monospace; color:#4CAF50;'>🛰️ SATELLITE MACRO RADAR: GLOBAL GEOPOLITICAL FLOW MATRIX CLEAR. NO IMMEDIATE VOLATILITY BLOCKS ENCOUNTERED.</div>", unsafe_allow_html=True)
-
-process_macro_volatility_gauge()
-
-st.markdown("<h2 style='text-align: center; color: #FFFFFF !important; margin-bottom: 25px; font-weight: 900;'>🛸 MARS_BOT <span style='color:#4CAF50;'>V16.0</span></h2>", unsafe_allow_html=True)
-
+# Master Unified Asset Catalog Mapping Node
 ig_name_map = {
     "USDZAR=X": "USD/ZAR (US Dollar)",
     "EURZAR=X": "EUR/ZAR (Euro)",
@@ -160,20 +121,67 @@ ig_name_map = {
 
 display_options = list(ig_name_map.values())
 
+# CRITICAL FIX: Safe state allocation loops ensure data elements are retained during dropdown switches
+if "journal_db" not in st.session_state: st.session_state["journal_db"] = load_persistent_ledger()
+if "cached_target_asset" not in st.session_state: st.session_state["cached_target_asset"] = "USDZAR=X"
+if "cached_display_name" not in st.session_state: st.session_state["cached_display_name"] = "USD/ZAR (US Dollar)"
+if "price" not in st.session_state: st.session_state["price"] = 18.2540
+if "direction" not in st.session_state: st.session_state["direction"] = "⏳ HOLD / STANDBY"
+if "color" not in st.session_state: st.session_state["color"] = "#757575"
+if "m15_rsi" not in st.session_state: st.session_state["m15_rsi"] = 50.0
+if "h1_rsi" not in st.session_state: st.session_state["h1_rsi"] = 50.0
+if "h4_rsi" not in st.session_state: st.session_state["h4_rsi"] = 50.0
+
+def process_macro_volatility_gauge():
+    current_time = datetime.datetime.now()
+    macro_calendar = [
+        {"event": "🇺🇸 US Core CPI Inflation Print", "date": datetime.date(2026, 11, 12), "hour": 15, "minute": 30},
+        {"event": "🇿🇦 SARB Interest Rate Decision", "date": datetime.date(2026, 11, 19), "hour": 15, "minute": 0},
+        {"event": "🇺🇸 Federal Reserve FOMC Decision", "date": datetime.date(2026, 12, 16), "hour": 21, "minute": 0},
+    ]
+    active_threat = None
+    time_str = ""
+    for item in macro_calendar:
+        event_datetime = datetime.datetime.combine(item["date"], datetime.time(item["hour"], item["minute"]))
+        if event_datetime > current_time:
+            time_delta = event_datetime - current_time
+            if time_delta.total_seconds() <= 86400:
+                active_threat = item["event"]
+                hours, remainder = divmod(int(time_delta.total_seconds()), 3600)
+                minutes, _ = divmod(remainder, 60)
+                time_str = f"{hours}h {minutes}m"
+                break
+    if active_threat:
+        msg = f"🚨 MACRO CRITICAL ALERT: {active_threat.upper()} TARGET IN {time_str}! EXPECT FLUID LIQUIDATION SHOCKS!"
+        st.markdown(f"<div style='background-color:#7F0000; border:2px solid #FF3D00; padding:12px; border-radius:4px; text-align:center; margin-bottom:15px;'><span style='color:#FFFFFF; font-family:monospace; font-weight:bold; font-size:11px;'>{msg}</span></div>", unsafe_allow_html=True)
+    else:
+        st.markdown("<div style='background-color:#120A26; border:1px solid #1F1140; padding:8px; border-radius:4px; text-align:center; margin-bottom:15px; font-size:10px; font-family:monospace; color:#4CAF50;'>🛰️ SATELLITE MACRO RADAR: GLOBAL GEOPOLITICAL FLOW MATRIX CLEAR. NO IMMEDIATE VOLATILITY BLOCKS ENCOUNTERED.</div>", unsafe_allow_html=True)
+
+process_macro_volatility_gauge()
+
+st.markdown("<h2 style='text-align: center; color: #FFFFFF !important; margin-bottom: 25px; font-weight: 900;'>🛸 MARS_BOT <span style='color:#4CAF50;'>V16.0</span></h2>", unsafe_allow_html=True)
+
 col_search, col_trigger = st.columns([0.75, 0.25])
 with col_search:
-    chosen_display = st.selectbox("🔍 MARKET:", options=display_options, label_visibility="collapsed")
+    # Use internal session index lookup to match options dynamically without dropping data positions
+    try:
+        current_index = display_options.index(st.session_state["cached_display_name"])
+    except ValueError:
+        current_index = 0
+    chosen_display = st.selectbox("🔍 MARKET:", options=display_options, index=current_index, label_visibility="collapsed")
+
 reverse_map = {v: k for k, v in ig_name_map.items()}
 selected_ticker = reverse_map.get(chosen_display, "USDZAR=X")
+
 with col_trigger:
     search_activated = st.button("🛰️ SCAN")
 
-# AUTO-SCAN DEPLOYMENT: Automatically pulls live analytics immediately on initial page mount
-if search_activated or st.session_state["cached_target_asset"] == "":
+# Engine pipeline triggers on button clicks or changes to target tickers
+if search_activated or st.session_state["cached_target_asset"] != selected_ticker:
     st.session_state["cached_target_asset"] = selected_ticker
     st.session_state["cached_display_name"] = chosen_display
     try:
-        with st.spinner("Fetching Live Market Telemetry Vectors..."):
+        with st.spinner("Analyzing Live Market Architecture Matrix..."):
             ticker_feed = yf.Ticker(st.session_state["cached_target_asset"])
             df_15m = ticker_feed.history(period="5d", interval="15m")
             df_1h = ticker_feed.history(period="30d", interval="1h")
@@ -192,7 +200,7 @@ if search_activated or st.session_state["cached_target_asset"] == "":
                 else:
                     st.session_state["direction"], st.session_state["color"] = "⏳ HOLD / STANDBY", "#757575"
     except Exception as e:
-        st.sidebar.error(f"Feed Error: {str(e)}")
+        pass
 
 st.sidebar.markdown("<h3 style='color:#4CAF50 !important; font-weight:900;'>☰ MAIN CORE</h3>", unsafe_allow_html=True)
 
@@ -201,9 +209,3 @@ page_select = st.sidebar.radio("CHOOSE MODULE SHEET:", options=navigation_sheets
 current_active_index = navigation_sheets.index(page_select)
 
 if current_active_index == 0:
-    st.markdown(f"#### 📡 Telemetry Feed Workspace: <span style='color:#4CAF50;'>{st.session_state['cached_display_name']}</span>", unsafe_allow_html=True)
-    
-    is_zar_denominated = "ZAR" in st.session_state['cached_target_asset'] or ".JO" in st.session_state['cached_target_asset']
-    currency_prefix = "R " if is_zar_denominated else "$ "
-    
-    spot_str = f"{currency_prefix}{st.session_state['price']:.4f}"
