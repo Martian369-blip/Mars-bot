@@ -1,41 +1,3 @@
-import streamlit as st
-import yfinance as yf
-import pandas as pd
-import numpy as np
-import plotly.graph_objects as go
-import datetime
-import engine as eng
-import news_panel as np_view
-import journal_panel as jp_view
-import layout_config as lc
-
-st.set_page_config(page_title="MARS_BOT V14.0", page_icon="👽", layout="centered", initial_sidebar_state="collapsed")
-lc.load_ig_style()
-
-if "journal_db" not in st.session_state:
-    st.session_state.journal_db = pd.DataFrame(columns=["Asset", "Action", "Cash In (R)", "Cash Out (R)", "Net P&L (ZAR)", "Entry Price", "Win/Loss %", "Status"])
-if "live_balance" not in st.session_state:
-    st.session_state.live_balance = 500.0
-
-# 📅 MULTI-NATION TRADING SECTOR CLOCK TICKER GRID
-current_hour_sa = datetime.datetime.now().hour
-
-london_status = "🟢 OPEN" if (9 <= current_hour_sa <= 17) else "🔴 CLOSED"
-newyork_status = "🟢 OPEN" if (15 <= current_hour_sa <= 22) else "🔴 CLOSED"
-jse_status = "🟢 OPEN" if (9 <= current_hour_sa <= 17) else "🔴 CLOSED"
-
-st.markdown(
-    f"<div style='background-color:#161A1E; border:1px solid #23292F; padding:8px; border-radius:4px; text-align:center; font-size:11px; letter-spacing:0.5px; color:#90A4AE; margin-bottom:15px;'> "
-    f"🇬🇧 LONDON: <b style='color:#FFFFFF;'>{london_status}</b> | "
-    f"🇺🇸 NEW YORK: <b style='color:#FFFFFF;'>{newyork_status}</b> | "
-    f"🇿🇦 JOHANNESBURG JSE: <b style='color:#FFFFFF;'>{jse_status}</b>"
-    f"</div>", 
-    unsafe_allow_html=True
-)
-
-st.markdown("<h2 style='text-align: center; color: #00A4E4 !important; margin-bottom: 5px;'>🛸 MARS_BOT V14.0</h2>", unsafe_allow_html=True)
-
-# ==================== THE COMPREHENSIVE GLOBAL MARKET CATALOG ====================
 ig_name_map = {
     # 🇿🇦 South African Rand Exotic Vectors (ZAR Crosses)
     "USDZAR=X": "USD/ZAR (US Dollar)",
@@ -117,7 +79,6 @@ ig_name_map = {
 }
 display_options = list(ig_name_map.values())
 
-# 🔥 FIX UPGRADE: Added proportional width ratio lists to resolve the layout crash
 col_search, col_trigger = st.columns([3, 1])
 with col_search:
     chosen_display = st.selectbox("🔍 SELECT MARKET WORKSPACE:", options=display_options, label_visibility="collapsed")
@@ -214,3 +175,4 @@ elif page_select == "📡 SPECIALIZED NEWS":
     except Exception: pass
 
 elif page_select == "🕹️ WORKSPACE JOURNAL":
+    jp_view.render_journal_tab(target_asset, ig_display_name, price)
