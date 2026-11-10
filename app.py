@@ -4,23 +4,40 @@ import pandas as pd
 import datetime
 import os
 
-# Custom layout and calculation safety fallbacks if internal modules are missing
-class EngineFallback:
-    @staticmethod
-    def calculate_rsi(df, window=14):
-        delta = df['Close'].diff()
-        gain = (delta.where(delta > 0, 0)).rolling(window=window).mean()
-        loss = (-delta.where(delta < 0, 0)).rolling(window=window).mean()
-        rs = gain / (loss + 1e-9)
-        return 100 - (100 / (1 + rs))
-
+# Try loading your custom internal framework nodes to preserve configuration
 try:
     import engine as eng
 except ImportError:
+    class EngineFallback:
+        @staticmethod
+        def calculate_rsi(df, window=14):
+            delta = df['Close'].diff()
+            gain = (delta.where(delta > 0, 0)).rolling(window=window).mean()
+            loss = (-delta.where(delta < 0, 0)).rolling(window=window).mean()
+            rs = gain / (loss + 1e-9)
+            return 100 - (100 / (1 + rs))
     eng = EngineFallback
+
+try:
+    import layout_config as lc
+    has_layout_style = True
+except ImportError:
+    has_layout_style = False
+
+try:
+    import chart_render as cr
+    has_chart_engine = True
+except ImportError:
+    has_chart_engine = False
 
 # Initialize premium terminal view window layout
 st.set_page_config(page_title="MARS_BOT V16.0", page_icon="👽", layout="centered", initial_sidebar_state="collapsed")
+
+if has_layout_style:
+    try:
+        lc.load_ig_style()
+    except Exception:
+        pass
 
 PERSISTENT_FILE = "ledger_vault.csv"
 
@@ -75,7 +92,7 @@ process_macro_volatility_gauge()
 
 st.markdown("<h2 style='text-align: center; color: #FFFFFF !important; margin-bottom: 25px; font-weight: 900;'>🛸 MARS_BOT <span style='color:#4CAF50;'>V16.0</span></h2>", unsafe_allow_html=True)
 
-# Master Master Unified Asset Catalog Mapping Node
+# Master Unified Asset Catalog Mapping Node
 ig_name_map = {
     "USDZAR=X": "USD/ZAR (US Dollar)",
     "EURZAR=X": "EUR/ZAR (Euro)",
@@ -153,6 +170,9 @@ selected_ticker = reverse_map.get(chosen_display, "USDZAR=X")
 with col_trigger:
     search_activated = st.button("🛰️ SCAN")
 
+# Global analytical dataframes holder
+df_1h = pd.DataFrame()
+
 if search_activated or st.session_state["cached_target_asset"] != selected_ticker:
     st.session_state["cached_target_asset"] = selected_ticker
     st.session_state["cached_display_name"] = chosen_display
@@ -187,12 +207,6 @@ if current_active_index == 0:
     is_zar_denominated = "ZAR" in st.session_state['cached_target_asset'] or ".JO" in st.session_state['cached_target_asset']
     currency_prefix = "R " if is_zar_denominated else "$ "
     
-    # Safe decoupled template formulation prevents trailing literal parsing drops
     spot_str = f"{currency_prefix}{st.session_state['price']:.4f}"
     direction_str = str(st.session_state['direction'])
     color_str = str(st.session_state['color'])
-    h1_rsi_str = f"{st.session_state['h1_rsi']:.1f}"
-    m15_rsi_str = f"{st.session_state['m15_rsi']:.1f}"
-    h4_rsi_str = f"{st.session_state['h4_rsi']:.1f}"
-    
-    html_payload = "<div style='background-color: #120A26; border: 1px solid #2A1B4E; padding: 20px; border-radius: 6px; margin-bottom: 20px;'>"
