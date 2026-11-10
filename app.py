@@ -147,6 +147,7 @@ ig_name_map = {
 
 display_options = list(ig_name_map.values())
 
+
 col_search, col_trigger = st.columns([0.75, 0.25])
 with col_search:
     chosen_display = st.selectbox("🔍 MARKET:", options=display_options, label_visibility="collapsed")
