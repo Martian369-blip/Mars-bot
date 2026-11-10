@@ -1,203 +1,141 @@
 import streamlit as st
 import yfinance as yf
 import pandas as pd
+import numpy as np
+import plotly.graph_objects as go
 import datetime
-import os
+import engine as eng
+import news_panel as np_view
+import journal_panel as jp_view
+import layout_config as lc
 
-# Custom layout and calculation safety fallbacks if internal modules are missing
-class EngineFallback:
-    @staticmethod
-    def calculate_rsi(df, window=14):
-        delta = df['Close'].diff()
-        gain = (delta.where(delta > 0, 0)).rolling(window=window).mean()
-        loss = (-delta.where(delta < 0, 0)).rolling(window=window).mean()
-        rs = gain / (loss + 1e-9)
-        return 100 - (100 / (1 + rs))
+st.set_page_config(page_title="MARS_BOT V14.0", page_icon="👽", layout="centered", initial_sidebar_state="collapsed")
+lc.load_ig_style()
 
-try:
-    import engine as eng
-except ImportError:
-    eng = EngineFallback
+if "journal_db" not in st.session_state:
+    st.session_state.journal_db = pd.DataFrame(columns=["Asset", "Action", "Cash In (R)", "Cash Out (R)", "Net P&L (ZAR)", "Entry Price", "Win/Loss %", "Status"])
+if "live_balance" not in st.session_state:
+    st.session_state.live_balance = 500.0
 
-# Initialize premium terminal view window layout
-st.set_page_config(page_title="MARS_BOT V16.0", page_icon="👽", layout="centered", initial_sidebar_state="collapsed")
+# 📅 MULTI-NATION TRADING SECTOR CLOCK TICKER GRID
+current_hour_sa = datetime.datetime.now().hour
 
-PERSISTENT_FILE = "ledger_vault.csv"
+london_status = "🟢 OPEN" if (9 <= current_hour_sa <= 17) else "🔴 CLOSED"
+newyork_status = "🟢 OPEN" if (15 <= current_hour_sa <= 22) else "🔴 CLOSED"
+jse_status = "🟢 OPEN" if (9 <= current_hour_sa <= 17) else "🔴 CLOSED"
 
-def load_persistent_ledger():
-    if os.path.exists(PERSISTENT_FILE):
-        try:
-            df = pd.read_csv(PERSISTENT_FILE)
-            if not df.empty: return df
-        except Exception: pass
-    return pd.DataFrame(columns=["Timestamp", "Asset", "Action", "Price", "Matrix RSI", "Status"])
+st.markdown(
+    f"<div style='background-color:#161A1E; border:1px solid #23292F; padding:8px; border-radius:4px; text-align:center; font-size:11px; letter-spacing:0.5px; color:#90A4AE; margin-bottom:15px;'> "
+    f"🇬🇧 LONDON: <b style='color:#FFFFFF;'>{london_status}</b> | "
+    f"🇺🇸 NEW YORK: <b style='color:#FFFFFF;'>{newyork_status}</b> | "
+    f"🇿🇦 JOHANNESBURG JSE: <b style='color:#FFFFFF;'>{jse_status}</b>"
+    f"</div>", 
+    unsafe_allow_html=True
+)
 
-def save_persistent_ledger(df):
-    df.to_csv(PERSISTENT_FILE, index=False)
+st.markdown("<h2 style='text-align: center; color: #00A4E4 !important; margin-bottom: 5px;'>🛸 MARS_BOT V14.0</h2>", unsafe_allow_html=True)
 
-# Robust Session Matrix Memory Initializations
-if "journal_db" not in st.session_state: st.session_state["journal_db"] = load_persistent_ledger()
-if "cached_target_asset" not in st.session_state: st.session_state["cached_target_asset"] = "USDZAR=X"
-if "cached_display_name" not in st.session_state: st.session_state["cached_display_name"] = "USD/ZAR (US Dollar)"
-if "price" not in st.session_state: st.session_state["price"] = 16.5170
-if "direction" not in st.session_state: st.session_state["direction"] = "⏳ HOLD / STANDBY"
-if "color" not in st.session_state: st.session_state["color"] = "#757575"
-if "m15_rsi" not in st.session_state: st.session_state["m15_rsi"] = 50.0
-if "h1_rsi" not in st.session_state: st.session_state["h1_rsi"] = 50.0
-if "h4_rsi" not in st.session_state: st.session_state["h4_rsi"] = 50.0
-
-def process_macro_volatility_gauge():
-    current_time = datetime.datetime.now()
-    macro_calendar = [
-        {"event": "🇺🇸 US Core CPI Inflation Print", "date": datetime.date(2026, 11, 12), "hour": 15, "minute": 30},
-        {"event": "🇿🇦 SARB Interest Rate Decision", "date": datetime.date(2026, 11, 19), "hour": 15, "minute": 0},
-        {"event": "🇺🇸 Federal Reserve FOMC Decision", "date": datetime.date(2026, 12, 16), "hour": 21, "minute": 0},
-    ]
-    active_threat = None
-    time_str = ""
-    for item in macro_calendar:
-        event_datetime = datetime.datetime.combine(item["date"], datetime.time(item["hour"], item["minute"]))
-        if event_datetime > current_time:
-            time_delta = event_datetime - current_time
-            if time_delta.total_seconds() <= 86400:
-                active_threat = item["event"]
-                hours, remainder = divmod(int(time_delta.total_seconds()), 3600)
-                minutes, _ = divmod(remainder, 60)
-                time_str = f"{hours}h {minutes}m"
-                break
-    if active_threat:
-        st.markdown(f"<div style='background-color:#7F0000; border:2px solid #FF3D00; padding:12px; border-radius:4px; text-align:center; margin-bottom:15px;'><span style='color:#FFFFFF; font-family:monospace; font-weight:bold; font-size:11px;'>🚨 MACRO CRITICAL ALERT: {active_threat.upper()} TARGET IN {time_str}! EXPECT FLUID LIQUIDATION SHOCKS!</span></div>", unsafe_allow_html=True)
-    else:
-        st.markdown("<div style='background-color:#120A26; border:1px solid #1F1140; padding:8px; border-radius:4px; text-align:center; margin-bottom:15px; font-size:10px; font-family:monospace; color:#4CAF50;'>🛰️ SATELLITE MACRO RADAR: GLOBAL GEOPOLITICAL FLOW MATRIX CLEAR. NO IMMEDIATE VOLATILITY BLOCKS ENCOUNTERED.</div>", unsafe_allow_html=True)
-
-process_macro_volatility_gauge()
-
-st.markdown("<h2 style='text-align: center; color: #FFFFFF !important; margin-bottom: 25px; font-weight: 900;'>🛸 MARS_BOT <span style='color:#4CAF50;'>V16.0</span></h2>", unsafe_allow_html=True)
-
-# Master 60+ Unified Asset Matrix Catalog
 ig_name_map = {
-    # 🇿🇦 South African Rand Exotic Vectors (ZAR Crosses)
-    "USDZAR=X": "USD/ZAR (US Dollar)",
-    "EURZAR=X": "EUR/ZAR (Euro)",
-    "GBPZAR=X": "GBP/ZAR (British Pound)",
-    "AUDZAR=X": "AUD/ZAR (Aussie Dollar)",
-    "JPYZAR=X": "JPY/ZAR (Japanese Yen)",
-    "CADZAR=X": "CAD/ZAR (Canadian Dollar)",
-    "CHFZAR=X": "CHF/ZAR (Swiss Franc)",
-    "NZDZAR=X": "NZD/ZAR (Kiwi Dollar)",
-    
-    # 🌍 Global Forex Majors & Liquid Crosses
-    "GBPUSD=X": "GBP/USD (Cable)",
-    "EURUSD=X": "EUR/USD (Fiber)",
-    "USDJPY=X": "USD/JPY (Ninja)",
-    "AUDUSD=X": "AUD/USD (Aussie)",
-    "USDCAD=X": "USD/CAD (Loonie)",
-    "USDCHF=X": "USD/CHF (Swissie)",
-    "NZDUSD=X": "NZD/USD (Kiwi)",
-    "EURGBP=X": "EUR/GBP (Chunnel)",
-    "EURJPY=X": "EUR/JPY",
-    "GBPJPY=X": "GBP/JPY (Guppy)",
-    
-    # 🛢️ Global Hard & Soft Commodities Suite
-    "GC=F":     "Gold (Ounce Futures)",
-    "SI=F":     "Silver (Ounce Futures)",
-    "PL=F":     "Platinum (Ounce Futures)",
-    "PA=F":     "Palladium (Ounce Futures)",
-    "CL=F":     "Crude Oil (WTI Futures)",
-    "BZ=F":     "Brent Crude Oil Futures",
-    "NG=F":     "Natural Gas Futures",
-    "HG=F":     "Copper Futures",
-    "CC=F":     "Cocoa Futures",
-    "KC=F":     "Coffee Futures",
-    
-    # 🇿🇦 Johannesburg Stock Exchange (JSE Blue-Chip Heavyweights)
-    "SOL.JO":   "Sasol Ltd (JSE:SOL)",
-    "FSR.JO":   "FirstRand Ltd (JSE:FSR)",
-    "SBK.JO":   "Standard Bank Group (JSE:SBK)",
-    "ANG.JO":   "Anglogold Ashanti (JSE:ANG)",
-    "IMP.JO":   "Impala Platinum (JSE:IMP)",
-    "NPN.JO":   "Naspers Ltd (JSE:NPN)",
-    "PRX.JO":   "Prosus NV (JSE:PRX)",
-    "BTI.JO":   "British American Tobacco (JSE:BTI)",
-    "AGL.JO":   "Anglo American plc (JSE:AGL)",
-    "GFI.JO":   "Gold Fields Ltd (JSE:GFI)",
-    "SLM.JO":   "Sanlam Ltd (JSE:SLM)",
-    "ABG.JO":   "Absa Group Ltd (JSE:ABG)",
-    "NED.JO":   "Nedbank Group (JSE:NED)",
-    "MTN.JO":   "MTN Group Ltd (JSE:MTN)",
-    "VOD.JO":   "Vodacom Group (JSE:VOD)",
-    
-    # 🇺🇸 Wall Street Blue-Chips & Tech Giants
-    "AAPL":     "Apple Inc. (NASDAQ)",
-    "NVDA":     "NVIDIA Corporation (NASDAQ)",
-    "TSLA":     "Tesla Motors Inc. (NASDAQ)",
-    "MSFT":     "Microsoft Corp. (NASDAQ)",
-    "AMZN":     "Amazon.com Inc. (NASDAQ)",
-    "META":     "Meta Platforms (NASDAQ)",
-    "GOOGL":    "Alphabet Inc. (NASDAQ)",
-    "AMD":      "Advanced Micro Devices (NASDAQ)",
-    "NFLX":     "Netflix Inc. (NASDAQ)",
-    
-    # 🪙 Decentralized Digital Assets (Crypto Vectors)
-    "BTC-USD":  "Bitcoin / US Dollar",
-    "ETH-USD":  "Ethereum / US Dollar",
-    "SOL-USD":  "Solana / US Dollar",
-    "BNB-USD":  "Binance Coin / US Dollar",
-    "XRP-USD":  "Ripple / US Dollar",
-    
-    # 📉 Macro Stock Market Indices
-    "^GSPC":    "S&P 500 Index (US Market)",
-    "^NDX":     "NASDAQ 100 (US Tech)",
-    "^DJI":     "Dow Jones Industrial 30",
-    "^FTSE":    "FTSE 100 Index (London)",
-    "^GDAXI":   "DAX Performance Index (Germany)",
-    "^N225":    "Nikkei 225 Index (Japan)",
-    "^J203.JO": "JSE All Share Index (South Africa)"
+    "GBPUSD=X": "GBP/USD", "USDZAR=X": "USD/ZAR", "GC=F": "Gold", "EURUSD=X": "EUR/USD", 
+    "USDJPY=X": "USD/JPY", "AUDUSD=X": "AUD/USD", "USDCAD=X": "USD/CAD", "CL=F": "Oil - Crude"
 }
-
 display_options = list(ig_name_map.values())
 
-col_search, col_trigger = st.columns([0.75, 0.25])
+# 🔥 FIX UPGRADE: Added proportional width ratio lists to resolve the layout crash
+col_search, col_trigger = st.columns([3, 1])
 with col_search:
-    chosen_display = st.selectbox("🔍 MARKET:", options=display_options, label_visibility="collapsed")
+    chosen_display = st.selectbox("🔍 SELECT MARKET WORKSPACE:", options=display_options, label_visibility="collapsed")
+
 reverse_map = {v: k for k, v in ig_name_map.items()}
-selected_ticker = reverse_map.get(chosen_display, "USDZAR=X")
+target_asset = reverse_map.get(chosen_display, "GBPUSD=X")
+ig_display_name = chosen_display
+
 with col_trigger:
     search_activated = st.button("🛰️ SCAN")
 
-if search_activated or st.session_state["cached_target_asset"] != selected_ticker:
-    st.session_state["cached_target_asset"] = selected_ticker
-    st.session_state["cached_display_name"] = chosen_display
-    try:
-        ticker_feed = yf.Ticker(st.session_state["cached_target_asset"])
-        df_15m = ticker_feed.history(period="5d", interval="15m")
-        df_1h = ticker_feed.history(period="30d", interval="1h")
-        df_4h = ticker_feed.history(period="60d", interval="4h")
-        if not df_1h.empty:
-            st.session_state["price"] = df_1h['Close'].iloc[-1]
-            st.session_state["m15_rsi"] = eng.calculate_rsi(df_15m).iloc[-1] if not df_15m.empty else 50.0
-            st.session_state["h1_rsi"] = eng.calculate_rsi(df_1h).iloc[-1]
-            st.session_state["h4_rsi"] = eng.calculate_rsi(df_4h).iloc[-1] if not df_4h.empty else 50.0
+st.sidebar.markdown("<h3 style='color:#00A4E4 !important;'>☰ IG CONSOLE</h3>", unsafe_allow_html=True)
+page_select = st.sidebar.radio("NAVIGATION PANEL:", ["📊 EXECUTIVE SIGNALS", "📡 SPECIALIZED NEWS", "🕹️ WORKSPACE JOURNAL"])
+st.sidebar.divider()
+st.sidebar.caption("👽 V14.0 Quantum Core Multi-Module Mesh.")
+
+price, hourly_rsi, direction, color, stop_loss, take_profit = 0.0, 50.0, "HOLD", "#E53935", 0.0, 0.0
+daily_df, hourly_df = pd.DataFrame(), pd.DataFrame()
+candle_pattern_alert = "⏳ SCANNING MATRIX..."
+
+try:
+    ticker_feed = yf.Ticker(target_asset)
+    daily_df = ticker_feed.history(period="3mo", interval="1d")
+    hourly_df = ticker_feed.history(period="1mo", interval="1h")
+    if hourly_df.empty and not daily_df.empty:
+        hourly_df = daily_df.copy()
+    if not daily_df.empty and not hourly_df.empty:
+        daily_df['RSI'] = eng.calculate_rsi(daily_df)
+        hourly_df['RSI'] = eng.calculate_rsi(hourly_df)
+        price = daily_df['Close'].iloc[-1]
+        hourly_rsi = hourly_df['RSI'].iloc[-1]
+        hourly_atr = eng.extract_hourly_atr(hourly_df)
+        
+        candle_pattern_alert = eng.scan_candlestick_patterns(hourly_df)
+        
+        recent_low = hourly_df['Low'].tail(24).min()
+        recent_high = hourly_df['High'].tail(24).max()
+        if hourly_rsi < 35 or (price <= (recent_low * 1.005)):
+            direction, color = "🚀 BUY / LONG", "#4CAF50"
+            stop_loss = price - (hourly_atr * 1.5)
+            take_profit = price + ((price - stop_loss) * 2.5)
+        elif hourly_rsi > 65 or (price >= (recent_high * 0.995)):
+            direction, color = "💥 SELL / SHORT", "#E53935"
+            stop_loss = price + (hourly_atr * 1.5)
+            take_profit = price - ((stop_loss - price) * 2.5)
+        else:
+            direction, color = "⏳ HOLD / PRESERVE CASH", "#FFB300"
+            stop_loss, take_profit = price, price
             
-            if st.session_state["m15_rsi"] < 40 and st.session_state["h1_rsi"] < 45 and st.session_state["h4_rsi"] < 50:
-                st.session_state["direction"], st.session_state["color"] = "🚀 CONVERGENT BUY", "#4CAF50"
-            elif st.session_state["m15_rsi"] > 60 and st.session_state["h1_rsi"] > 55 and st.session_state["h4_rsi"] > 50:
-                st.session_state["direction"], st.session_state["color"] = "💥 CONVERGENT SELL", "#E53935"
-            else:
-                st.session_state["direction"], st.session_state["color"] = "⏳ HOLD / STANDBY", "#757575"
+        st.session_state['hourly_rsi'] = hourly_rsi
+        st.session_state['current_price'] = price
+        st.session_state['current_direction'] = direction
+except Exception as e:
+    st.sidebar.error(f"Telemetry Core Sync Warning: {str(e)}")
+
+# ==================================================================================
+# SWITCHBOARD ROUTING LAYER
+# ==================================================================================
+if page_select == "📊 EXECUTIVE SIGNALS":
+    st.markdown(f"#### 🎯 Live Sovereign Matrix Sheet: <span style='color:#00A4E4;'>{ig_display_name}</span>", unsafe_allow_html=True)
+    
+    if "ALIGNED" in candle_pattern_alert or "DETECTED" in candle_pattern_alert:
+        st.warning(f"⚠️ **{candle_pattern_alert}**")
+    else:
+        st.info(f"👀 **Structure Matrix Status:** {candle_pattern_alert}")
+        
+    if daily_df.empty or hourly_df.empty:
+        st.error(f"❌ Empty market node feedback.")
+    else:
+        c_sym = "R" if ("ZAR" in target_asset or ".JO" in target_asset) else "$"
+        formatted_price = f"{price:.4f}" if "ZAR" in target_asset else (f"{price:.5f}" if "=" in target_asset else f"{price:.2f}")
+        with st.container():
+            st.markdown(f"<h3 style='text-align: center; margin: 0px; color:#FFFFFF;'>📦 {ig_display_name}</h3>", unsafe_allow_html=True)
+            st.divider()
+            col_a, col_b, col_c = st.columns(3)
+            with col_a: st.markdown(f"**Spot Rate:**\n### {c_sym}{formatted_price}")
+            with col_b: st.markdown(f"**Live Signal:**\n<h3 style='color:{color}; margin-top:5px;'>{direction}</h3>", unsafe_allow_html=True)
+            with col_c: st.markdown(f"**Hourly RSI:**\n### `{hourly_rsi:.1f}`")
+            st.divider()
+            st.markdown("<p style='font-size:13px; font-weight:bold; letter-spacing:0.5px; color:#90A4AE;'>🕯️ REAL-TIME DEALING CANDLESTICK GRAPH</p>", unsafe_allow_html=True)
+            fig_sig = go.Figure()
+            fig_sig.add_trace(go.Candlestick(
+                x=hourly_df.tail(48).index, open=hourly_df.tail(48)['Open'], high=hourly_df.tail(48)['High'],
+                low=hourly_df.tail(48)['Low'], close=hourly_df.tail(48)['Close'], name="Market",
+                increasing_line_color='#4CAF50', decreasing_line_color='#E53935'
+            ))
+            fig_sig.update_layout(template="plotly_dark", paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='#161A1E', xaxis_rangeslider_visible=False, height=350, margin=dict(l=10, r=10, t=10, b=10))
+            st.plotly_chart(fig_sig, use_container_width=True)
+
+elif page_select == "📡 SPECIALIZED NEWS":
+    np_view.render_news_tab(target_asset, ig_display_name)
+    try:
+        import macro_tracker; macro_tracker.render_macro_schedule_panel()
     except Exception: pass
 
-st.sidebar.markdown("<h3 style='color:#4CAF50 !important; font-weight:900;'>☰ MAIN CORE</h3>", unsafe_allow_html=True)
-
-navigation_sheets = ["📊  TERMINAL SIGNALS", "📡  SATELLITE NEWS", "🕹️  LEDGER JOURNAL"]
-page_select = st.sidebar.radio("CHOOSE MODULE SHEET:", options=navigation_sheets)
-current_active_index = navigation_sheets.index(page_select)
-
-if current_active_index == 0:
-    st.markdown(f"#### 📡 Telemetry Feed Workspace: <span style='color:#4CAF50;'>{st.session_state['cached_display_name']}</span>", unsafe_allow_html=True)
-    
-    is_zar_denominated = "ZAR" in st.session_state['cached_target_asset'] or ".JO" in st.session_state['cached_target_asset']
-    currency_prefix = "R " if is_zar_denominated else "$ "
-    
-    st.markdown(f"""
-        <div style='background-color: #120A26; border: 1px solid #2A1B4E; padding: 20px; border-radius: 6px; margin-bottom: 20px;'>
+elif page_select == "🕹️ WORKSPACE JOURNAL":
+    jp_view.render_journal_tab(target_asset, ig_display_name, price)
