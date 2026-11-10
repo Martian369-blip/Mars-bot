@@ -4,18 +4,19 @@ import pandas as pd
 import datetime
 import os
 
-# Try loading your custom internal framework nodes to preserve configuration
+# Custom layout and calculation safety fallbacks if internal modules are missing
+class EngineFallback:
+    @staticmethod
+    def calculate_rsi(df, window=14):
+        delta = df['Close'].diff()
+        gain = (delta.where(delta > 0, 0)).rolling(window=window).mean()
+        loss = (-delta.where(delta < 0, 0)).rolling(window=window).mean()
+        rs = gain / (loss + 1e-9)
+        return 100 - (100 / (1 + rs))
+
 try:
     import engine as eng
 except ImportError:
-    class EngineFallback:
-        @staticmethod
-        def calculate_rsi(df, window=14):
-            delta = df['Close'].diff()
-            gain = (delta.where(delta > 0, 0)).rolling(window=window).mean()
-            loss = (-delta.where(delta < 0, 0)).rolling(window=window).mean()
-            rs = gain / (loss + 1e-9)
-            return 100 - (100 / (1 + rs))
     eng = EngineFallback
 
 try:
@@ -34,10 +35,8 @@ except ImportError:
 st.set_page_config(page_title="MARS_BOT V16.0", page_icon="👽", layout="centered", initial_sidebar_state="collapsed")
 
 if has_layout_style:
-    try:
-        lc.load_ig_style()
-    except Exception:
-        pass
+    try: lc.load_ig_style()
+    except Exception: pass
 
 PERSISTENT_FILE = "ledger_vault.csv"
 
@@ -54,10 +53,10 @@ def save_persistent_ledger(df):
 
 # Robust Session Matrix Memory Initializations
 if "journal_db" not in st.session_state: st.session_state["journal_db"] = load_persistent_ledger()
-if "cached_target_asset" not in st.session_state: st.session_state["cached_target_asset"] = "USDZAR=X"
-if "cached_display_name" not in st.session_state: st.session_state["cached_display_name"] = "USD/ZAR (US Dollar)"
-if "price" not in st.session_state: st.session_state["price"] = 16.5170
-if "direction" not in st.session_state: st.session_state["direction"] = "⏳ HOLD / STANDBY"
+if "cached_target_asset" not in st.session_state: st.session_state["cached_target_asset"] = ""
+if "cached_display_name" not in st.session_state: st.session_state["cached_display_name"] = ""
+if "price" not in st.session_state: st.session_state["price"] = 0.0
+if "direction" not in st.session_state: st.session_state["direction"] = "⏳ INITIALIZING SYSTEM"
 if "color" not in st.session_state: st.session_state["color"] = "#757575"
 if "m15_rsi" not in st.session_state: st.session_state["m15_rsi"] = 50.0
 if "h1_rsi" not in st.session_state: st.session_state["h1_rsi"] = 50.0
@@ -92,7 +91,6 @@ process_macro_volatility_gauge()
 
 st.markdown("<h2 style='text-align: center; color: #FFFFFF !important; margin-bottom: 25px; font-weight: 900;'>🛸 MARS_BOT <span style='color:#4CAF50;'>V16.0</span></h2>", unsafe_allow_html=True)
 
-# Master Unified Asset Catalog Mapping Node
 ig_name_map = {
     "USDZAR=X": "USD/ZAR (US Dollar)",
     "EURZAR=X": "EUR/ZAR (Euro)",
@@ -170,30 +168,31 @@ selected_ticker = reverse_map.get(chosen_display, "USDZAR=X")
 with col_trigger:
     search_activated = st.button("🛰️ SCAN")
 
-# Global analytical dataframes holder
-df_1h = pd.DataFrame()
-
-if search_activated or st.session_state["cached_target_asset"] != selected_ticker:
+# AUTO-SCAN DEPLOYMENT: Automatically pulls live analytics immediately on initial page mount
+if search_activated or st.session_state["cached_target_asset"] == "":
     st.session_state["cached_target_asset"] = selected_ticker
     st.session_state["cached_display_name"] = chosen_display
     try:
-        ticker_feed = yf.Ticker(st.session_state["cached_target_asset"])
-        df_15m = ticker_feed.history(period="5d", interval="15m")
-        df_1h = ticker_feed.history(period="30d", interval="1h")
-        df_4h = ticker_feed.history(period="60d", interval="4h")
-        if not df_1h.empty:
-            st.session_state["price"] = float(df_1h['Close'].iloc[-1])
-            st.session_state["m15_rsi"] = float(eng.calculate_rsi(df_15m).iloc[-1]) if not df_15m.empty else 50.0
-            st.session_state["h1_rsi"] = float(eng.calculate_rsi(df_1h).iloc[-1])
-            st.session_state["h4_rsi"] = float(eng.calculate_rsi(df_4h).iloc[-1]) if not df_4h.empty else 50.0
+        with st.spinner("Fetching Live Market Telemetry Vectors..."):
+            ticker_feed = yf.Ticker(st.session_state["cached_target_asset"])
+            df_15m = ticker_feed.history(period="5d", interval="15m")
+            df_1h = ticker_feed.history(period="30d", interval="1h")
+            df_4h = ticker_feed.history(period="60d", interval="4h")
             
-            if st.session_state["m15_rsi"] < 40 and st.session_state["h1_rsi"] < 45 and st.session_state["h4_rsi"] < 50:
-                st.session_state["direction"], st.session_state["color"] = "🚀 CONVERGENT BUY", "#4CAF50"
-            elif st.session_state["m15_rsi"] > 60 and st.session_state["h1_rsi"] > 55 and st.session_state["h4_rsi"] > 50:
-                st.session_state["direction"], st.session_state["color"] = "💥 CONVERGENT SELL", "#E53935"
-            else:
-                st.session_state["direction"], st.session_state["color"] = "⏳ HOLD / STANDBY", "#757575"
-    except Exception: pass
+            if not df_1h.empty:
+                st.session_state["price"] = float(df_1h['Close'].iloc[-1])
+                st.session_state["m15_rsi"] = float(eng.calculate_rsi(df_15m).iloc[-1]) if not df_15m.empty else 50.0
+                st.session_state["h1_rsi"] = float(eng.calculate_rsi(df_1h).iloc[-1])
+                st.session_state["h4_rsi"] = float(eng.calculate_rsi(df_4h).iloc[-1]) if not df_4h.empty else 50.0
+                
+                if st.session_state["m15_rsi"] < 40 and st.session_state["h1_rsi"] < 45 and st.session_state["h4_rsi"] < 50:
+                    st.session_state["direction"], st.session_state["color"] = "🚀 CONVERGENT BUY", "#4CAF50"
+                elif st.session_state["m15_rsi"] > 60 and st.session_state["h1_rsi"] > 55 and st.session_state["h4_rsi"] > 50:
+                    st.session_state["direction"], st.session_state["color"] = "💥 CONVERGENT SELL", "#E53935"
+                else:
+                    st.session_state["direction"], st.session_state["color"] = "⏳ HOLD / STANDBY", "#757575"
+    except Exception as e:
+        st.sidebar.error(f"Feed Error: {str(e)}")
 
 st.sidebar.markdown("<h3 style='color:#4CAF50 !important; font-weight:900;'>☰ MAIN CORE</h3>", unsafe_allow_html=True)
 
@@ -208,5 +207,3 @@ if current_active_index == 0:
     currency_prefix = "R " if is_zar_denominated else "$ "
     
     spot_str = f"{currency_prefix}{st.session_state['price']:.4f}"
-    direction_str = str(st.session_state['direction'])
-    color_str = str(st.session_state['color'])
