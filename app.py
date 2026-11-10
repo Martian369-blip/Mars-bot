@@ -65,9 +65,86 @@ process_macro_volatility_gauge()
 st.markdown("<h2 style='text-align: center; color: #FFFFFF !important; margin-bottom: 25px; font-weight: 900;'>🛸 MARS_BOT <span style='color:#4CAF50;'>V16.0</span></h2>", unsafe_allow_html=True)
 
 ig_name_map = {
-    "USDZAR=X": "USD/ZAR", "GBPUSD=X": "GBP/USD", "GC=F": "Gold", "EURUSD=X": "EUR/USD", 
-    "USDJPY=X": "USD/JPY", "AUDUSD=X": "AUD/USD", "USDCAD=X": "USD/CAD"
+   ig_name_map = {
+    # 🇿🇦 South African Rand Exotic Vectors (ZAR Crosses)
+    "USDZAR=X": "USD/ZAR (US Dollar)",
+    "EURZAR=X": "EUR/ZAR (Euro)",
+    "GBPZAR=X": "GBP/ZAR (British Pound)",
+    "AUDZAR=X": "AUD/ZAR (Aussie Dollar)",
+    "JPYZAR=X": "JPY/ZAR (Japanese Yen)",
+    "CADZAR=X": "CAD/ZAR (Canadian Dollar)",
+    "CHFZAR=X": "CHF/ZAR (Swiss Franc)",
+    "NZDZAR=X": "NZD/ZAR (Kiwi Dollar)",
+    
+    # 🌍 Global Forex Majors & Liquid Crosses
+    "GBPUSD=X": "GBP/USD (Cable)",
+    "EURUSD=X": "EUR/USD (Fiber)",
+    "USDJPY=X": "USD/JPY (Ninja)",
+    "AUDUSD=X": "AUD/USD (Aussie)",
+    "USDCAD=X": "USD/CAD (Loonie)",
+    "USDCHF=X": "USD/CHF (Swissie)",
+    "NZDUSD=X": "NZD/USD (Kiwi)",
+    "EURGBP=X": "EUR/GBP (Chunnel)",
+    "EURJPY=X": "EUR/JPY",
+    "GBPJPY=X": "GBP/JPY (Guppy)",
+    
+    # 🛢️ Global Hard & Soft Commodities Suite
+    "GC=F":     "Gold (Ounce Futures)",
+    "SI=F":     "Silver (Ounce Futures)",
+    "PL=F":     "Platinum (Ounce Futures)",
+    "PA=F":     "Palladium (Ounce Futures)",
+    "CL=F":     "Crude Oil (WTI Futures)",
+    "BZ=F":     "Brent Crude Oil Futures",
+    "NG=F":     "Natural Gas Futures",
+    "HG=F":     "Copper Futures",
+    "CC=F":     "Cocoa Futures",
+    "KC=F":     "Coffee Futures",
+    
+    # 🇿🇦 Johannesburg Stock Exchange (JSE Blue-Chip Heavyweights)
+    "SOL.JO":   "Sasol Ltd (JSE:SOL)",
+    "FSR.JO":   "FirstRand Ltd (JSE:FSR)",
+    "SBK.JO":   "Standard Bank Group (JSE:SBK)",
+    "ANG.JO":   "Anglogold Ashanti (JSE:ANG)",
+    "IMP.JO":   "Impala Platinum (JSE:IMP)",
+    "NPN.JO":   "Naspers Ltd (JSE:NPN)",
+    "PRX.JO":   "Prosus NV (JSE:PRX)",
+    "BTI.JO":   "British American Tobacco (JSE:BTI)",
+    "AGL.JO":   "Anglo American plc (JSE:AGL)",
+    "GFI.JO":   "Gold Fields Ltd (JSE:GFI)",
+    "SLM.JO":   "Sanlam Ltd (JSE:SLM)",
+    "ABG.JO":   "Absa Group Ltd (JSE:ABG)",
+    "NED.JO":   "Nedbank Group (JSE:NED)",
+    "MTN.JO":   "MTN Group Ltd (JSE:MTN)",
+    "VOD.JO":   "Vodacom Group (JSE:VOD)",
+    
+    # 🇺🇸 Wall Street Blue-Chips & Tech Giants
+    "AAPL":     "Apple Inc. (NASDAQ)",
+    "NVDA":     "NVIDIA Corporation (NASDAQ)",
+    "TSLA":     "Tesla Motors Inc. (NASDAQ)",
+    "MSFT":     "Microsoft Corp. (NASDAQ)",
+    "AMZN":     "Amazon.com Inc. (NASDAQ)",
+    "META":     "Meta Platforms (NASDAQ)",
+    "GOOGL":    "Alphabet Inc. (NASDAQ)",
+    "AMD":      "Advanced Micro Devices (NASDAQ)",
+    "NFLX":     "Netflix Inc. (NASDAQ)",
+    
+    # 🪙 Decentralized Digital Assets (Crypto Vectors)
+    "BTC-USD":  "Bitcoin / US Dollar",
+    "ETH-USD":  "Ethereum / US Dollar",
+    "SOL-USD":  "Solana / US Dollar",
+    "BNB-USD":  "Binance Coin / US Dollar",
+    "XRP-USD":  "Ripple / US Dollar",
+    
+    # 📉 Macro Stock Market Indices
+    "^GSPC":    "S&P 500 Index (US Market)",
+    "^NDX":     "NASDAQ 100 (US Tech)",
+    "^DJI":     "Dow Jones Industrial 30",
+    "^FTSE":    "FTSE 100 Index (London)",
+    "^GDAXI":   "DAX Performance Index (Germany)",
+    "^N225":    "Nikkei 225 Index (Japan)",
+    "^J203.JO": "JSE All Share Index (South Africa)"
 }
+
 display_options = list(ig_name_map.values())
 
 col_search, col_trigger = st.columns([0.75, 0.25])
