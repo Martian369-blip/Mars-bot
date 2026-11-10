@@ -35,8 +35,10 @@ except ImportError:
 st.set_page_config(page_title="MARS_BOT V16.0", page_icon="👽", layout="centered", initial_sidebar_state="collapsed")
 
 if has_layout_style:
-    try: lc.load_ig_style()
-    except Exception: pass
+    try:
+        lc.load_ig_style()
+    except Exception:
+        pass
 
 PERSISTENT_FILE = "ledger_vault.csv"
 
@@ -44,8 +46,10 @@ def load_persistent_ledger():
     if os.path.exists(PERSISTENT_FILE):
         try:
             df = pd.read_csv(PERSISTENT_FILE)
-            if not df.empty: return df
-        except Exception: pass
+            if not df.empty:
+                return df
+        except Exception:
+            pass
     return pd.DataFrame(columns=["Timestamp", "Asset", "Action", "Price", "Matrix RSI", "Status"])
 
 def save_persistent_ledger(df):
@@ -121,16 +125,25 @@ ig_name_map = {
 
 display_options = list(ig_name_map.values())
 
-# CRITICAL FIX: Safe state allocation loops ensure data elements are retained during dropdown switches
-if "journal_db" not in st.session_state: st.session_state["journal_db"] = load_persistent_ledger()
-if "cached_target_asset" not in st.session_state: st.session_state["cached_target_asset"] = "USDZAR=X"
-if "cached_display_name" not in st.session_state: st.session_state["cached_display_name"] = "USD/ZAR (US Dollar)"
-if "price" not in st.session_state: st.session_state["price"] = 18.2540
-if "direction" not in st.session_state: st.session_state["direction"] = "⏳ HOLD / STANDBY"
-if "color" not in st.session_state: st.session_state["color"] = "#757575"
-if "m15_rsi" not in st.session_state: st.session_state["m15_rsi"] = 50.0
-if "h1_rsi" not in st.session_state: st.session_state["h1_rsi"] = 50.0
-if "h4_rsi" not in st.session_state: st.session_state["h4_rsi"] = 50.0
+# Robust state checking mechanisms prevent duplicate flash overwrites
+if "journal_db" not in st.session_state:
+    st.session_state["journal_db"] = load_persistent_ledger()
+if "cached_target_asset" not in st.session_state:
+    st.session_state["cached_target_asset"] = "USDZAR=X"
+if "cached_display_name" not in st.session_state:
+    st.session_state["cached_display_name"] = "USD/ZAR (US Dollar)"
+if "price" not in st.session_state:
+    st.session_state["price"] = 18.2540
+if "direction" not in st.session_state:
+    st.session_state["direction"] = "⏳ HOLD / STANDBY"
+if "color" not in st.session_state:
+    st.session_state["color"] = "#757575"
+if "m15_rsi" not in st.session_state:
+    st.session_state["m15_rsi"] = 50.0
+if "h1_rsi" not in st.session_state:
+    st.session_state["h1_rsi"] = 50.0
+if "h4_rsi" not in st.session_state:
+    st.session_state["h4_rsi"] = 50.0
 
 def process_macro_volatility_gauge():
     current_time = datetime.datetime.now()
@@ -163,7 +176,6 @@ st.markdown("<h2 style='text-align: center; color: #FFFFFF !important; margin-bo
 
 col_search, col_trigger = st.columns([0.75, 0.25])
 with col_search:
-    # Use internal session index lookup to match options dynamically without dropping data positions
     try:
         current_index = display_options.index(st.session_state["cached_display_name"])
     except ValueError:
@@ -176,7 +188,6 @@ selected_ticker = reverse_map.get(chosen_display, "USDZAR=X")
 with col_trigger:
     search_activated = st.button("🛰️ SCAN")
 
-# Engine pipeline triggers on button clicks or changes to target tickers
 if search_activated or st.session_state["cached_target_asset"] != selected_ticker:
     st.session_state["cached_target_asset"] = selected_ticker
     st.session_state["cached_display_name"] = chosen_display
@@ -199,7 +210,7 @@ if search_activated or st.session_state["cached_target_asset"] != selected_ticke
                     st.session_state["direction"], st.session_state["color"] = "💥 CONVERGENT SELL", "#E53935"
                 else:
                     st.session_state["direction"], st.session_state["color"] = "⏳ HOLD / STANDBY", "#757575"
-    except Exception as e:
+    except Exception:
         pass
 
 st.sidebar.markdown("<h3 style='color:#4CAF50 !important; font-weight:900;'>☰ MAIN CORE</h3>", unsafe_allow_html=True)
@@ -209,3 +220,5 @@ page_select = st.sidebar.radio("CHOOSE MODULE SHEET:", options=navigation_sheets
 current_active_index = navigation_sheets.index(page_select)
 
 if current_active_index == 0:
+    st.markdown(f"#### 📡 Telemetry Feed Workspace: <span style='color:#4CAF50;'>{st.session_state['cached_display_name']}</span>", unsafe_allow_html=True)
+    
